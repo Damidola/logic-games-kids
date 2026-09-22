@@ -691,11 +691,30 @@ function refillRewardGifPool(target = 4) {
         });
 }
 
-// Бере вже готову (заздалегідь завантажену) гіфку зі запасу.
-// Якщо запас порожній — не чекаємо мережу, просто показуємо перемогу без картинки.
-function takeRewardGif() {
-    refillRewardGifPool(); // одразу почати готувати наступну
-    return rewardGifPool.length ? rewardGifPool.shift() : null;
+// Запасні картинки на випадок слабкого інтернету: 20 власних веселих тваринок,
+// що лежать прямо в репозиторії — вантажаться миттєво, без мережі.
+const LOCAL_REWARD_COUNT = 20;
+let localRewardBag = []; // перемішана черга, щоб тваринки не повторювались підряд
+
+function nextLocalReward() {
+    if (!localRewardBag.length) {
+        localRewardBag = Array.from({ length: LOCAL_REWARD_COUNT }, (_, i) => i + 1);
+        for (let i = localRewardBag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [localRewardBag[i], localRewardBag[j]] = [localRewardBag[j], localRewardBag[i]];
+        }
+    }
+    const n = localRewardBag.pop();
+    return 'img/rewards/reward-' + String(n).padStart(2, '0') + '.svg';
 }
 
-refillRewardGifPool(); // прогріваємо запас одразу, як тільки відкрилась сторінка
+// Бере вже готову (заздалегідь завантажену) гіфку з інтернету.
+// Якщо мережі мало і запас порожній — миттєво показуємо локальну картинку
+// замість того, щоб чекати чи лишати переможця зовсім без нагороди.
+function takeRewardGif() {
+    refillRewardGifPool(); // одразу почати готувати наступну
+    if (rewardGifPool.length) return rewardGifPool.shift();
+    return nextLocalReward();
+}
+
+refillRewardGifPool(); // прогріваємо запас гіфок з інтернету одразу, як тільки відкрилась сторінка
