@@ -261,10 +261,9 @@
     if (opts && opts.image) {
       Promise.resolve(opts.image).then(url => {
         if (!url) return imgSlot.remove();
-        const img = el('img', { alt: 'Нагорода за перемогу' });
-        img.onload = () => imgSlot.appendChild(img);
+        const img = el('img', { alt: 'Нагорода за перемогу', src: url });
         img.onerror = () => imgSlot.remove();
-        img.src = url;
+        imgSlot.appendChild(img);
       }).catch(() => imgSlot.remove());
     }
   }

@@ -666,7 +666,7 @@ function pickRewardUrl() {
             [rewardBag[i], rewardBag[j]] = [rewardBag[j], rewardBag[i]];
         }
     }
-    return 'img/rewards/cat-' + String(rewardBag.pop()).padStart(2, '0') + '.gif';
+    return 'img/rewards/cat-' + String(rewardBag.pop()).padStart(2, '0') + '.gif?v=2';
 }
 
 function refillRewardGifPool() {
