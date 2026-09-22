@@ -7,7 +7,7 @@ const MAX_UNDOS_MEDIUM = Infinity; // Было 3
 const AI_THINKING_DELAY_MS = 800;
 const HINT_HIGHLIGHT_DURATION_MS = 4000;
 const MIN_DRAG_DISTANCE = 5; // Pixels to start drag
-const CAT_API_TIMEOUT_MS = 7000; // Increased timeout slightly
+const CAT_API_TIMEOUT_MS = 7000; // Increased timeout slightly (used by legacy unused modal code in ui.js)
 
 // --- GUARANTEED CAT FALLBACK ---
 const fallbackCatImage = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E😹%3C/text%3E%3C/svg%3E`; // Fallback SVG emoji
@@ -100,6 +100,7 @@ let clickValidMoves = []; // Valid moves for the clicked piece
 // Initializes or restarts the game
 function initGame(keepOpponent = false, mode = 'pvai') {
     console.log(`Initializing game: KeepOpponent=${keepOpponent}`);
+    refillRewardGifPool(); // тримаємо запас гіфок-нагород напоготові
     gameOver = false;
     aiThinking = false;
     moveHistory = [];
@@ -256,7 +257,7 @@ function checkGameOver() {
         const again = { onAgain: () => initGame(false, gameMode) };
         if (winnerColor === playerColor) {
             const name = opponents[currentOpponentIndex] ? opponents[currentOpponentIndex].name : 'суперника';
-            LG.win('Ти переміг: ' + name + '! Спробуй наступного, сильнішого суперника ▶', Object.assign({ image: fetchCatGifUrl() }, again));
+            LG.win('Ти переміг: ' + name + '! Спробуй наступного, сильнішого суперника ▶', Object.assign({ image: takeRewardGif() }, again));
         } else {
             LG.lose('Цього разу виграв суперник. Спробуй підказку 💡 або скасуй хід ↩️.', again);
         }
@@ -649,13 +650,52 @@ function updateOpponentLabel() {
     if (levelEl) levelEl.textContent = 'Рівень ' + (currentOpponentIndex + 1) + ' з ' + opponents.length;
 }
 
-// Гіфка з котиком як нагорода (якщо сервіс недоступний — просто без картинки)
-function fetchCatGifUrl() {
-    const catApi = 'https://api.thecatapi.com/v1/images/search?mime_types=gif&limit=1';
-    const timeout = new Promise(resolve => setTimeout(() => resolve(null), CAT_API_TIMEOUT_MS));
-    const request = fetch(catApi)
-        .then(r => (r.ok ? r.json() : null))
-        .then(d => (d && d[0] && d[0].url) || null)
-        .catch(() => null);
-    return Promise.race([request, timeout]);
+// --- Гіфки-нагороди за перемогу ---
+// Завантажуємо їх заздалегідь, поки дитина грає, і зберігаємо вже готовий
+// запас (картинка лежить у кеші браузера). Завдяки цьому в момент перемоги
+// гіфка з'являється миттєво, без очікування мережі.
+const REWARD_GIF_APIS = [
+    'https://api.thecatapi.com/v1/images/search?mime_types=gif&limit=3',
+    'https://api.thedogapi.com/v1/images/search?mime_types=gif&limit=3'
+];
+let rewardGifPool = [];
+let rewardGifLoading = false;
+let rewardGifRetryDelay = 2000; // росте, якщо мережа недоступна, щоб не спамити запитами
+
+function preloadImage(url) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
 }
+
+function refillRewardGifPool(target = 4) {
+    if (rewardGifLoading || rewardGifPool.length >= target) return;
+    rewardGifLoading = true;
+    const api = REWARD_GIF_APIS[Math.floor(Math.random() * REWARD_GIF_APIS.length)];
+    fetch(api)
+        .then(r => (r.ok ? r.json() : []))
+        .then(list => Promise.all((list || []).map(d => (d && d.url) ? preloadImage(d.url) : null)))
+        .then(urls => { urls.filter(Boolean).forEach(u => rewardGifPool.push(u)); })
+        .catch(() => { /* немає інтернету — просто граємо без гіфок */ })
+        .finally(() => {
+            rewardGifLoading = false;
+            if (rewardGifPool.length < target) {
+                setTimeout(() => refillRewardGifPool(target), rewardGifRetryDelay);
+                rewardGifRetryDelay = Math.min(rewardGifRetryDelay * 2, 60000); // не частіше ніж раз на хвилину
+            } else {
+                rewardGifRetryDelay = 2000;
+            }
+        });
+}
+
+// Бере вже готову (заздалегідь завантажену) гіфку зі запасу.
+// Якщо запас порожній — не чекаємо мережу, просто показуємо перемогу без картинки.
+function takeRewardGif() {
+    refillRewardGifPool(); // одразу почати готувати наступну
+    return rewardGifPool.length ? rewardGifPool.shift() : null;
+}
+
+refillRewardGifPool(); // прогріваємо запас одразу, як тільки відкрилась сторінка
