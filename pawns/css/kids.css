@@ -1,0 +1,69 @@
+/* Світла дитяча тема поверх старих стилів */
+:root {
+    --piece-white: #FFFFFF;
+    --piece-white-outline: #2D2A4A;
+    --piece-black: #2D2A4A;
+}
+html.lg body.lg-game { padding-bottom: 24px; touch-action: manipulation; }
+
+.game-container {
+    background: transparent; box-shadow: none;
+    min-height: 0; padding: 0 4px; gap: 10px;
+    max-width: 520px;
+}
+.status-area { position: static; height: auto; max-height: none; padding: 0; }
+#opponent-selector { justify-content: center; padding: 0; gap: 10px; width: 100%; }
+.opponent-card {
+    flex: 1; max-width: 330px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 14px 8px 8px; border-radius: 20px;
+    background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
+    text-align: left;
+}
+#ai-avatar {
+    width: 64px; height: 64px; max-width: none; max-height: none;
+    border-radius: 18px; border: 0; box-shadow: none; background: var(--lg-surface-2); flex: none;
+}
+.opponent-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.opponent-text .vs { font-size: 13px; font-weight: 800; color: var(--lg-muted); }
+.opponent-text b { font-size: 20px; font-weight: 900; }
+.opponent-text #ai-level { font-size: 13px; font-weight: 800; color: var(--lg-primary); }
+
+.game-controls button, .arrow-button {
+    font-family: var(--lg-font); font-weight: 800; color: var(--lg-ink); text-shadow: none;
+    background: #fff; border: 2px solid var(--lg-line); border-radius: 16px;
+    box-shadow: 0 4px 0 var(--lg-line);
+    min-width: 54px; min-height: 52px;
+}
+.game-controls button:hover:not(:disabled), .arrow-button:hover:not(:disabled) {
+    background: var(--lg-primary-soft); transform: none; box-shadow: 0 4px 0 var(--lg-line);
+}
+.game-controls button:active:not(:disabled), .arrow-button:active:not(:disabled) { transform: translateY(4px); top: 0; box-shadow: none; }
+.game-controls button:disabled { opacity: .45; }
+.arrow-button { width: 52px; height: 52px; border-radius: 16px; font-size: 20px; }
+.arrow-button:disabled { opacity: .35; }
+.toggle-button.active { background: var(--lg-primary-soft); color: var(--lg-ink); }
+.counter { font-size: 14px; font-weight: 900; color: var(--lg-primary); }
+.game-controls { padding: 6px 0 0; margin-top: 0; flex-wrap: wrap; }
+
+.board-wrapper {
+    margin: 0 auto; padding: 0; max-width: min(100%, calc(100dvh - 330px), 480px); min-width: 280px;
+}
+#chessboard {
+    border: 8px solid #2D2A4A; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 8px 0 rgba(45, 42, 74, .18);
+}
+.theme-toggle-button {
+    position: absolute; left: -4px; bottom: -58px; margin: 0;
+    width: 46px; height: 46px; border-radius: 14px; font-size: 22px;
+    background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 3px 0 var(--lg-line);
+}
+.theme-toggle-button:hover { background: var(--lg-primary-soft); transform: none; }
+.captured-pawns-counter {
+    position: absolute; right: -4px; bottom: -52px;
+    background: #fff; color: var(--lg-ink); border: 2px solid var(--lg-line);
+    border-radius: 999px; padding: 6px 12px; font-size: 15px; font-weight: 800; box-shadow: none;
+}
+.board-wrapper { margin-bottom: 56px; }
+
+#win-modal { display: none !important; }

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чотири в ряд</title>
+    <link rel="stylesheet" href="../shared/kit.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="legend"><span><i class="dot player"></i> Ти</span><span>проти</span><span><i class="dot ai"></i> Робот</span></div>
+        
+        <div id="board" class="board"></div>
+        
+        <div class="controls">
+            <button id="new-game" class="btn btn-primary">✨ Нова гра</button>
+            <button id="difficulty-button" class="btn">
+                <span>🤖 Сила</span>
+                <div class="menu-dots">
+                    <span class="menu-dot active"></span>
+                    <span class="menu-dot"></span>
+                    <span class="menu-dot"></span>
+                </div>
+            </button>
+            <button id="undo-button" class="btn">↩️ Назад</button>
+        </div>
+        
+        <div id="game-over" class="game-over">
+            <div class="game-over-modal">
+                <h2 id="winner-message"></h2>
+                <button id="play-again" class="btn">Грати знову</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../shared/games.js"></script>
+    <script src="../shared/kit.js" data-game="connect4"></script>
+    <script src="game.js"></script>
+</body>
+</html>

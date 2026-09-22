@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пішаки</title>
+    <!-- Link Google Fonts -->
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/board.css">
+    <link rel="stylesheet" href="css/ui.css">
+    <link rel="stylesheet" href="../shared/kit.css">
+    <link rel="stylesheet" href="css/kids.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="top-bar"></div>
+
+        <!-- Status and Opponent Selector -->
+        <div class="status-area">
+            <!-- Opponent Selector (hidden in PvP by CSS) -->
+            <div id="opponent-selector">
+                <button id="prev-opponent" class="arrow-button" title="Попередній суперник">◀</button>
+                <div class="opponent-card">
+                    <img id="ai-avatar" src="" alt="Суперник"> <!-- src set by JS -->
+                    <div class="opponent-text"><span class="vs">Твій суперник</span><b id="ai-name"></b><span id="ai-level"></span></div>
+                </div>
+                <button id="next-opponent" class="arrow-button" title="Наступний суперник">▶</button>
+            </div>
+        </div>
+        
+        <!-- Board -->
+        <div class="board-wrapper">
+            <div id="chessboard"></div>
+            <button id="theme-toggle-button" class="theme-toggle-button" title="Змінити тему дошки">🎨</button>
+            <div id="captured-pawns-counter" class="captured-pawns-counter">
+                <span class="pawn-icon"></span>
+                <span class="count">0</span>
+            </div>
+        </div>
+
+        <!-- Game Controls -->
+        <div class="game-controls">
+            <!-- Left Controls -->
+            <button id="restart-button" title="Перезапустити гру">🔄</button>
+            <button id="flip-board-button" title="Перевернути дошку">⚫</button>
+            
+            <!-- Center Controls -->
+            <div class="center-buttons">
+                <button id="undo-button" title="Скасувати хід">↩️ <span id="undo-count" class="counter"></span></button>
+                <button id="hint-button" title="Підказка">💡 <span id="hint-count" class="counter"></span></button>
+                <button id="en-passant-toggle" class="toggle-button active" title="Взяття на проході: Увімкнено">
+                    <span class="icon"></span>
+                </button>
+            </div>
+        </div>
+    </div> <!-- End game-container -->
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" title="Закрити">×</span>
+            <h2 id="win-message">Перемога</h2>
+            <img id="cat-photo" src="" alt="Котик для переможця!">
+            <div class="modal-buttons">
+                <button id="play-again-button">Грати знову</button>
+                <button id="ok-button">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sound Effects -->
+    <audio id="move-sound" src="https://lichess.org/assets/sound/standard/Move.ogg" preload="auto"></audio>
+    <audio id="capture-sound" src="https://lichess.org/assets/sound/standard/Capture.ogg" preload="auto"></audio>
+    <audio id="win-sound" src="img/avatars/win.mp3" preload="auto"></audio>
+
+    <!-- JavaScript Files -->
+    <script src="../shared/games.js"></script>
+    <script src="../shared/kit.js" data-game="pawns"></script>
+    <script src="js/game.js"></script>      <!-- Defines state, constants, move logic, game init -->
+    <script src="js/ai.js"></script>         <!-- AI logic, depends on game state/moves -->
+    <script src="js/ui.js"></script>         <!-- UI elements, rendering, modal (contains board.js, modal.js) -->
+    <script src="js/interaction.js"></script> <!-- Event listeners, handlers, main init (contains events.js) -->
+</body>
+</html>

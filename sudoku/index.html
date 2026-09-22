@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Звірячі судоку</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
+  <link rel="stylesheet" href="../shared/kit.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="sd">
+    <section class="sd-setup" aria-label="Налаштування гри">
+      <div class="seg" role="radiogroup" aria-label="Розмір поля" id="size">
+        <button type="button" role="radio" data-size="4">4×4</button>
+        <button type="button" role="radio" data-size="6">6×6</button>
+        <button type="button" role="radio" data-size="9">9×9</button>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Складність" id="level">
+        <button type="button" role="radio" data-level="0" title="Легко">🙂</button>
+        <button type="button" role="radio" data-level="1" title="Середньо">🤔</button>
+        <button type="button" role="radio" data-level="2" title="Складно">🧠</button>
+      </div>
+      <button type="button" class="lg-btn lg-btn-primary" id="new">✨ Нова гра</button>
+    </section>
+
+    <div class="sd-status">
+      <span id="progress" class="chip">🐾 0/0</span>
+      <span id="timer" class="chip" title="Час">⏱ 0:00</span>
+      <span id="hintsUsed" class="chip" title="Використано підказок">💡 0</span>
+    </div>
+
+    <div class="sd-board-wrap">
+      <div id="board" class="sd-board" role="grid" aria-label="Поле судоку"></div>
+    </div>
+
+    <div id="palette" class="sd-palette" aria-label="Звірята"></div>
+
+    <div class="sd-tools">
+      <button type="button" class="tool" id="undo"><span>↩️</span>Назад</button>
+      <button type="button" class="tool" id="erase"><span>🧽</span>Стерти</button>
+      <button type="button" class="tool" id="hint"><span>💡</span>Підказка</button>
+    </div>
+
+    <details class="sd-options">
+      <summary>⚙️ Налаштування</summary>
+      <label class="switch"><input type="checkbox" id="optDigits"> <span>Цифри замість звірят</span></label>
+      <label class="switch"><input type="checkbox" id="optMistakes" checked> <span>Підсвічувати помилки</span></label>
+      <label class="switch"><input type="checkbox" id="optSame" checked> <span>Показувати однакових звірят</span></label>
+    </details>
+  </main>
+
+  <script src="../shared/games.js"></script>
+  <script src="../shared/kit.js" data-game="sudoku"></script>
+  <script src="sudoku.js"></script>
+</body>
+</html>

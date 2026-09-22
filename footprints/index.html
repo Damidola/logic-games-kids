@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сліди</title>
+    <link rel="stylesheet" href="../shared/kit.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-info">
+            <div id="current-player" aria-live="polite">Твій хід</div>
+            <div id="game-status"></div>
+        </div>
+        <div class="board" id="chessboard"></div>
+        <div class="legend"><span><i class="tr white"></i> твої сліди</span><span><i class="tr black"></i> сліди робота</span></div>
+        <button id="play-again-button">🔄 Нова гра</button>
+        <div class="game-options">
+            <label class="random-position-option">
+                <input type="checkbox" id="random-positions-checkbox">
+                Випадкові початкові позиції
+            </label>
+        </div>
+    </div>
+
+    <div class="victory-window" id="victory-window">
+        <h2>Ти виграв!</h2>
+        <p>Вітаємо з перемогою!</p>
+        <button onclick="currentGame.startNewGame()">Грати знову</button>
+    </div>
+
+    <div class="victory-window defeat" id="defeat-window">
+        <h2>Ти програв!</h2>
+        <p>Спробуй ще раз!</p>
+        <button onclick="currentGame.startNewGame()">Грати знову</button>
+    </div>
+
+    <script src="../shared/games.js"></script>
+    <script src="../shared/kit.js" data-game="footprints"></script>
+    <script src="game.js"></script>
+</body>
+</html> 

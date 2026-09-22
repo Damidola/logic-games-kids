@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="uk" class="lg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Логічні ігри для дітей</title>
+  <meta name="description" content="Безкоштовні логічні ігри для дітей українською: шашки, шахи, судоку зі звірятами, чотири в ряд та інші. З порадами для батьків.">
+  <meta name="theme-color" content="#FFF7EC">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
+  <link rel="stylesheet" href="shared/kit.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: var(--lg-font);
+      color: var(--lg-ink);
+      background-color: var(--lg-bg);
+      background-image:
+        radial-gradient(circle at 10% 8%, rgba(255, 179, 0, .18) 0 140px, transparent 141px),
+        radial-gradient(circle at 92% 20%, rgba(77, 163, 255, .15) 0 180px, transparent 181px),
+        radial-gradient(circle at 80% 95%, rgba(46, 204, 154, .14) 0 160px, transparent 161px);
+      background-attachment: fixed;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 48px; }
+
+    /* ---------- шапка ---------- */
+    .hero {
+      display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
+      padding: 32px 0 18px;
+    }
+    .mascot {
+      width: 110px; height: 110px; border-radius: 34px;
+      display: grid; place-items: center; font-size: 72px;
+      background: var(--lg-surface); box-shadow: var(--lg-shadow);
+      animation: bob 3.2s ease-in-out infinite;
+    }
+    @keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
+    .hero h1 { margin: 0; font-size: clamp(32px, 6vw, 52px); font-weight: 900; line-height: 1.05; letter-spacing: -.5px; }
+    .hero h1 span { color: var(--lg-primary); }
+    .hero p { margin: 8px 0 0; font-size: clamp(17px, 2.4vw, 20px); color: var(--lg-muted); font-weight: 700; }
+    .progress { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 999px; background: var(--lg-surface);
+      border: 2px solid var(--lg-line); font-weight: 800; font-size: 15px;
+    }
+
+    /* ---------- фільтри ---------- */
+    .filters { display: flex; gap: 10px; overflow-x: auto; padding: 14px 2px 10px; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .filter {
+      flex: none; min-height: 44px; padding: 8px 16px; border-radius: 999px;
+      font: 800 16px var(--lg-font); color: var(--lg-ink);
+      background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer;
+      box-shadow: 0 3px 0 var(--lg-line);
+    }
+    .filter[aria-pressed="true"] { background: var(--lg-ink); color: #fff; border-color: var(--lg-ink); box-shadow: 0 3px 0 #15132b; }
+
+    /* ---------- картки ігор ---------- */
+    .grid {
+      display: grid; gap: 18px; margin-top: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    .card {
+      --c: #6C5CE7;
+      position: relative; display: flex; flex-direction: column;
+      text-decoration: none; color: inherit;
+      background: var(--lg-surface); border-radius: 24px; overflow: hidden;
+      border: 2px solid var(--lg-line);
+      box-shadow: 0 6px 0 var(--lg-line);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 var(--lg-line); }
+    .card:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--lg-line); }
+    .card:focus-visible { outline: 4px solid var(--lg-sky); outline-offset: 3px; }
+    .card-art {
+      position: relative; height: 128px; display: grid; place-items: center;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 0 26px, transparent 27px),
+        radial-gradient(circle at 85% 75%, rgba(255,255,255,.25) 0 40px, transparent 41px),
+        var(--c);
+    }
+    .card-art .big { font-size: 70px; filter: drop-shadow(0 6px 0 rgba(0,0,0,.12)); transition: transform .2s; }
+    .card:hover .big { transform: scale(1.1) rotate(-6deg); }
+    .badge-new {
+      position: absolute; top: 12px; left: 12px;
+      background: #fff; color: #E0413F; font-weight: 900; font-size: 13px;
+      padding: 4px 10px; border-radius: 999px; box-shadow: 0 3px 0 rgba(0,0,0,.12);
+    }
+    .wins {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255,255,255,.92); font-weight: 900; font-size: 14px;
+      padding: 4px 10px; border-radius: 999px;
+    }
+    .card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .card h2 { margin: 0; font-size: 22px; font-weight: 900; line-height: 1.15; }
+    .card p { margin: 0; color: var(--lg-muted); font-weight: 700; font-size: 15px; line-height: 1.35; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
+    .tag { font-size: 13px; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: var(--lg-surface-2); }
+    .level { letter-spacing: 1px; }
+    .empty { grid-column: 1 / -1; text-align: center; color: var(--lg-muted); font-weight: 800; padding: 30px; }
+
+    /* ---------- для батьків ---------- */
+    .parents {
+      margin-top: 44px; padding: 26px 22px; border-radius: 28px;
+      background: var(--lg-surface); border: 2px solid var(--lg-line); box-shadow: 0 6px 0 var(--lg-line);
+    }
+    .parents h2 { margin: 0 0 6px; font-size: 28px; font-weight: 900; }
+    .parents > p { margin: 0 0 18px; color: var(--lg-muted); font-weight: 700; font-size: 16px; }
+    .pgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .box { background: var(--lg-surface-2); border-radius: 20px; padding: 16px 18px; }
+    .box h3 { margin: 0 0 10px; font-size: 18px; font-weight: 900; }
+    .today { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+    .today b { display: block; font-size: 28px; font-weight: 900; }
+    .today span { font-size: 13px; font-weight: 800; color: var(--lg-muted); }
+    .week { display: flex; gap: 6px; align-items: flex-end; height: 74px; margin-top: 14px; }
+    .week div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; color: var(--lg-muted); height: 100%; justify-content: flex-end; }
+    .week i { display: block; width: 100%; max-width: 26px; border-radius: 6px 6px 3px 3px; background: var(--lg-primary); min-height: 3px; }
+    .week .is-today i { background: var(--lg-sun); }
+    .box select {
+      width: 100%; min-height: 46px; margin-top: 4px; padding: 8px 12px; border-radius: 12px;
+      border: 2px solid var(--lg-line); font: 800 16px var(--lg-font); color: var(--lg-ink); background: #fff;
+    }
+    .box p, .box li { font-size: 15px; line-height: 1.45; font-weight: 600; }
+    .box ul { margin: 0; padding-left: 20px; }
+    .skills { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .skills td { padding: 7px 4px; border-top: 1px solid var(--lg-line); vertical-align: top; }
+    .skills td:first-child { font-weight: 800; white-space: nowrap; padding-right: 10px; }
+    .skills td:last-child { color: var(--lg-muted); font-weight: 700; }
+    .link-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .reset { background: none; border: 0; color: var(--lg-muted); font: 700 14px var(--lg-font); text-decoration: underline; cursor: pointer; padding: 10px 0 0; }
+
+    footer { text-align: center; color: var(--lg-muted); font-weight: 700; font-size: 14px; margin-top: 36px; }
+
+    @media (max-width: 560px) {
+      .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; padding-top: 22px; gap: 12px; }
+      .mascot { width: 88px; height: 88px; font-size: 58px; border-radius: 28px; }
+      .progress { justify-content: center; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .card-art { height: 96px; }
+      .card-art .big { font-size: 52px; }
+      .card h2 { font-size: 18px; }
+      .card p { display: none; }
+      .card-body { padding: 10px 12px 12px; }
+      .tag { font-size: 12px; padding: 3px 7px; }
+      .parents { padding: 20px 14px; }
+      .skills td:first-child { white-space: normal; }
+    }
+    @media (prefers-reduced-motion: reduce) { .mascot { animation: none; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="mascot" aria-hidden="true">🦉</div>
+      <div>
+        <h1>Логічні <span>ігри</span></h1>
+        <p id="greeting">Привіт! У що пограємо сьогодні?</p>
+        <div class="progress" id="progress"></div>
+      </div>
+    </header>
+
+    <nav class="filters" aria-label="Фільтр ігор" id="filters"></nav>
+
+    <main class="grid" id="grid" aria-live="polite"></main>
+
+    <section class="parents" id="parents" aria-labelledby="parents-title">
+      <h2 id="parents-title">👨‍👩‍👧 Для батьків</h2>
+      <p>Усі ігри безкоштовні, без реклами й реєстрації. Прогрес зберігається лише на цьому пристрої.</p>
+      <div class="pgrid">
+        <div class="box">
+          <h3>📊 Сьогодні</h3>
+          <div class="today">
+            <div><b id="t-min">0</b><span>хвилин</span></div>
+            <div><b id="t-games">0</b><span>партій</span></div>
+            <div><b id="t-wins">0</b><span>перемог</span></div>
+          </div>
+          <div class="week" id="week" aria-label="Хвилини гри за останні 7 днів"></div>
+        </div>
+        <div class="box">
+          <h3>⏰ Нагадування про перерву</h3>
+          <p>Дитина побачить дружнє нагадування потягнутися й відпочити.</p>
+          <label for="break" class="lg-muted" style="font-weight:800;font-size:14px">Нагадати через:</label>
+          <select id="break">
+            <option value="0">Не нагадувати</option>
+            <option value="10">10 хвилин</option>
+            <option value="15">15 хвилин</option>
+            <option value="20">20 хвилин</option>
+            <option value="30">30 хвилин</option>
+            <option value="45">45 хвилин</option>
+          </select>
+          <button class="reset" id="reset" type="button">Скинути всю статистику</button>
+        </div>
+        <div class="box">
+          <h3>🧭 З чого почати</h3>
+          <ul>
+            <li><b>4–5 років:</b> Хрестики-нулики, Звірячі судоку 4×4, Чотири в ряд.</li>
+            <li><b>6–7 років:</b> Переправа, Пішаки, Шашки, Кути.</li>
+            <li><b>8+ років:</b> Сліди, Фігури й пішаки, Чешки, Шахи.</li>
+          </ul>
+          <p>Грайте разом перші кілька партій і обговорюйте ходи: «Чому ти пішов сюди?» — найкорисніше питання.</p>
+        </div>
+      </div>
+      <div class="box" style="margin-top:16px">
+        <h3>🧠 Що розвиває кожна гра</h3>
+        <table class="skills" id="skills"></table>
+      </div>
+      <div class="box" style="margin-top:16px" id="tools">
+        <h3>🛠️ Інструменти</h3>
+      </div>
+    </section>
+
+    <footer>Зроблено з любов’ю для маленьких мислителів 💜</footer>
+  </div>
+
+  <script src="shared/games.js"></script>
+  <script src="shared/kit.js"></script>
+  <script>
+  (function () {
+    const games = window.LG_GAMES;
+    const stats = LG.stats();
+    const log = LG.store.get('log', {});
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    // Привітання за часом доби
+    const h = new Date().getHours();
+    $('greeting').textContent =
+      h < 6 ? 'Ще не спиш? Одна коротка гра — і в ліжко 🌙' :
+      h < 12 ? 'Доброго ранку! Розімнемо мозок? ☀️' :
+      h < 18 ? 'Привіт! У що пограємо сьогодні?' :
+      'Добрий вечір! Час для гри на кмітливість 🌆';
+
+    function plural(n, one, few, many) {
+      const m10 = n % 10, m100 = n % 100;
+      if (m10 === 1 && m100 !== 11) return one;
+      if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+      return many;
+    }
+
+    // Загальний прогрес
+    const totalWins = Object.values(stats).reduce((a, s) => a + (s.wins || 0), 0);
+    const tried = Object.keys(stats).filter(k => games.some(g => g.id === k)).length;
+    $('progress').innerHTML =
+      `<span class="pill">⭐ ${totalWins} ${plural(totalWins, 'перемога', 'перемоги', 'перемог')}</span>` +
+      `<span class="pill">🎮 зіграно ${tried} з ${games.length} ігор</span>`;
+
+    // Фільтри
+    const FILTERS = [
+      { id: 'all', label: '✨ Усі', test: () => true },
+      { id: 'little', label: '🧸 Для малят', test: g => g.tags.includes('little') },
+      { id: 'puzzle', label: '🧩 Головоломки', test: g => g.tags.includes('puzzle') },
+      { id: 'classic', label: '🏛️ Класика', test: g => g.tags.includes('classic') },
+      { id: 'chess', label: '♟️ Шахові', test: g => g.tags.includes('chess') }
+    ];
+    let active = LG.store.get('filter', 'all');
+    if (!FILTERS.some(f => f.id === active)) active = 'all';
+
+    function renderFilters() {
+      $('filters').innerHTML = FILTERS.map(f =>
+        `<button class="filter" type="button" data-f="${f.id}" aria-pressed="${f.id === active}">${f.label}</button>`).join('');
+    }
+    $('filters').addEventListener('click', e => {
+      const b = e.target.closest('[data-f]');
+      if (!b) return;
+      active = b.dataset.f;
+      LG.store.set('filter', active);
+      renderFilters(); renderGrid();
+    });
+
+    function renderGrid() {
+      const f = FILTERS.find(x => x.id === active);
+      const list = games.filter(f.test);
+      $('grid').innerHTML = list.length ? list.map(g => {
+        const s = stats[g.id];
+        const mode = g.mode.includes('robot') ? '🤖 з роботом' : '🧩 сам';
+        return `<a class="card" href="${g.path}" style="--c:${g.color}">
+          <div class="card-art">
+            ${g.isNew ? '<span class="badge-new">Новинка!</span>' : ''}
+            ${s && s.wins ? `<span class="wins" title="Перемог">⭐ ${s.wins}</span>` : ''}
+            <span class="big" aria-hidden="true">${g.emoji}</span>
+          </div>
+          <div class="card-body">
+            <h2>${esc(g.title)}</h2>
+            <p>${esc(g.short)}</p>
+            <div class="meta">
+              <span class="tag">${g.age}+ р.</span>
+              <span class="tag">${mode}</span>
+              <span class="tag level" title="Складність">${'●'.repeat(g.level)}${'○'.repeat(3 - g.level)}</span>
+            </div>
+          </div>
+        </a>`;
+      }).join('') : '<div class="empty">Тут поки порожньо 🙈</div>';
+    }
+
+    // Батьківський блок
+    function renderParents() {
+      const dayKey = dt => dt.toISOString().slice(0, 10);
+      const today = dayKey(new Date());
+      const d = log[today] || { seconds: 0, games: 0, wins: 0 };
+      $('t-min').textContent = Math.round(d.seconds / 60);
+      $('t-games').textContent = d.games;
+      $('t-wins').textContent = d.wins;
+
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const dt = new Date(); dt.setDate(dt.getDate() - i);
+        const key = dayKey(dt);
+        days.push({ key, label: ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][dt.getDay()], min: Math.round(((log[key] || {}).seconds || 0) / 60) });
+      }
+      const max = Math.max(10, ...days.map(x => x.min));
+      $('week').innerHTML = days.map(x =>
+        `<div class="${x.key === today ? 'is-today' : ''}" title="${x.min} хв"><i style="height:${Math.max(4, x.min / max * 50)}px"></i>${x.label}</div>`).join('');
+
+      $('skills').innerHTML = games.map(g =>
+        `<tr><td>${g.emoji} ${esc(g.title)}</td><td>${esc(g.skills.join(', '))}</td></tr>`).join('');
+
+      $('tools').insertAdjacentHTML('beforeend', window.LG_TOOLS.map(t =>
+        `<p>${esc(t.short)}</p><div class="link-row"><a class="lg-btn" href="${t.path}">${t.emoji} ${esc(t.title)}</a></div>`).join(''));
+
+      const sel = $('break');
+      sel.value = String(LG.store.get('breakMinutes', 0));
+      sel.addEventListener('change', () => LG.store.set('breakMinutes', +sel.value));
+
+      $('reset').addEventListener('click', () => {
+        if (!confirm('Скинути всі перемоги та статистику на цьому пристрої?')) return;
+        LG.store.set('stats', {}); LG.store.set('log', {});
+        location.reload();
+      });
+    }
+
+    renderFilters();
+    renderGrid();
+    renderParents();
+  })();
+  </script>
+</body>
+</html>

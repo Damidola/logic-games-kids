@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хрестики-нулики</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; }
+        #game-container {
+            max-width: 440px; margin: 0 auto; padding: 0 16px 24px;
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+        }
+        #status {
+            font-weight: 900; font-size: 22px; min-height: 30px; text-align: center;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #status .who { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #fff; border: 2px solid var(--lg-line); }
+        #board {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            width: min(100%, 360px, calc(100dvh - 330px)); min-width: 240px; aspect-ratio: 1 / 1;
+            position: relative; padding: 10px; border-radius: 26px;
+            background: var(--lg-ink); box-shadow: 0 8px 0 rgba(45, 42, 74, .18);
+        }
+        .cell {
+            background: #fff; border-radius: 16px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: clamp(48px, 17vw, 84px); font-weight: 900; line-height: 1;
+            cursor: pointer; user-select: none; transition: background .15s, transform .1s;
+        }
+        .cell:hover:empty { background: #F1EDFF; }
+        .cell:active:empty { transform: scale(.95); }
+        .cell.x { color: #4DA3FF; animation: ttt-pop .25s cubic-bezier(.2, 1.8, .4, 1); }
+        .cell.o { color: #FF6B6B; animation: ttt-pop .25s cubic-bezier(.2, 1.8, .4, 1); }
+        @keyframes ttt-pop { from { transform: scale(.3); } to { transform: none; } }
+        .win-line { position: absolute; height: 12px; z-index: 10; pointer-events: none; }
+        .win-line::after {
+            content: ''; position: absolute; inset: 0; border-radius: 6px;
+            opacity: 0; transition: opacity .5s ease;
+        }
+        .win-line.x::after { background: #1E6FD9; }
+        .win-line.o::after { background: #D63031; }
+        .win-line.show::after { opacity: .9; }
+        #controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .button-group { display: flex; gap: 10px; }
+        #controls button {
+            min-height: 50px; padding: 10px 16px; border-radius: 16px;
+            font: 800 17px var(--lg-font); color: var(--lg-ink);
+            background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
+            cursor: pointer;
+        }
+        #controls button:active { transform: translateY(4px); box-shadow: none; }
+        #controls #new-game-btn { background: var(--lg-primary); color: #fff; border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; }
+        #controls button:disabled { opacity: .45; cursor: default; }
+        #controls button:disabled:active { transform: none; box-shadow: 0 4px 0 var(--lg-line); }
+        #change-symbol-btn.x b { color: #4DA3FF; }
+        #change-symbol-btn.o b { color: #FF6B6B; }
+        #modal { display: none !important; }
+        .hint-text { color: var(--lg-muted); font-weight: 700; font-size: 14px; text-align: center; margin: 0; }
+    </style>
+    <link rel="stylesheet" href="../shared/kit.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="status" aria-live="polite"></div>
+
+        <!-- Статус прибрано -->
+
+        <div id="board">
+            <!-- Клітинки будуть створені динамічно -->
+        </div>
+
+        <div id="controls">
+            <button id="new-game-btn">✨ Нова гра</button>
+            <button id="undo-btn" disabled>↩️ Назад</button>
+            <div class="button-group">
+                <button id="difficulty-btn">Легкий</button> <!-- Змінено початковий текст -->
+                <button id="change-symbol-btn" class="x">X</button> <!-- Змінено початковий текст і додано клас -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно для результатів -->
+    <div id="modal">
+        <div id="modal-content">
+            <p id="modal-text"></p>
+            <button id="restart-modal-btn">Знову</button> <!-- Змінено id і текст -->
+        </div>
+    </div>
+
+    <script src="../shared/games.js"></script>
+    <script src="../shared/kit.js" data-game="ttt"></script>
+    <script>
+        const boardElement = document.getElementById('board');
+        // statusElement видалено
+        const newGameBtn = document.getElementById('new-game-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const difficultyBtn = document.getElementById('difficulty-btn');
+        const changeSymbolBtn = document.getElementById('change-symbol-btn');
+        const modal = document.getElementById('modal');
+        const modalText = document.getElementById('modal-text');
+        const restartModalBtn = document.getElementById('restart-modal-btn'); // Новий id кнопки
+
+        const WINNING_COMBINATIONS = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        let boardState = Array(9).fill(null);
+        let currentPlayer;
+        let gameActive = true;
+        let difficultyLevels = ['easy', 'medium', 'hard'];
+        // Змінені назви для відображення
+        let difficultyNames = ['🙂 Легкий', '🤔 Середній', '🧠 Важкий'];
+        let currentDifficultyIndex = 0;
+        let history = [];
+        let playerSymbol = 'X';
+        let robotSymbol = 'O';
+
+        // --- Ініціалізація гри ---
+        function initializeGame() {
+            boardState.fill(null);
+            currentPlayer = playerSymbol;
+            gameActive = true;
+            history = [];
+            
+            // Сбрасываем сохраненную выигрышную комбинацию
+            winningCombination = null;
+            winningSymbol = null;
+            
+            // Удаляем все линии зачеркивания
+            document.querySelectorAll('.win-line').forEach(line => line.remove());
+            
+            updateDifficultyButton(); // Оновити текст кнопки складності
+            updateChangeSymbolButton(); // Оновити текст/клас кнопки символу
+            
+            undoBtn.disabled = true;
+            modal.style.display = 'none';
+
+            boardElement.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleCellClick);
+                boardElement.appendChild(cell);
+            }
+
+            updateStatus();
+            if (currentPlayer === robotSymbol) {
+                setTimeout(robotMove, 500);
+            }
+        }
+
+        // --- Обробка кліку по клітинці ---
+        function handleCellClick(event) {
+            if (!gameActive || currentPlayer !== playerSymbol) return;
+
+            const index = event.target.dataset.index;
+
+            if (boardState[index] === null) {
+                makeMove(index, playerSymbol);
+
+                if (gameActive && currentPlayer === robotSymbol) {
+                    // statusElement.textContent видалено
+                    setTimeout(robotMove, 500);
+                }
+            }
+        }
+
+        // --- Здійснення ходу ---
+        function makeMove(index, player) {
+            if (!gameActive || boardState[index] !== null) return;
+
+            saveHistory();
+
+            boardState[index] = player;
+            updateCell(index, player);
+
+            if (checkWin(player)) {
+                endGame(false, player);
+            } else if (boardState.every(cell => cell !== null)) {
+                endGame(true);
+            } else {
+                switchPlayer();
+            }
+            
+            // Обновляем состояние кнопки отмены после хода
+            undoBtn.disabled = history.length < 2 || !gameActive;
+        }
+
+        // --- Хід робота ---
+        function robotMove() {
+            if (!gameActive || currentPlayer !== robotSymbol) return;
+
+            let moveIndex = -1;
+            const difficulty = difficultyLevels[currentDifficultyIndex];
+
+            if (difficulty === 'easy') {
+                moveIndex = findRandomMove();
+            } else if (difficulty === 'medium') {
+                // "Тупіший" середній рівень
+                moveIndex = findDumbMediumMove(); // Використовуємо нову функцію
+            } else { // hard
+                moveIndex = findBestMove();
+            }
+
+            if (moveIndex !== -1) {
+                // Сохраняем историю для возможности отмены
+                saveHistory();
+
+                // Обновляем состояние доски
+                boardState[moveIndex] = robotSymbol;
+                updateCell(moveIndex, robotSymbol);
+
+                // Проверяем, есть ли победа или ничья
+                if (checkWin(robotSymbol)) {
+                    endGame(false, robotSymbol);
+                } else if (boardState.every(cell => cell !== null)) {
+                    endGame(true);
+                } else {
+                    switchPlayer();
+                }
+
+                // Обновляем состояние кнопки отмены после хода
+                undoBtn.disabled = history.length < 2 || !gameActive;
+            } else {
+                console.warn("Робот не зміг знайти хід!");
+                if (boardState.every(cell => cell !== null) && !checkWin(playerSymbol) && !checkWin(robotSymbol)) {
+                    endGame(true);
+                }
+            }
+        }
+
+        // --- Логіка вибору ходу для робота ---
+
+        function getEmptyCells() {
+            return boardState.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+        }
+
+        function findRandomMove() {
+            const emptyCells = getEmptyCells();
+            return emptyCells.length > 0 ? emptyCells[Math.floor(Math.random() * emptyCells.length)] : -1;
+        }
+
+        function findWinningMove(symbol) {
+             const emptyCells = getEmptyCells();
+             for (const index of emptyCells) {
+                 boardState[index] = symbol;
+                 if (checkWin(symbol)) {
+                     boardState[index] = null;
+                     return index;
+                 }
+                 boardState[index] = null;
+             }
+             return -1;
+        }
+
+        // Нова, "тупіша" логіка для середнього рівня
+        function findDumbMediumMove() {
+            // 1. Спробувати виграти
+            let move = findWinningMove(robotSymbol);
+            if (move !== -1) return move;
+
+            // 2. Блокування прибрано! Просто випадковий хід.
+            return findRandomMove();
+        }
+
+        function findBestMove() { // Складний рівень залишається як був
+             let move = findWinningMove(robotSymbol);
+             if (move !== -1) return move;
+             move = findWinningMove(playerSymbol);
+             if (move !== -1) return move;
+             if (boardState[4] === null) return 4;
+             const corners = [0, 2, 6, 8];
+             const emptyCorners = corners.filter(index => boardState[index] === null);
+             if (emptyCorners.length > 0) {
+                 return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+             }
+             const sides = [1, 3, 5, 7];
+             const emptySides = sides.filter(index => boardState[index] === null);
+             if (emptySides.length > 0) {
+                 return emptySides[Math.floor(Math.random() * emptySides.length)];
+             }
+            return findRandomMove();
+        }
+
+        // --- Перевірка перемоги ---
+        function checkWin(symbol) {
+            for (let i = 0; i < WINNING_COMBINATIONS.length; i++) {
+                const combination = WINNING_COMBINATIONS[i];
+                
+                // Проверяем все три ячейки в комбинации
+                if (boardState[combination[0]] === symbol && 
+                    boardState[combination[1]] === symbol && 
+                    boardState[combination[2]] === symbol) {
+                    
+                    // Сохраняем выигрышную комбинацию для возможного перерисовывания
+                    winningCombination = combination;
+                    winningSymbol = symbol;
+                    
+                    // Отображаем линию если игра активна
+                    // (не рисуем во время предсказательных проверок AI)
+                    if (gameActive) {
+                        drawWinLine(combination, symbol);
+                    }
+                    
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // --- Функция для рисования линии зачеркивания ---
+        function drawWinLine(combination, symbol) {
+            // Удаляем существующие линии
+            document.querySelectorAll('.win-line').forEach(line => line.remove());
+            
+            // Проверяем есть ли доска
+            if (!boardElement) {
+                console.error('Не найден элемент доски');
+                return;
+            }
+            
+            // Получаем ячейки по индексам
+            const cell0 = boardElement.children[combination[0]];
+            const cell2 = boardElement.children[combination[2]]; // Нужны только первая и последняя
+            
+            // Проверяем наличие ячеек
+            if (!cell0 || !cell2) {
+                console.error('Не удалось найти крайние ячейки для линии');
+                return;
+            }
+            
+            // Создаем линию
+            const line = document.createElement('div');
+            line.classList.add('win-line', symbol.toLowerCase());
+            
+            // Получаем координаты центров ПЕРВОЙ и ПОСЛЕДНЕЙ ячеек относительно ДОСКИ
+            const boardRect = boardElement.getBoundingClientRect();
+            const rect0 = cell0.getBoundingClientRect();
+            const rect2 = cell2.getBoundingClientRect();
+            
+            // Центр первой ячейки (относительно доски)
+            const startX = (rect0.left + rect0.width / 2) - boardRect.left;
+            const startY = (rect0.top + rect0.height / 2) - boardRect.top;
+            
+            // Центр последней ячейки (относительно доски)
+            const endX = (rect2.left + rect2.width / 2) - boardRect.left;
+            const endY = (rect2.top + rect2.height / 2) - boardRect.top;
+            
+            // Рассчитываем длину линии (дистанция между центрами)
+            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            
+            // Рассчитываем угол наклона линии
+            const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+            
+            // Устанавливаем стили линии
+            line.style.width = `${length}px`; 
+            line.style.left = `${startX}px`; // Позиционируем по центру первой ячейки
+            line.style.top = `${startY}px`; // Позиционируем по центру первой ячейки
+            line.style.transformOrigin = '0 50%'; // Вращаем относительно левого центра
+            line.style.transform = `rotate(${angle}deg) translateY(-50%)`; // Вращаем и центрируем по вертикали
+            
+            // Добавляем линию к доске
+            boardElement.appendChild(line);
+            
+            // Показываем линию с небольшой задержкой для анимации
+            setTimeout(() => {
+                line.classList.add('show');
+            }, 50);
+        }
+
+        // --- Завершення гри ---
+        function endGame(draw, winnerSymbol = null) {
+            gameActive = false;
+            undoBtn.disabled = true;
+            const again = { onAgain: initializeGame, delay: 1100 };
+            if (draw) {
+                updateStatus('🤝 Нічия!');
+                LG.draw('Ніхто не зібрав три в ряд. Це теж гарний результат!', again);
+            } else if (winnerSymbol === playerSymbol) {
+                updateStatus('🎉 Ти переміг!');
+                LG.win('Ти зібрав три в ряд!', again);
+            } else {
+                updateStatus('🤖 Цього разу виграв робот');
+                LG.lose('Робот зібрав три в ряд. Подивись на лінію — де можна було його зупинити?', again);
+            }
+        }
+
+        // --- Переключення гравця ---
+        function switchPlayer() {
+            currentPlayer = currentPlayer === playerSymbol ? robotSymbol : playerSymbol;
+            updateStatus();
+        }
+
+        function updateStatus(text) {
+            const st = document.getElementById('status');
+            if (text) { st.textContent = text; return; }
+            const cls = currentPlayer.toLowerCase();
+            st.innerHTML = currentPlayer === playerSymbol
+                ? 'Твій хід <span class="who cell ' + cls + '" style="font-size:24px">' + currentPlayer + '</span>'
+                : '🤖 Робот думає…';
+        }
+
+        // --- Оновлення відображення клітинки ---
+        function updateCell(index, symbol) {
+            const cell = boardElement.children[index];
+            // Перевіряємо, чи є елемент, перш ніж встановлювати textContent
+            if (cell) {
+                 cell.textContent = symbol;
+                 // Важливо спочатку видалити обидва класи, а потім додати потрібний
+                 cell.classList.remove('x', 'o');
+                 if (symbol) {
+                     cell.classList.add(symbol.toLowerCase());
+                 }
+            } else {
+                console.error(`Елемент з індексом ${index} не знайдено!`);
+            }
+        }
+
+        // --- Показ/закриття модального вікна ---
+        function showModal(message) {
+            modalText.textContent = message;
+            modal.style.display = 'flex';
+        }
+
+        // --- Історія та відміна ходу ---
+        function saveHistory() {
+            history.push({
+                board: [...boardState],
+                player: currentPlayer
+            });
+        }
+        function undoMove() {
+            // Забороняємо відміну, якщо модальне вікно відкрито
+            if (modal.style.display === 'flex') {
+                console.log("Не можна відмінити, коли відкрито вікно результату.");
+                return;
+            }
+            if (history.length < 2) return;
+
+            history.pop();
+            const previousState = history.pop();
+
+            if (previousState) {
+                boardState = [...previousState.board];
+                currentPlayer = previousState.player;
+                gameActive = true; // Дуже важливо відновити активність гри
+
+                // Сбрасываем сохраненную выигрышную комбинацию
+                winningCombination = null;
+                winningSymbol = null;
+
+                // Удаляем все линии зачеркивания
+                document.querySelectorAll('.win-line').forEach(line => line.remove());
+
+                for (let i = 0; i < 9; i++) {
+                    updateCell(i, boardState[i]); // Використовуємо updateCell для оновлення
+                }
+            }
+            
+            // Оновлюємо стан кнопки після відміни
+            undoBtn.disabled = history.length < 2;
+            updateStatus();
+        }
+
+
+        // --- Зміна складності ---
+         function cycleDifficulty() {
+             currentDifficultyIndex = (currentDifficultyIndex + 1) % difficultyLevels.length;
+             updateDifficultyButton();
+             console.log(`Складність змінено на: ${difficultyLevels[currentDifficultyIndex]}`);
+         }
+         function updateDifficultyButton() {
+             // Використовуємо масив difficultyNames для тексту кнопки
+             difficultyBtn.textContent = difficultyNames[currentDifficultyIndex];
+         }
+
+         // --- Зміна символу гравця ---
+         function changeSymbol() {
+              // Не дозволяємо змінювати символ під час активної гри, щоб уникнути плутанини
+             if (gameActive && history.length > 0) {
+                 LG.toast('Знак можна змінити на початку гри — натисни «Нова гра».');
+                 // Можна показати якесь повідомлення користувачу
+                 // alert("Завершіть або перезапустіть гру, щоб змінити символ.");
+                 return;
+             }
+             if (playerSymbol === 'X') {
+                 playerSymbol = 'O';
+                 robotSymbol = 'X';
+             } else {
+                 playerSymbol = 'X';
+                 robotSymbol = 'O';
+             }
+             console.log(`Гравець тепер грає за: ${playerSymbol}, Робот за: ${robotSymbol}`);
+             initializeGame(); // Перезапускаємо гру з новими символами
+         }
+         function updateChangeSymbolButton() {
+             changeSymbolBtn.innerHTML = 'Я граю: <b>' + playerSymbol + '</b>';
+             changeSymbolBtn.title = 'Змінити знак (можна до першого ходу)';
+             // Додаємо/видаляємо класи для стилізації кольору кнопки
+             changeSymbolBtn.classList.remove('x', 'o');
+             changeSymbolBtn.classList.add(playerSymbol.toLowerCase());
+         }
+
+        // --- Додавання обробників подій ---
+        newGameBtn.addEventListener('click', initializeGame);
+        undoBtn.addEventListener('click', undoMove); // Просто викликаємо undoMove
+        difficultyBtn.addEventListener('click', cycleDifficulty);
+        changeSymbolBtn.addEventListener('click', changeSymbol);
+        // Кнопка в модальному вікні тепер перезапускає гру
+        restartModalBtn.addEventListener('click', initializeGame);
+        // Закриття модального вікна по кліку поза ним (залишаємо для зручності)
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                 // При кліку поза модальним вікном просто закриваємо його, не перезапускаючи гру
+                 modal.style.display = 'none';
+            }
+        });
+
+        // Обработчик изменения размера окна для перерисовки линии
+        let winningCombination = null;
+        let winningSymbol = null;
+        let resizeTimeout = null;
+
+        window.addEventListener('resize', () => {
+            // Используем debounce для производительности
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (winningCombination && winningSymbol) {
+                    // Удаляем старые линии
+                    document.querySelectorAll('.win-line').forEach(line => line.remove());
+                    // Перерисовываем линию с новыми размерами
+                    drawWinLine(winningCombination, winningSymbol);
+                }
+            }, 100);
+        });
+
+        // --- Перший запуск гри ---
+        initializeGame();
+
+    </script>
+</body>
+</html>
