@@ -11,7 +11,7 @@ body { margin: 0; }
 
 #chessboard {
     display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-    width: min(100%, calc(100dvh - 300px)); min-width: 280px; aspect-ratio: 1;
+    width: min(100%, calc(100svh - 300px)); min-width: 280px; aspect-ratio: 1;
     padding: 8px; gap: 3px; border-radius: 22px;
     background: #2D2A4A; box-shadow: 0 8px 0 rgba(45, 42, 74, .18);
 }

@@ -12,13 +12,14 @@
             display: flex; flex-direction: column; align-items: center; gap: 14px;
         }
         #status {
-            font-weight: 900; font-size: 22px; min-height: 30px; text-align: center;
-            display: flex; align-items: center; gap: 8px;
+            font-weight: 900; font-size: 22px; height: 44px; line-height: 1; text-align: center;
+            display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
         }
-        #status .who { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #fff; border: 2px solid var(--lg-line); }
+        #status .who { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: #fff; border: 2px solid var(--lg-line); font-size: 26px; animation: none; }
         #board {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            width: min(100%, 360px, calc(100dvh - 330px)); min-width: 240px; aspect-ratio: 1 / 1;
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 10px;
+            width: min(100%, 360px, calc(100svh - 330px)); min-width: 240px; aspect-ratio: 1 / 1;
+            box-sizing: border-box; flex: none;
             position: relative; padding: 10px; border-radius: 26px;
             background: var(--lg-ink); box-shadow: 0 8px 0 rgba(45, 42, 74, .18);
         }
@@ -26,21 +27,19 @@
             background: #fff; border-radius: 16px;
             display: flex; justify-content: center; align-items: center;
             font-size: clamp(48px, 17vw, 84px); font-weight: 900; line-height: 1;
-            cursor: pointer; user-select: none; transition: background .15s, transform .1s;
+            min-width: 0; min-height: 0; overflow: hidden;
+            cursor: pointer; user-select: none; transition: background .15s;
         }
         .cell:hover:empty { background: #F1EDFF; }
         .cell:active:empty { transform: scale(.95); }
         .cell.x { color: #4DA3FF; animation: ttt-pop .25s cubic-bezier(.2, 1.8, .4, 1); }
         .cell.o { color: #FF6B6B; animation: ttt-pop .25s cubic-bezier(.2, 1.8, .4, 1); }
         @keyframes ttt-pop { from { transform: scale(.3); } to { transform: none; } }
-        .win-line { position: absolute; height: 12px; z-index: 10; pointer-events: none; }
-        .win-line::after {
-            content: ''; position: absolute; inset: 0; border-radius: 6px;
-            opacity: 0; transition: opacity .5s ease;
-        }
-        .win-line.x::after { background: #1E6FD9; }
-        .win-line.o::after { background: #D63031; }
-        .win-line.show::after { opacity: .9; }
+        .win-svg { position: absolute; inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px); pointer-events: none; z-index: 10; overflow: visible; }
+        .win-svg line { stroke-width: 14; stroke-linecap: round; stroke-dasharray: 400; stroke-dashoffset: 400; animation: ttt-draw .45s ease-out forwards; }
+        .win-svg.x line { stroke: #1E6FD9; }
+        .win-svg.o line { stroke: #D63031; }
+        @keyframes ttt-draw { to { stroke-dashoffset: 0; } }
         #controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
         .button-group { display: flex; gap: 10px; }
         #controls button {
@@ -314,69 +313,27 @@
 
         // --- Функция для рисования линии зачеркивания ---
         function drawWinLine(combination, symbol) {
-            // Удаляем существующие линии
-            document.querySelectorAll('.win-line').forEach(line => line.remove());
-            
-            // Проверяем есть ли доска
-            if (!boardElement) {
-                console.error('Не найден элемент доски');
-                return;
-            }
-            
-            // Получаем ячейки по индексам
-            const cell0 = boardElement.children[combination[0]];
-            const cell2 = boardElement.children[combination[2]]; // Нужны только первая и последняя
-            
-            // Проверяем наличие ячеек
-            if (!cell0 || !cell2) {
-                console.error('Не удалось найти крайние ячейки для линии');
-                return;
-            }
-            
-            // Создаем линию
-            const line = document.createElement('div');
-            line.classList.add('win-line', symbol.toLowerCase());
-            
-            // Получаем координаты центров ПЕРВОЙ и ПОСЛЕДНЕЙ ячеек относительно ДОСКИ
-            const boardRect = boardElement.getBoundingClientRect();
-            const rect0 = cell0.getBoundingClientRect();
-            const rect2 = cell2.getBoundingClientRect();
-            
-            // Центр первой ячейки (относительно доски)
-            const startX = (rect0.left + rect0.width / 2) - boardRect.left;
-            const startY = (rect0.top + rect0.height / 2) - boardRect.top;
-            
-            // Центр последней ячейки (относительно доски)
-            const endX = (rect2.left + rect2.width / 2) - boardRect.left;
-            const endY = (rect2.top + rect2.height / 2) - boardRect.top;
-            
-            // Рассчитываем длину линии (дистанция между центрами)
-            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
-            
-            // Рассчитываем угол наклона линии
-            const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
-            
-            // Устанавливаем стили линии
-            line.style.width = `${length}px`; 
-            line.style.left = `${startX}px`; // Позиционируем по центру первой ячейки
-            line.style.top = `${startY}px`; // Позиционируем по центру первой ячейки
-            line.style.transformOrigin = '0 50%'; // Вращаем относительно левого центра
-            line.style.transform = `rotate(${angle}deg) translateY(-50%)`; // Вращаем и центрируем по вертикали
-            
-            // Добавляем линию к доске
-            boardElement.appendChild(line);
-            
-            // Показываем линию с небольшой задержкой для анимации
-            setTimeout(() => {
-                line.classList.add('show');
-            }, 50);
+            document.querySelectorAll('.win-line, .win-svg').forEach(line => line.remove());
+            // Координати в сітці 300×300: центри клітинок — 50, 150, 250.
+            // Лінію трохи подовжуємо за крайні клітинки.
+            const pt = i => ({ x: (i % 3) * 100 + 50, y: Math.floor(i / 3) * 100 + 50 });
+            const a = pt(combination[0]), b = pt(combination[2]);
+            const dx = (b.x - a.x) / 200 * 30, dy = (b.y - a.y) / 200 * 30;
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 300 300');
+            svg.setAttribute('class', 'win-svg win-line ' + symbol.toLowerCase());
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', a.x - dx); line.setAttribute('y1', a.y - dy);
+            line.setAttribute('x2', b.x + dx); line.setAttribute('y2', b.y + dy);
+            svg.appendChild(line);
+            boardElement.appendChild(svg);
         }
 
         // --- Завершення гри ---
         function endGame(draw, winnerSymbol = null) {
             gameActive = false;
             undoBtn.disabled = true;
-            const again = { onAgain: initializeGame, delay: 1100 };
+            const again = { onAgain: initializeGame, delay: 1600 };
             if (draw) {
                 updateStatus('🤝 Нічия!');
                 LG.draw('Ніхто не зібрав три в ряд. Це теж гарний результат!', again);

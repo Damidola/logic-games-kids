@@ -47,7 +47,7 @@ html.lg body.lg-game { padding-bottom: 24px; touch-action: manipulation; }
 .game-controls { padding: 6px 0 0; margin-top: 0; flex-wrap: wrap; }
 
 .board-wrapper {
-    margin: 0 auto; padding: 0; max-width: min(100%, calc(100dvh - 330px), 480px); min-width: 280px;
+    margin: 0 auto; padding: 0; max-width: min(100%, calc(100svh - 330px), 480px); min-width: 280px;
 }
 #chessboard {
     border: 8px solid #2D2A4A; border-radius: 18px; overflow: hidden;

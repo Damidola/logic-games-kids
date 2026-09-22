@@ -8,7 +8,7 @@ body {
 
 #game-container {
     position: relative;
-    width: min(100%, 480px, calc(100dvh - 240px)); min-width: 280px;
+    width: min(100%, 480px, calc(100svh - 240px)); min-width: 280px;
     aspect-ratio: 1;
     border-radius: 22px; overflow: hidden;
     border: 8px solid #2D2A4A;

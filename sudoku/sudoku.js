@@ -344,7 +344,6 @@
       armed = armed === v ? 0 : v;
       LG.play('tap');
       paint();
-      if (armed) LG.toast('Тепер натискай на порожні клітинки ' + sym(v));
     }
   });
 

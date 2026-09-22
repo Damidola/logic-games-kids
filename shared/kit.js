@@ -234,29 +234,29 @@
     play(kind);
     if (kind === 'win') confetti();
     if (opts && opts.silent) return;
+    // Малюк ще не читає: велика картинка, одне слово і дві кнопки-іконки
     const cfg = {
-      win: { emoji: pick(['🏆', '🌟', '🥳', '🎉']), title: pick(PRAISE) },
-      lose: { emoji: pick(['💪', '🙂', '🐢']), title: pick(CHEER) },
+      win: { emoji: pick(['🏆', '🌟', '🥳', '🎉']), title: 'Перемога!' },
+      lose: { emoji: pick(['🙈', '🐢', '💪']), title: 'Ой!' },
       draw: { emoji: '🤝', title: 'Нічия!' }
     }[kind];
     const s = stats()[gameId] || { wins: 0 };
     const children = [
-      el('div', { class: 'lg-result-emoji', text: cfg.emoji }),
+      el('div', { class: 'lg-result-emoji', text: cfg.emoji, title: message || '' }),
       el('h2', { text: cfg.title })
     ];
-    if (message) children.push(el('p', { text: message }));
     const imgSlot = el('div', { class: 'lg-result-img' });
     if (opts && opts.image) children.push(imgSlot);
-    if (kind === 'win') children.push(el('p', { class: 'lg-result-stars', text: '⭐ Перемог у цій грі: ' + s.wins }));
-    if (kind === 'lose') children.push(el('p', { class: 'lg-muted', text: 'Кожна поразка — це урок. Подумай, який хід був вирішальним.' }));
-    const buttons = el('div', { class: 'lg-row' });
-    if (opts && opts.onAgain) {
-      buttons.appendChild(el('button', { class: 'lg-btn lg-btn-primary', text: '🔄 Ще раз', onclick: () => { closeModal(); opts.onAgain(); } }));
-    }
-    buttons.appendChild(el('button', { class: 'lg-btn' + (opts && opts.onAgain ? '' : ' lg-btn-primary'), text: opts && opts.onAgain ? 'Подивитись дошку' : 'Добре', onclick: closeModal }));
-    buttons.appendChild(el('a', { class: 'lg-btn lg-btn-ghost', href: root + 'index.html', text: '🏠 Усі ігри' }));
+    if (kind === 'win' && s.wins) children.push(el('p', { class: 'lg-result-stars', text: '⭐ ' + s.wins }));
+    const buttons = el('div', { class: 'lg-result-btns' });
+    const again = opts && opts.onAgain;
+    buttons.appendChild(el('button', {
+      class: 'lg-btn lg-btn-primary lg-btn-big', 'aria-label': 'Ще раз', title: 'Ще раз', text: '🔄',
+      onclick: () => { closeModal(); if (again) again(); }
+    }));
+    buttons.appendChild(el('a', { class: 'lg-btn lg-btn-big', href: root + 'index.html', 'aria-label': 'Усі ігри', title: 'Усі ігри', text: '🏠' }));
     children.push(buttons);
-    setTimeout(() => openModal(el('div', { class: 'lg-result lg-result-' + kind }, children)), (opts && opts.delay) || 600);
+    setTimeout(() => openModal(el('div', { class: 'lg-result lg-result-' + kind }, children)), Math.max((opts && opts.delay) || 0, 1800));
     // Картинка-нагорода (наприклад, котик) з'являється, коли завантажиться
     if (opts && opts.image) {
       Promise.resolve(opts.image).then(url => {
@@ -326,10 +326,6 @@
     document.body.classList.add('lg-game', 'lg-game-' + gameId);
     document.title = game.title + ' · Логічні ігри';
     buildBar();
-    if (!store.get('seen:' + gameId, false)) {
-      store.set('seen:' + gameId, true);
-      setTimeout(showRules, 400);
-    }
     tickStart = Date.now();
     setInterval(flushTime, 15000);
     document.addEventListener('visibilitychange', () => { flushTime(); if (!document.hidden) tickStart = Date.now(); });

@@ -710,8 +710,8 @@ body {
 /* ---------- Оновлений вигляд (спільний набір) ---------- */
 html.lg body.lg-game { justify-content: flex-start; gap: 14px; }
 #checkerboard {
-    width: min(92vw, calc(100dvh - 230px), 560px);
-    height: min(92vw, calc(100dvh - 230px), 560px);
+    width: min(92vw, calc(100svh - 230px), 560px);
+    height: min(92vw, calc(100svh - 230px), 560px);
     min-width: 280px; min-height: 280px;
     border-radius: 18px; overflow: hidden;
     box-shadow: 0 8px 0 rgba(45, 42, 74, .18);
