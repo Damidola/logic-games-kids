@@ -650,96 +650,37 @@ function updateOpponentLabel() {
     if (levelEl) levelEl.textContent = 'Рівень ' + (currentOpponentIndex + 1) + ' з ' + opponents.length;
 }
 
-// --- Гіфки-нагороди за перемогу ---
-// Завантажуємо їх заздалегідь, поки дитина грає, і зберігаємо вже готовий
-// запас (картинка лежить у кеші браузера). Завдяки цьому в момент перемоги
-// гіфка з'являється миттєво, без очікування мережі.
-//
-// ВАЖЛИВО: TheCatAPI і TheDogAPI без ключа доступу не завжди чесно фільтрують
-// mime_types=gif — іноді віддають звичайне статичне фото замість анімації.
-// Тому нижче є подвійний захист: (1) Giphy як основне джерело — там усе
-// контент за визначенням є гіфкою; (2) для будь-якого джерела приймаємо
-// URL, лише якщо він справді закінчується на .gif.
-const GIF_URL_RE = /\.gif(\?|$)/i;
-const REWARD_GIF_SOURCES = [
-    {
-        // Публічний demo-ключ Giphy для некомерційних хобі-проєктів (без реєстрації).
-        url: 'https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=funny%20animal&rating=g&limit=8&lang=uk',
-        parse: data => ((data && data.data) || []).map(d => d && d.images && (
-            (d.images.fixed_height && d.images.fixed_height.url) ||
-            (d.images.downsized_medium && d.images.downsized_medium.url) ||
-            (d.images.original && d.images.original.url)
-        ))
-    },
-    {
-        url: 'https://api.thecatapi.com/v1/images/search?mime_types=gif&limit=6',
-        parse: data => (data || []).map(d => d && d.url)
-    },
-    {
-        url: 'https://api.thedogapi.com/v1/images/search?mime_types=gif&limit=6',
-        parse: data => (data || []).map(d => d && d.url)
-    }
-];
-let rewardGifPool = [];
-let rewardGifLoading = false;
-let rewardGifRetryDelay = 2000; // росте, якщо мережа недоступна, щоб не спамити запитами
+// --- Гіфки з котами за перемогу ---
+// 13 анімованих гіфок лежать у репозиторії (img/rewards), тому показуються
+// завжди, навіть без інтернету. Наступну гіфку вантажимо заздалегідь,
+// щоб у момент перемоги вона з'явилась одразу.
+const REWARD_GIF_COUNT = 13;
+let rewardBag = [];
+let nextRewardUrl = null;
 
-function preloadImage(url) {
-    return new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = () => resolve(null);
-        img.src = url;
-    });
-}
-
-function refillRewardGifPool(target = 4) {
-    if (rewardGifLoading || rewardGifPool.length >= target) return;
-    rewardGifLoading = true;
-    const source = REWARD_GIF_SOURCES[Math.floor(Math.random() * REWARD_GIF_SOURCES.length)];
-    fetch(source.url)
-        .then(r => (r.ok ? r.json() : null))
-        .then(data => {
-            const urls = (source.parse(data) || []).filter(u => u && GIF_URL_RE.test(u));
-            return Promise.all(urls.map(preloadImage));
-        })
-        .then(urls => { urls.filter(Boolean).forEach(u => rewardGifPool.push(u)); })
-        .catch(() => { /* немає інтернету або джерело недоступне — спробуємо інше пізніше */ })
-        .finally(() => {
-            rewardGifLoading = false;
-            if (rewardGifPool.length < target) {
-                setTimeout(() => refillRewardGifPool(target), rewardGifRetryDelay);
-                rewardGifRetryDelay = Math.min(rewardGifRetryDelay * 2, 60000); // не частіше ніж раз на хвилину
-            } else {
-                rewardGifRetryDelay = 2000;
-            }
-        });
-}
-
-// Запасні картинки на випадок слабкого інтернету: 20 власних веселих тваринок,
-// що лежать прямо в репозиторії — вантажаться миттєво, без мережі.
-const LOCAL_REWARD_COUNT = 20;
-let localRewardBag = []; // перемішана черга, щоб тваринки не повторювались підряд
-
-function nextLocalReward() {
-    if (!localRewardBag.length) {
-        localRewardBag = Array.from({ length: LOCAL_REWARD_COUNT }, (_, i) => i + 1);
-        for (let i = localRewardBag.length - 1; i > 0; i--) {
+function pickRewardUrl() {
+    if (!rewardBag.length) {
+        rewardBag = Array.from({ length: REWARD_GIF_COUNT }, (_, i) => i + 1);
+        for (let i = rewardBag.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [localRewardBag[i], localRewardBag[j]] = [localRewardBag[j], localRewardBag[i]];
+            [rewardBag[i], rewardBag[j]] = [rewardBag[j], rewardBag[i]];
         }
     }
-    const n = localRewardBag.pop();
-    return 'img/rewards/reward-' + String(n).padStart(2, '0') + '.svg';
+    return 'img/rewards/cat-' + String(rewardBag.pop()).padStart(2, '0') + '.gif';
 }
 
-// Бере вже готову (заздалегідь завантажену) гіфку з інтернету.
-// Якщо мережі мало і запас порожній — миттєво показуємо локальну картинку
-// замість того, щоб чекати чи лишати переможця зовсім без нагороди.
+function refillRewardGifPool() {
+    if (nextRewardUrl) return;
+    nextRewardUrl = pickRewardUrl();
+    new Image().src = nextRewardUrl; // завантажуємо заздалегідь у кеш браузера
+}
+
 function takeRewardGif() {
-    refillRewardGifPool(); // одразу почати готувати наступну
-    if (rewardGifPool.length) return rewardGifPool.shift();
-    return nextLocalReward();
+    refillRewardGifPool();
+    const url = nextRewardUrl;
+    nextRewardUrl = null;
+    refillRewardGifPool(); // одразу готуємо наступну
+    return url;
 }
 
-refillRewardGifPool(); // прогріваємо запас гіфок з інтернету одразу, як тільки відкрилась сторінка
+refillRewardGifPool();
