@@ -1,69 +1,84 @@
-/* Світла дитяча тема поверх старих стилів */
+/* Світла дитяча тема: усе на одному екрані, без прокрутки */
 :root {
     --piece-white: #FFFFFF;
     --piece-white-outline: #2D2A4A;
     --piece-black: #2D2A4A;
 }
-html.lg body.lg-game { padding-bottom: 24px; touch-action: manipulation; }
-
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+html.lg body.lg-game {
+    position: fixed; inset: 0; margin: 0;
+    padding: calc(var(--lg-bar-h) + 8px) 10px 10px;
+    min-height: 0; height: 100svh;
+    touch-action: none;
+}
 .game-container {
     background: transparent; box-shadow: none;
-    min-height: 0; padding: 0 4px; gap: 10px;
-    max-width: 520px;
+    width: 100%; max-width: 520px; margin: 0 auto; padding: 0;
+    height: 100%; min-height: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
 }
-.status-area { position: static; height: auto; max-height: none; padding: 0; }
-#opponent-selector { justify-content: center; padding: 0; gap: 10px; width: 100%; }
+.top-bar { display: none; }
+.status-area { position: static; height: auto; max-height: none; padding: 0; width: 100%; flex: none; }
+#opponent-selector { justify-content: center; padding: 0; gap: 8px; width: 100%; }
 .opponent-card {
-    flex: 1; max-width: 330px;
-    display: flex; align-items: center; gap: 12px;
-    padding: 8px 14px 8px 8px; border-radius: 20px;
-    background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
+    flex: 1; min-width: 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 10px 6px 6px; border-radius: 18px;
+    background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 3px 0 var(--lg-line);
     text-align: left;
 }
 #ai-avatar {
-    width: 64px; height: 64px; max-width: none; max-height: none;
-    border-radius: 18px; border: 0; box-shadow: none; background: var(--lg-surface-2); flex: none;
+    width: 48px; height: 48px; max-width: none; max-height: none;
+    border-radius: 14px; border: 0; box-shadow: none; background: var(--lg-surface-2); flex: none;
 }
-.opponent-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.opponent-text .vs { font-size: 13px; font-weight: 800; color: var(--lg-muted); }
-.opponent-text b { font-size: 20px; font-weight: 900; }
-.opponent-text #ai-level { font-size: 13px; font-weight: 800; color: var(--lg-primary); }
+.opponent-text { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; flex: 1; }
+.opponent-text .vs { font-size: 12px; font-weight: 800; color: var(--lg-muted); }
+.opponent-text b { font-size: 18px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opponent-text #ai-level { font-size: 12px; font-weight: 800; color: var(--lg-primary); }
+.captured-pawns-counter {
+    position: static; flex: none;
+    background: var(--lg-surface-2); color: var(--lg-ink); border: 0;
+    border-radius: 999px; padding: 4px 10px; font-size: 15px; font-weight: 800; box-shadow: none;
+}
+.arrow-button {
+    width: 48px; height: 60px; min-width: 48px; max-width: none; max-height: none;
+    border-radius: 16px; font-size: 18px; padding: 0; flex: none;
+}
 
 .game-controls button, .arrow-button {
     font-family: var(--lg-font); font-weight: 800; color: var(--lg-ink); text-shadow: none;
-    background: #fff; border: 2px solid var(--lg-line); border-radius: 16px;
+    background: #fff; border: 2px solid var(--lg-line);
     box-shadow: 0 4px 0 var(--lg-line);
-    min-width: 54px; min-height: 52px;
 }
 .game-controls button:hover:not(:disabled), .arrow-button:hover:not(:disabled) {
     background: var(--lg-primary-soft); transform: none; box-shadow: 0 4px 0 var(--lg-line);
 }
 .game-controls button:active:not(:disabled), .arrow-button:active:not(:disabled) { transform: translateY(4px); top: 0; box-shadow: none; }
-.game-controls button:disabled { opacity: .45; }
-.arrow-button { width: 52px; height: 52px; border-radius: 16px; font-size: 20px; }
-.arrow-button:disabled { opacity: .35; }
+.game-controls button:disabled, .arrow-button:disabled { opacity: .4; }
 .toggle-button.active { background: var(--lg-primary-soft); color: var(--lg-ink); }
-.counter { font-size: 14px; font-weight: 900; color: var(--lg-primary); }
-.game-controls { padding: 6px 0 0; margin-top: 0; flex-wrap: wrap; }
+.counter { font-size: 12px; font-weight: 900; color: var(--lg-primary); }
 
+/* Рівно 5 кнопок в один ряд */
+.game-controls {
+    display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 8px;
+    width: 100%; padding: 0 0 4px; margin: 0; flex: none;
+}
+.center-buttons { display: contents; }
+.game-controls button {
+    flex: 1 1 0; min-width: 0; max-width: 90px; height: 56px; min-height: 0;
+    padding: 0 4px; border-radius: 16px; font-size: 24px; gap: 2px;
+}
+
+/* Дошка займає весь вільний простір, але лишається квадратною */
 .board-wrapper {
-    margin: 0 auto; padding: 0; max-width: min(100%, calc(100svh - 330px), 480px); min-width: 280px;
+    position: relative; margin: 0; padding: 0; flex: 0 1 auto; min-height: 0;
+    width: 100%; max-width: none; display: flex; align-items: center; justify-content: center;
 }
 #chessboard {
-    border: 8px solid #2D2A4A; border-radius: 18px; overflow: hidden;
-    box-shadow: 0 8px 0 rgba(45, 42, 74, .18);
+    width: min(100%, calc(100svh - var(--lg-bar-h) - 190px));
+    border: 6px solid #2D2A4A; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 6px 0 rgba(45, 42, 74, .18);
 }
-.theme-toggle-button {
-    position: absolute; left: -4px; bottom: -58px; margin: 0;
-    width: 46px; height: 46px; border-radius: 14px; font-size: 22px;
-    background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 3px 0 var(--lg-line);
-}
-.theme-toggle-button:hover { background: var(--lg-primary-soft); transform: none; }
-.captured-pawns-counter {
-    position: absolute; right: -4px; bottom: -52px;
-    background: #fff; color: var(--lg-ink); border: 2px solid var(--lg-line);
-    border-radius: 999px; padding: 6px 12px; font-size: 15px; font-weight: 800; box-shadow: none;
-}
-.board-wrapper { margin-bottom: 56px; }
+.theme-in-bar { font-size: 22px; }
 
 #win-modal { display: none !important; }

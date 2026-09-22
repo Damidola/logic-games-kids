@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/board.css?v=1790105296">
     <link rel="stylesheet" href="css/ui.css?v=1790105296">
     <link rel="stylesheet" href="../shared/kit.css?v=1790105296">
-    <link rel="stylesheet" href="css/kids.css?v=1790105296">
+    <link rel="stylesheet" href="css/kids.css?v=1790105572">
 </head>
 <body>
     <div class="game-container">
@@ -25,6 +25,10 @@
                 <div class="opponent-card">
                     <img id="ai-avatar" src="" alt="Суперник"> <!-- src set by JS -->
                     <div class="opponent-text"><span class="vs">Твій суперник</span><b id="ai-name"></b><span id="ai-level"></span></div>
+                    <div id="captured-pawns-counter" class="captured-pawns-counter">
+                        <span class="pawn-icon"></span>
+                        <span class="count">0</span>
+                    </div>
                 </div>
                 <button id="next-opponent" class="arrow-button" title="Наступний суперник">▶</button>
             </div>
@@ -34,10 +38,6 @@
         <div class="board-wrapper">
             <div id="chessboard"></div>
             <button id="theme-toggle-button" class="theme-toggle-button" title="Змінити тему дошки">🎨</button>
-            <div id="captured-pawns-counter" class="captured-pawns-counter">
-                <span class="pawn-icon"></span>
-                <span class="count">0</span>
-            </div>
         </div>
 
         <!-- Game Controls -->
@@ -82,5 +82,16 @@
     <script src="js/ai.js?v=1790105296"></script>         <!-- AI logic, depends on game state/moves -->
     <script src="js/ui.js?v=1790105296"></script>         <!-- UI elements, rendering, modal (contains board.js, modal.js) -->
     <script src="js/interaction.js?v=1790105296"></script> <!-- Event listeners, handlers, main init (contains events.js) -->
+    <script>
+        // Кнопку зміни кольорів дошки переносимо у верхню панель,
+        // щоб унизу лишилось рівно 5 кнопок і все вміщалось на екран.
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('theme-toggle-button');
+            const bar = document.querySelector('.lg-bar-actions');
+            if (btn && bar) { btn.className = 'lg-icon-btn theme-in-bar'; bar.prepend(btn); }
+        });
+        // Сторінку не можна прокручувати пальцем
+        document.addEventListener('touchmove', e => { if (!e.target.closest('.lg-modal')) e.preventDefault(); }, { passive: false });
+    </script>
 </body>
 </html>
