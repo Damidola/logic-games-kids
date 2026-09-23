@@ -18,7 +18,8 @@ export const choice = (label, key, def, options, onChange) => () => {
 };
 const colorName = s => (s === 'w' ? 'white' : 'black');
 
-/* startGame({ rules, root, options, view, autoClose, extraSettings(), sideNames }) */
+/* startGame({ rules, root, options, view, autoClose, extraSettings(), sideNames, quick })
+   quick: { key, def, options: [[значення, підпис], …] } — кнопки під дошкою (напр. розмір поля) */
 export function startGame(cfg) {
   const { rules } = cfg;
   const root = cfg.root || document.querySelector('main');
@@ -30,6 +31,7 @@ export function startGame(cfg) {
     <div class="lg-board-wrap"><div class="lg-board-el"></div>
       <button type="button" class="lg-pass" hidden>✅ Завершити хід</button></div>
     <div class="lg-material" data-side="bottom"></div>
+    ${cfg.quick ? `<div class="lg-quick" role="radiogroup">${cfg.quick.options.map(([v, t]) => `<button type="button" role="radio" data-v="${v}">${t}</button>`).join('')}</div>` : ''}
     <div class="lg-controls">
       <button type="button" data-act="flip"><span class="ico lg-side-dot"></span><span class="lbl">Колір</span></button>
       <button type="button" data-act="new"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
@@ -45,6 +47,7 @@ export function startGame(cfg) {
   let pos = 0;               // яку позицію зараз показано
   let hintsLeft, undosLeft, lastHint = null, thinking = false, over = false, aiTimer = null;
   let level = 1;
+  let paintQuick = () => {}; // кнопки під дошкою (якщо є)
   const state = () => history[pos];
   // «Грати з другом»: обидві сторони — люди на одному телефоні, робота немає
   const gameId = LG.game ? LG.game.id : 'game';
@@ -220,6 +223,7 @@ export function startGame(cfg) {
     hintsLeft = Number(LG.store.get('hints', '3'));
     undosLeft = Number(LG.store.get('undos', '3'));
     if (board) board.setOrientation(colorName(player));
+    paintQuick();
     render(false);
     if (!human(rules.turn(state()))) robotMove();
   }
@@ -276,6 +280,28 @@ export function startGame(cfg) {
       new: newGame, hint, undo, redo
     })[b.dataset.act]();
   });
+
+  // ---------- кнопки під дошкою (розмір поля тощо) ----------
+  // Посеред партії — двома тапами: перший лише просить «натисни ще раз», щоб випадково не стерти гру
+  if (cfg.quick) {
+    const q = cfg.quick, box = $('.lg-quick');
+    let pending = null, pendingTimer = null;
+    paintQuick = () => box.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === String(LG.store.get(q.key, q.def)))));
+    box.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.v === String(LG.store.get(q.key, q.def))) return;
+      const started = pos > 0 && !over;
+      if (started && pending !== b) {
+        box.querySelectorAll('.confirm').forEach(x => x.classList.remove('confirm'));
+        pending = b; b.classList.add('confirm'); LG.play('tap');
+        LG.toast('Натисни ще раз — почнемо нову гру');
+        clearTimeout(pendingTimer); pendingTimer = setTimeout(() => { pending = null; b.classList.remove('confirm'); }, 2500);
+        return;
+      }
+      pending = null; b.classList.remove('confirm');
+      LG.store.set(q.key, b.dataset.v); paintQuick(); newGame();
+    });
+  }
 
   // ---------- налаштування (спільні для всіх ігор) ----------
   LG.addSettings(() => {

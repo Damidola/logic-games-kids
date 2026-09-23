@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Остання сірника</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790179694">
-  <link rel="stylesheet" href="../shared/play.css?v=1790179694">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790179784">
+  <link rel="stylesheet" href="../shared/play.css?v=1790179784">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 480px); aspect-ratio: auto; }
     .nim-board { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 8px; box-sizing: border-box; background: #8B5A2B; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 3px, transparent 3px 18px); border-radius: 22px; }
@@ -26,18 +26,19 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790179694"></script>
-  <script src="../shared/kit.js?v=1790179694" data-game="nim" data-night="on"></script>
+  <script src="../shared/games.js?v=1790179784"></script>
+  <script src="../shared/kit.js?v=1790179784" data-game="nim" data-night="on"></script>
   <script type="module">
-    import { startGame, choice } from '../shared/game.js?v=1790179694';
-    import { createRules } from './rules.js?v=1790179694';
-    import { nimView } from './view.js?v=1790179694';
+    import { startGame, choice } from '../shared/game.js?v=1790179784';
+    import { createRules } from './rules.js?v=1790179784';
+    import { nimView } from './view.js?v=1790179784';
     let game;
     const again = () => game.newGame();
     game = startGame({
       rules: createRules({ misere: () => LG.store.get('nim:misere', '0') === '1', layout: () => LG.store.get('nim:rows', '1357') }),
       view: nimView,
       sideNames: { w: '🙂 Перший', b: '😎 Другий' },
+      quick: { key: 'nim:rows', def: '1357', options: [['345', '3·4·5'], ['1357', '1·3·5·7'], ['23456', '2…6']] },
       extraSettings: () => {
         const w = document.createElement('div');
         w.append(

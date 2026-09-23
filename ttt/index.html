@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Хрестики-нулики</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790179694">
-  <link rel="stylesheet" href="../shared/play.css?v=1790179694">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790179784">
+  <link rel="stylesheet" href="../shared/play.css?v=1790179784">
   <style>
     .ttt-board { --n: 3; --gap: calc(9% / var(--n)); position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr); gap: var(--gap); padding: var(--gap); box-sizing: border-box; background: var(--lg-ink); border-radius: calc(78px / var(--n)); aspect-ratio: 1; }
     html.lg-night .ttt-board { background: #3a3850; }
@@ -27,12 +27,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790179694"></script>
-  <script src="../shared/kit.js?v=1790179694" data-game="ttt" data-night="on"></script>
+  <script src="../shared/games.js?v=1790179784"></script>
+  <script src="../shared/kit.js?v=1790179784" data-game="ttt" data-night="on"></script>
   <script type="module">
-    import { startGame, choice } from '../shared/game.js?v=1790179694';
-    import { createRules } from './rules.js?v=1790179694';
-    import { tttView } from './view.js?v=1790179694';
+    import { startGame, choice } from '../shared/game.js?v=1790179784';
+    import { createRules } from './rules.js?v=1790179784';
+    import { tttView } from './view.js?v=1790179784';
     const size = () => LG.store.get('ttt:size', '3');
     let game;
     game = startGame({
@@ -40,6 +40,7 @@
       sideNames: { w: '✕ Хрестики', b: '◯ Нулики' },
       // 3×3 — гра швидка: вікно результату зникає через 2 с, і одразу нова партія
       autoClose: () => (size() === '3' ? 2000 : 0),
+      quick: { key: 'ttt:size', def: '3', options: [['3', '3×3'], ['4', '4×4'], ['5', '5×5'], ['8', '8×8'], ['10', '10×10']] },
       extraSettings: choice('Поле', 'ttt:size', '3', [['3', '3×3 · три в ряд'], ['4', '4×4 · чотири'], ['5', '5×5 · чотири'], ['8', '8×8 · п’ять'], ['10', '10×10 · п’ять']], () => game.newGame())
     });
   </script>

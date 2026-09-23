@@ -105,3 +105,9 @@ cg-board square.mark-red { background: rgba(255, 107, 107, .32); }
 .lg-turn[hidden] { display: none; }
 .lg-turn .lg-side-dot { width: 20px; height: 20px; }
 .lg-play:has(.lg-turn:not([hidden])) .lg-hero-slot { display: none; }
+
+/* ---------- кнопки під дошкою (розмір поля тощо) ---------- */
+.lg-quick { flex: none; display: inline-flex; gap: 4px; padding: 3px; border-radius: 14px; background: var(--lg-surface); border: 2px solid var(--lg-line); }
+.lg-quick button { min-width: 48px; min-height: 34px; padding: 2px 8px; border: 0; border-radius: 10px; font: 900 15px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer; }
+.lg-quick button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
+.lg-quick button.confirm { outline: 3px dashed #FF9F1C; outline-offset: 1px; }

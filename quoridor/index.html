@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Коридор</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790179694">
-  <link rel="stylesheet" href="../shared/play.css?v=1790179694">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790179784">
+  <link rel="stylesheet" href="../shared/play.css?v=1790179784">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 500px, calc(100svh - var(--lg-bar-h) - 16px - 150px - 60px)); }
     .qr-board { --n: 9; position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr); aspect-ratio: 1; background: #6B4226; border-radius: 14px; padding: 0; box-sizing: border-box; touch-action: manipulation; cursor: pointer; }
@@ -34,17 +34,18 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790179694"></script>
-  <script src="../shared/kit.js?v=1790179694" data-game="quoridor" data-night="on"></script>
+  <script src="../shared/games.js?v=1790179784"></script>
+  <script src="../shared/kit.js?v=1790179784" data-game="quoridor" data-night="on"></script>
   <script type="module">
-    import { startGame, choice } from '../shared/game.js?v=1790179694';
-    import { createRules } from './rules.js?v=1790179694';
-    import { quoridorView } from './view.js?v=1790179694';
+    import { startGame, choice } from '../shared/game.js?v=1790179784';
+    import { createRules } from './rules.js?v=1790179784';
+    import { quoridorView } from './view.js?v=1790179784';
     let game;
     game = startGame({
       rules: createRules({ size: () => LG.store.get('quoridor:size', '9') }),
       view: quoridorView,
       sideNames: { w: '🔵 Сині', b: '🔴 Червоні' },
+      quick: { key: 'quoridor:size', def: '9', options: [['5', '5×5'], ['7', '7×7'], ['9', '9×9']] },
       extraSettings: choice('Поле', 'quoridor:size', '9', [['5', '5×5 · 5 стінок'], ['7', '7×7 · 8 стінок'], ['9', '9×9 · 10 стінок']], () => game.newGame())
     });
   </script>
