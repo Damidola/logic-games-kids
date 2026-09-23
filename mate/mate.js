@@ -13,8 +13,14 @@ const main = document.querySelector('main.mt'), wrap = $('wrap');
 const DATA = await (await fetch(new URL('puzzles.json', import.meta.url))).json();
 
 const GROUPS = [
-  ['Мат', [
-    ['mate1', '🎯', 'Мат в 1 хід', 'Один хід — і королю нікуди тікати'],
+  ['Мат в 1 хід', [
+    ['m1rook', 'rook', 'Турою', 'Найпростіші — тура й король'],
+    ['m1queen', 'queen', 'Ферзем', 'Ферзь — найсильніша фігура'],
+    ['m1bishop', 'bishop', 'Слоном', 'Слон ходить навскоси'],
+    ['m1knight', 'knight', 'Конем', 'Кінь стрибає літерою «Г»'],
+    ['m1pawn', 'pawn', 'Пішаком', 'Хід пішаком або перетворення'],
+    ['m1mix', '🎲', 'Різні', 'Будь-якою фігурою']]],
+  ['Мат в 2 ходи', [
     ['mate2', '🏆', 'Мат в 2 ходи', 'Хід, відповідь суперника — і мат']]],
   ['Тактичні прийоми', [
     ['fork', '🍴', 'Вилка', 'Одна фігура нападає одразу на дві'],
@@ -22,6 +28,7 @@ const GROUPS = [
     ['skewer', '🏹', 'Прострел', 'Напад на цінну фігуру — вона тікає, і ти береш ту, що за нею'],
     ['discovered', '💥', 'Відкритий напад', 'Відійди фігурою — і відкрий удар іншої'],
     ['deflection', '🎣', 'Відволікання', 'Відтягни захисника з важливої клітинки'],
+    ['attraction', '🧲', 'Заманювання', 'Заманюй фігуру суперника на погану клітинку'],
     ['hanging', '🎁', 'Незахищена фігура', 'Забери фігуру, яку ніхто не захищає'],
     ['promotion', '👑', 'Пішак у ферзі', 'Проведи пішака до останнього ряду']]],
   ['Практика', [
@@ -30,6 +37,19 @@ const GROUPS = [
     ['kbbk', 'bishop', 'Два слони і король проти короля', 'Слони разом — і король у куті'],
     ['kpk', 'pawn', 'Король і пішак проти короля', 'Проведи пішака у ферзі й постав мат']]]
 ];
+// Завдання під дошкою — щоб завжди було зрозуміло, що робити
+const TASK = {
+  m1rook: 'Постав мат турою одним ходом.', m1queen: 'Постав мат ферзем одним ходом.', m1bishop: 'Постав мат слоном одним ходом.',
+  m1knight: 'Постав мат конем одним ходом.', m1pawn: 'Постав мат пішаком. Дійшов до кінця — обери, ким він стане!',
+  m1mix: 'Постав мат одним ходом.', mate2: 'Постав мат за 2 ходи: твій хід, відповідь суперника — і мат.',
+  fork: 'Зроби вилку: напади однією фігурою на дві — і забери одну.', pin: 'Зв’яжи фігуру суперника — і виграй матеріал.',
+  skewer: 'Напади на цінну фігуру: вона відійде — і ти забереш ту, що за нею.', discovered: 'Відійди фігурою так, щоб відкрився удар іншої, — і виграй матеріал.',
+  deflection: 'Відтягни захисника — і виграй фігуру.', attraction: 'Заманюй фігуру суперника на погану клітинку — і виграй.',
+  hanging: 'Знайди фігуру, яку ніхто не захищає, — і забери її.', promotion: 'Проведи пішака в ферзі так, щоб його не з’їли.',
+  kqk: 'Постав мат ферзем і королем. Ходів — скільки завгодно.', krk: 'Постав мат турою й королем: заганяй короля до краю.',
+  kbbk: 'Постав мат двома слонами: заганяй короля в кут.', kpk: 'Проведи пішака в ферзі — і постав мат.'
+};
+const MATE_SEC = k => k.startsWith('m1') || k === 'mate2';
 const INFO = Object.fromEntries(GROUPS.flatMap(([, list]) => list.map(([k, ic, title, sub]) => [k, { ic, title, sub }])));
 const PRACTICE = ['kqk', 'krk', 'kbbk', 'kpk'];
 const icon = ic => /^[a-z]+$/.test(ic) ? `<mpiece class="${ic} white"></mpiece>` : ic;
@@ -49,6 +69,41 @@ function playUci(p, uci) { const m = parseUci(uci), q = p.clone(); sound(p, m); 
 const promoFor = (p, from, to) => p.board.get(parseSquare(from))?.role === 'pawn' && (to[1] === '8' || to[1] === '1');
 const allowMoves = () => board.setMovable(userColor, compat.chessgroundDests(pos));
 const shake = () => { wrap.classList.remove('wrong'); void wrap.offsetWidth; wrap.classList.add('wrong'); };
+
+// Тимчасовий напис під дошкою
+let flash = 0;
+function say(text) {
+  $('task').textContent = text; $('task').classList.add('say');
+  clearTimeout(flash); flash = setTimeout(() => { flash = 0; $('task').classList.remove('say'); paint(); }, 1900);
+}
+// Як суперник рятується від шаху: король тікає, фігуру, що шахує, б'ють або закриваються
+function escape(p) {
+  const list = [];
+  for (const [from, dests] of p.allDests()) for (const to of dests) {
+    const pc = p.board.get(from), victim = p.board.get(to);
+    const m = { from, to, promotion: pc.role === 'pawn' && (to >> 3 === 0 || to >> 3 === 7) ? 'queen' : undefined };
+    const uci = makeSquare(from) + makeSquare(to) + (m.promotion ? 'q' : '');
+    if (pc.role === 'king' && victim && victim.color === pc.color) continue; // рокіровка
+    list.push({ uci, rank: pc.role === 'king' ? (victim ? 1 : 0) : victim ? 2 : 3,
+      text: pc.role === 'king' ? (victim ? 'Король збив фігуру — це не мат' : 'Король утік — це ще не мат') : victim ? 'Фігуру, що шахує, збили — це не мат' : 'Від шаху закрилися — це не мат' });
+  }
+  list.sort((a, b) => a.rank - b.rank);
+  return list[0];
+}
+// Вибір фігури для перетворення пішака, як на Lichess
+function askPromotion(to, color) {
+  return new Promise(done => {
+    const white = board.cg.state.orientation === 'white', f = 'abcdefgh'.indexOf(to[0]);
+    const col = white ? f : 7 - f, top = (to[1] === '8') === white;
+    const el = document.createElement('div');
+    el.className = 'mt-promo';
+    el.innerHTML = ['queen', 'knight', 'rook', 'bishop'].map((r, i) =>
+      `<button type="button" data-r="${r}" style="left:${col * 12.5}%;${top ? 'top' : 'bottom'}:${i * 12.5}%"><mpiece class="${r} ${color}"></mpiece></button>`).join('');
+    const finish = r => { el.remove(); done(r ? { queen: 'q', knight: 'n', rook: 'r', bishop: 'b' }[r] : ''); };
+    el.addEventListener('click', e => { const b = e.target.closest('button'); finish(b && b.dataset.r); });
+    wrap.appendChild(el);
+  });
+}
 
 function setButtons(list) {
   document.querySelectorAll('.lg-controls button').forEach((b, i) => {
@@ -87,12 +142,15 @@ function loadPuzzle() {
   const [, fen, moves] = DATA[sec][idx];
   pos = Chess.fromSetup(FEN.parseFen(fen).unwrap()).unwrap();
   line = moves.split(' '); step = 0; mistakes = 0; done = false; hintStage = 0;
-  userColor = pos.turn === 'white' ? 'black' : 'white';
+  // у спрощених задачах першим ходить гравець; у задачах Lichess — спершу суперник
+  const userFirst = line.length % 2 === 1;
+  userColor = userFirst ? pos.turn : pos.turn === 'white' ? 'black' : 'white';
   wrap.classList.remove('solved');
   board.setOrientation(userColor); board.clearHint(); board.setMovable(null);
   show(pos, undefined, false); paint();
   const t = ++token;
-  setTimeout(() => { if (t === token) opponent(); }, 700);
+  if (userFirst) allowMoves();
+  else setTimeout(() => { if (t === token) opponent(); }, 700);
 }
 function opponent() { // хід суперника з рішення Lichess
   const { q, lm } = playUci(pos, line[step]);
@@ -101,6 +159,7 @@ function opponent() { // хід суперника з рішення Lichess
 }
 function paint() {
   const info = INFO[sec];
+  if (!flash) $('task').textContent = TASK[sec] || '';
   if (mode === 'practice') {
     $('goal').innerHTML = `${icon(info.ic)} ${info.title}`;
     $('lives').textContent = ''; $('count').textContent = '🏆 ' + LG.store.get('prac:' + sec, 0);
@@ -111,20 +170,42 @@ function paint() {
   $('lives').textContent = '❤️'.repeat(Math.max(0, 3 - mistakes)) + '🤍'.repeat(Math.min(3, mistakes));
   $('count').textContent = `${idx + 1} / ${DATA[sec].length} · ✅ ${solvedOf(sec).size}`;
 }
-function puzzleMove(from, to) {
+async function puzzleMove(from, to) {
   if (done || pos.turn !== userColor) return;
   const exp = line[step];
-  const promo = promoFor(pos, from, to) ? (exp.slice(0, 4) === from + to && exp[4] ? exp[4] : 'q') : '';
+  let promo = '';
+  if (promoFor(pos, from, to)) {
+    const t0 = token;
+    promo = await askPromotion(to, userColor);
+    if (t0 !== token) return;
+    if (!promo) { show(pos, lastMove); return allowMoves(); }
+  }
   const test = pos.clone(); test.play(parseUci(from + to + promo));
   const want = pos.clone(); want.play(parseUci(exp));
   if (!same(test, want) && !test.isCheckmate()) {
-    mistakes++; LG.play('error'); shake(); paint();
+    mistakes++; LG.play('error'); paint();
     const t = token;
-    setTimeout(() => {
+    const back = () => {
       if (t !== token) return;
       show(pos, lastMove); allowMoves();
       if (mistakes >= 3) showSolution(); else paint();
-    }, 450);
+    };
+    board.setMovable(null);
+    // Шах, але не мат: показуємо, як суперник рятується, — і повертаємо назад
+    if (MATE_SEC(sec) && test.isCheck()) {
+      show(test, [from, to]);
+      const r = escape(test);
+      setTimeout(() => {
+        if (t !== token || !r) return;
+        const { q, lm } = playUci(test, r.uci); show(q, lm);
+        say(r.text);
+        setTimeout(back, 1500);
+      }, 650);
+      return;
+    }
+    shake();
+    say(MATE_SEC(sec) ? 'Це не мат — спробуй ще 🙂' : 'Не той хід — спробуй ще 🙂');
+    setTimeout(back, 450);
     return;
   }
   const { q, lm } = playUci(pos, from + to + promo);
@@ -270,9 +351,16 @@ function startPractice() {
   wrap.classList.remove('solved'); board.setOrientation('white'); board.clearHint();
   show(pos, undefined, false); allowMoves(); paint();
 }
-function practiceMove(from, to) {
+async function practiceMove(from, to) {
   if (done || pos.turn !== 'white') return;
-  const { q, lm } = playUci(pos, from + to + (promoFor(pos, from, to) ? 'q' : ''));
+  let promo = '';
+  if (promoFor(pos, from, to)) {
+    const t0 = token;
+    promo = await askPromotion(to, 'white');
+    if (t0 !== token) return;
+    if (!promo) { show(pos, lastMove); return allowMoves(); }
+  }
+  const { q, lm } = playUci(pos, from + to + promo);
   pos = q; history.push(pos); board.clearHint(); show(pos, lm);
   if (practiceEnd()) return;
   board.setMovable(null);

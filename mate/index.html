@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Шахові задачі</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790198011">
-  <link rel="stylesheet" href="../shared/play.css?v=1790198011">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790198660">
+  <link rel="stylesheet" href="../shared/play.css?v=1790198660">
   <style>
     .mt { justify-content: center; gap: 8px; }
     .mt-goal { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 10px; font: 900 16px var(--lg-font); color: var(--lg-ink); min-height: 30px; text-align: center; }
@@ -13,10 +13,16 @@
     .mt-count { padding: 3px 10px; border-radius: 999px; background: var(--lg-surface); border: 2px solid var(--lg-line); font-size: 14px; }
     .mt-side { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #1d1b30; background: #fff; vertical-align: -2px; box-sizing: border-box; }
     .mt-side.b { background: #1d1b30; border-color: #fff; }
-    .mt .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 40px - 60px - 30px)); }
+    .mt .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 40px - 60px - 30px - 30px)); }
     .mt .lg-board-wrap.solved cg-board { box-shadow: 0 0 0 5px #2ECC9A; }
     .mt .lg-board-wrap.wrong cg-board { animation: mtshake .35s ease; }
     @keyframes mtshake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .mt-task { min-height: 22px; max-width: min(100%, 520px); padding: 0 12px; box-sizing: border-box; text-align: center; font: 800 15px/1.3 var(--lg-font); color: var(--lg-ink); }
+    .mt-task.say { color: #FF9F1C; }
+    .mt-promo { position: absolute; inset: 0; z-index: 50; background: rgba(0, 0, 0, .45); }
+    .mt-promo button { position: absolute; width: 12.5%; height: 12.5%; padding: 0; border: 0; border-radius: 50%; background: #b0b0b0; box-shadow: inset 0 0 12px rgba(0,0,0,.4); cursor: pointer; }
+    .mt-promo button:hover { background: #d59120; border-radius: 0; }
+    .mt-promo mpiece { display: block; width: 100%; height: 100%; background-size: cover; }
     .mt .lg-controls { grid-template-columns: repeat(4, 1fr); width: min(100%, 480px); }
 
     /* ---------- список розділів ---------- */
@@ -49,6 +55,7 @@
     <section class="mt-menu" id="menu" aria-label="Розділи задач"></section>
     <div class="mt-goal"><span id="goal"></span><span class="mt-lives" id="lives"></span><span class="mt-count" id="count"></span></div>
     <div class="lg-board-wrap" id="wrap"><div class="lg-board-el" id="board"></div></div>
+    <div class="mt-task" id="task"></div>
     <div class="lg-controls">
       <button type="button" id="list"><span class="ico">📋</span><span class="lbl">Розділи</span></button>
       <button type="button" id="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
@@ -56,8 +63,8 @@
       <button type="button" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
     </div>
   </main>
-  <script src="../shared/games.js?v=1790198011"></script>
-  <script src="../shared/kit.js?v=1790198011" data-game="mate" data-night="on"></script>
-  <script type="module" src="mate.js?v=1790198011"></script>
+  <script src="../shared/games.js?v=1790198660"></script>
+  <script src="../shared/kit.js?v=1790198660" data-game="mate" data-night="on"></script>
+  <script type="module" src="mate.js?v=1790198660"></script>
 </body>
 </html>
