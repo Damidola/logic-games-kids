@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Нім</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790199148">
-  <link rel="stylesheet" href="../shared/play.css?v=1790199148">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790199288">
+  <link rel="stylesheet" href="../shared/play.css?v=1790199288">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 480px); aspect-ratio: auto; height: min(100vw, 480px, calc(100svh - var(--lg-bar-h) - 16px - 44px - 120px - 50px - 24px)); }
     /* Сірники завжди вміщаються в поле: висота ряду ділиться на кількість рядів, кнопка «Взяти» — всередині поля */
@@ -28,12 +28,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790199148"></script>
-  <script src="../shared/kit.js?v=1790199148" data-game="nim" data-night="on"></script>
+  <script src="../shared/games.js?v=1790199288"></script>
+  <script src="../shared/kit.js?v=1790199288" data-game="nim" data-night="on"></script>
   <script type="module">
-    import { startGame, choice } from '../shared/game.js?v=1790199148';
-    import { createRules } from './rules.js?v=1790199148';
-    import { nimView } from './view.js?v=1790199148';
+    import { startGame, choice } from '../shared/game.js?v=1790199288';
+    import { createRules } from './rules.js?v=1790199288';
+    import { nimView } from './view.js?v=1790199288';
     let game;
     const again = () => game.newGame();
     game = startGame({
