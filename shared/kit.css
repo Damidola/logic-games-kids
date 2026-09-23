@@ -288,3 +288,17 @@ html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
 .lg-piece-set { aspect-ratio: 1; padding: 3px; border-radius: 10px; border: 3px solid transparent; background: #F0D9B5; cursor: pointer; }
 .lg-piece-set img { width: 100%; height: 100%; display: block; }
 .lg-piece-set.active { border-color: var(--lg-primary); }
+
+/* ---------- кнопки внизу гри (спільні для всіх ігор) ---------- */
+.lg-controls {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; flex: none;
+  width: min(100vw, 560px); padding: 0 10px; box-sizing: border-box;
+}
+.lg-controls button {
+  height: 38px; min-width: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  font: 800 9px var(--lg-font); color: var(--lg-ink); background: var(--lg-surface);
+  border: 2px solid var(--lg-line); border-radius: 14px; box-shadow: var(--lg-btn-shadow); cursor: pointer;
+}
+.lg-controls button:active { transform: scale(.93); }
+.lg-controls .ico { font-size: 14px; line-height: 1; }
+.lg-controls .is-off { opacity: .4; }

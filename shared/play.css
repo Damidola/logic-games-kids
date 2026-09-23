@@ -78,19 +78,6 @@ cg-board square.selected { background-color: rgba(20, 85, 30, .5); }
 .cg-wrap coords coord { color: var(--sq-light); }
 .cg-wrap coords.ranks coord:nth-child(2n), .cg-wrap coords.files coord:nth-child(2n) { color: var(--sq-dark); }
 
-/* ---------- кнопки внизу ---------- */
-.lg-controls {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; flex: none;
-  width: min(100vw, 560px); padding: 0 10px; box-sizing: border-box;
-}
-.lg-controls button {
-  height: 38px; min-width: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
-  font: 800 9px var(--lg-font); color: var(--lg-ink); background: var(--lg-surface);
-  border: 2px solid var(--lg-line); border-radius: 14px; box-shadow: var(--lg-btn-shadow); cursor: pointer;
-}
-.lg-controls button:active { transform: scale(.93); }
-.lg-controls .ico { font-size: 14px; line-height: 1; }
-.lg-controls .is-off { opacity: .4; }
 .lg-side-dot { display: block; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 2px solid #1d1b30; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
 [data-side="b"] .lg-side-dot { background: #1d1b30; border-color: #fff; }
 

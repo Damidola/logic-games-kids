@@ -40,7 +40,11 @@ export function startGame(cfg) {
   const hero = mountOpponent($('.lg-hero-slot'), { onLevel: l => { level = l; } });
   level = hero.level();
 
-  const board = createBoard($('.lg-board-el'), { onMove: (o, d) => userMove(o, d) });
+  // Вигляд поля: за замовчуванням — дошка Lichess; ігри з іншим полем (хрестики-нулики,
+  // чотири в ряд) дають свій view: { render(s, {mine, moves}), hint(m), clearHint() }
+  const board = cfg.view ? null : createBoard($('.lg-board-el'), { onMove: (o, d) => userMove(o, d) });
+  const view = cfg.view ? cfg.view($('.lg-board-el'), { pick: m => userPick(m) }) : null;
+  if (view) root.classList.add('lg-custom-view');
 
   // Проміжні положення (посеред кількох стрибків) «Назад»/«Вперед» пропускають
   const stable = s => !rules.midTurn || !rules.midTurn(s);
@@ -57,11 +61,14 @@ export function startGame(cfg) {
 
   function render(animate = true) {
     const s = state();
-    board.setPosition(rules.pieces(s), { lastMove: s.lastMove, animate, check: rules.check ? rules.check(s) : false });
     const mine = rules.turn(s) === player && !over && !thinking;
-    board.setMovable(mine ? colorName(player) : null, mine ? dests(s) : new Map());
-    board.clearHint();
-    if (rules.marks) board.marks(rules.marks(s));
+    if (view) view.render(s, { mine, moves: mine ? rules.moves(s) : [], player });
+    else {
+      board.setPosition(rules.pieces(s), { lastMove: s.lastMove, animate, check: rules.check ? rules.check(s) : false });
+      board.setMovable(mine ? colorName(player) : null, mine ? dests(s) : new Map());
+      board.clearHint();
+      if (rules.marks) board.marks(rules.marks(s));
+    }
     // Кнопка «Завершити хід» — коли правила дозволяють зупинитись (наприклад, після стрибка)
     const pass = mine && rules.moves(s).find(m => m.pass);
     $('.lg-pass').hidden = !pass;
@@ -107,6 +114,15 @@ export function startGame(cfg) {
     afterMove();
   }
 
+  // Хід зі свого поля (не шахова дошка): гра передає готовий хід
+  function userPick(id) {
+    const s = state();
+    if (over || thinking || rules.turn(s) !== player) return;
+    const move = rules.moves(s).find(m => m.id === id); // у таких ігор кожен хід має id
+    if (!move) return LG.play('error');
+    commit(move); render(); afterMove();
+  }
+
   function afterMove() {
     const s = state();
     const r = rules.result(s);
@@ -132,6 +148,7 @@ export function startGame(cfg) {
   function finish(r) {
     over = true; render();
     const again = { onAgain: newGame };
+    if (cfg.autoClose) again.autoClose = cfg.autoClose; // швидкі ігри: вікно саме зникає
     if (r.winner === 'draw') LG.draw(r.text || 'Нічия!', again);
     else if (r.winner === player) LG.win(r.text || 'Перемога!', { ...again, reward: true });
     else LG.lose(r.text || 'Цього разу виграв суперник.', again);
@@ -143,7 +160,7 @@ export function startGame(cfg) {
     pos = 0; lastHint = null;
     hintsLeft = Number(LG.store.get('hints', '3'));
     undosLeft = Number(LG.store.get('undos', '3'));
-    board.setOrientation(colorName(player));
+    if (board) board.setOrientation(colorName(player));
     render(false);
     if (rules.turn(state()) !== player) robotMove();
   }
@@ -172,7 +189,7 @@ export function startGame(cfg) {
   function hint() {
     const s = state();
     if (over || thinking || rules.turn(s) !== player) return;
-    board.cg.selectSquare(null);
+    if (board) board.cg.selectSquare(null);
     const key = rules.key(s);
     if (!lastHint || lastHint.key !== key) {          // та сама позиція — та сама підказка
       if (hintsLeft <= 0) return LG.play('error');
@@ -181,7 +198,7 @@ export function startGame(cfg) {
       hintsLeft--;
       lastHint = { key, m };
     }
-    board.hint(lastHint.m.from, lastHint.m.to);
+    if (view) view.hint(lastHint.m); else board.hint(lastHint.m.from, lastHint.m.to);
   }
   $('.lg-pass').addEventListener('click', () => {
     const s = state();
@@ -206,17 +223,17 @@ export function startGame(cfg) {
       <div class="lg-set-title">Сила робота</div>
       <div class="lg-levels">${LEVEL_NAMES.map((n, i) => `<button type="button" data-l="${i + 1}" title="${n}" class="${i + 1 === level ? 'on' : ''}">${i + 1}</button>`).join('')}</div>
       <label class="lg-set-row"><span>Тваринка-суперник і фон</span><input type="checkbox" id="show-opp" ${LG.store.get('showOpponent', true) ? 'checked' : ''}></label>
-      <label class="lg-set-row"><span>Показувати, куди можна піти</span><input type="checkbox" id="show-dests" ${LG.store.get('showDests', true) ? 'checked' : ''}></label>
+      ${board ? `<label class="lg-set-row"><span>Показувати, куди можна піти</span><input type="checkbox" id="show-dests" ${LG.store.get('showDests', true) ? 'checked' : ''}></label>` : ''}
       <div class="lg-set-row"><span>Підказок за гру</span>${sel('hints-n', LG.store.get('hints', '3'))}</div>
       <div class="lg-set-row"><span>Ходів назад</span>${sel('undos-n', LG.store.get('undos', '3'))}</div>
-      <div class="lg-set-title">Колір дошки</div>
-      <div class="lg-swatches">${BOARD_THEMES.map((t, i) => `<button type="button" data-t="${i}" title="${t.name}" style="background:linear-gradient(135deg, ${t.light} 50%, ${t.dark} 50%)"></button>`).join('')}</div>`;
+      ${board ? `<div class="lg-set-title">Колір дошки</div>
+      <div class="lg-swatches">${BOARD_THEMES.map((t, i) => `<button type="button" data-t="${i}" title="${t.name}" style="background:linear-gradient(135deg, ${t.light} 50%, ${t.dark} 50%)"></button>`).join('')}</div>` : ''}`;
     w.querySelectorAll('.lg-levels button').forEach(b => b.addEventListener('click', () => {
       level = +b.dataset.l; hero.setLevel(level);
       w.querySelectorAll('.lg-levels button').forEach(x => x.classList.toggle('on', x === b));
     }));
     w.querySelector('#show-opp').addEventListener('change', e => { LG.store.set('showOpponent', e.target.checked); hero.applyVisible(); });
-    w.querySelector('#show-dests').addEventListener('change', e => { LG.store.set('showDests', e.target.checked); applyDests(); });
+    w.querySelector('#show-dests')?.addEventListener('change', e => { LG.store.set('showDests', e.target.checked); applyDests(); });
     w.querySelector('#hints-n').addEventListener('change', e => { LG.store.set('hints', e.target.value); hintsLeft = +e.target.value; });
     w.querySelector('#undos-n').addEventListener('change', e => { LG.store.set('undos', e.target.value); undosLeft = +e.target.value; });
     w.querySelectorAll('.lg-swatches button').forEach(b => b.addEventListener('click', () => {
@@ -224,10 +241,10 @@ export function startGame(cfg) {
     }));
     return w;
   });
-  LG.addSettings(() => LG.pieceSetPicker(() => { applyBoardLook(); board.redraw(); }));
+  if (board) LG.addSettings(() => LG.pieceSetPicker(() => { applyBoardLook(); board.redraw(); }));
   if (cfg.extraSettings) LG.addSettings(cfg.extraSettings);
 
-  const applyDests = () => board.cg.set({ movable: { showDests: LG.store.get('showDests', true) } });
+  const applyDests = () => board && board.cg.set({ movable: { showDests: LG.store.get('showDests', true) } });
   applyDests();
 
   // Сторінку не гортаємо пальцем (крім вікон і вибору тварин)

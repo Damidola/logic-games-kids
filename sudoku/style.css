@@ -1,7 +1,7 @@
 .sd {
   --cell: min(calc((100vw - 60px) / var(--n)), calc((100svh - var(--lg-bar-h) - 330px) / var(--n)), calc(520px / var(--n)));
   --n: 4;
-  max-width: 560px; margin: 0 auto; padding: 0 16px 32px;
+  max-width: 560px; margin: 0 auto; padding: 0 16px 12px; box-sizing: border-box;
   display: flex; flex-direction: column; align-items: center; gap: 12px;
 }
 .sd-setup { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
@@ -14,7 +14,6 @@
   font: 900 17px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer;
 }
 .seg button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
-.sd-setup .lg-btn { min-height: 50px; }
 
 .sd-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .chip {
@@ -83,27 +82,7 @@
 .n9 .sd-palette { gap: 5px; }
 .pal.done .left { color: var(--lg-mint); }
 
-/* ---------- інструменти ---------- */
-.sd-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
-.tool {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 8px 4px; min-height: 60px; border-radius: 16px;
-  font: 800 14px var(--lg-font); color: var(--lg-ink);
-  background: var(--lg-surface); border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
-  cursor: pointer; transition: transform .1s ease;
-}
-.tool span { font-size: 24px; line-height: 1; }
-.tool:active { transform: scale(.93); box-shadow: var(--lg-btn-shadow); }
-.tool:disabled { opacity: .45; cursor: default; }
-.tool:disabled:active { transform: none; box-shadow: var(--lg-btn-shadow); }
-
-.sd-options {
-  width: 100%; box-sizing: border-box;
-  background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 16px; padding: 10px 14px;
-}
-.sd-options summary { cursor: pointer; font-weight: 900; }
-.switch { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-weight: 700; cursor: pointer; }
-.switch input { width: 22px; height: 22px; accent-color: var(--lg-primary); }
+.sd .lg-controls { width: 100%; padding: 0; }
 
 @media (min-width: 900px) {
   .sd { --cell: min(calc((100svh - var(--lg-bar-h) - 330px) / var(--n)), calc(520px / var(--n))); }
@@ -111,5 +90,4 @@
 @media (max-height: 700px) {
   .sd { --cell: min(calc((100vw - 60px) / var(--n)), calc((100svh - var(--lg-bar-h) - 300px) / var(--n)), calc(520px / var(--n))); gap: 8px; }
   .pal { min-height: 48px; font-size: 28px; }
-  .tool { min-height: 50px; }
 }

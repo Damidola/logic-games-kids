@@ -4,9 +4,11 @@
 
   const ANIMALS = ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐸', '🐵', '🐷'];
   const BOX = { 4: [2, 2], 6: [2, 3], 9: [3, 3] }; // [рядків, стовпчиків] у блоці
-  // Скільки клітинок прибрати: [легко, середньо, складно]
-  const HOLES = { 4: [6, 8, 10], 6: [14, 18, 22], 9: [36, 44, 52] };
-  const LEVEL_NAMES = ['легко', 'середньо', 'складно'];
+  // Скільки клітинок прибрати на рівнях 1–5
+  const HOLES = { 4: [4, 6, 8, 9, 10], 6: [10, 14, 18, 21, 24], 9: [30, 38, 46, 51, 56] };
+  const LEVEL_NAMES = ['дуже легко', 'легко', 'середньо', 'складно', 'дуже складно'];
+  // Спільні для всіх ігор ліміти підказок і ходів назад (за замовчуванням по 3)
+  const limit = key => Number(LG.store.get(key, '3'));
 
   const $ = id => document.getElementById(id);
   const main = document.querySelector('.sd');
@@ -23,6 +25,7 @@
   let selected = -1;
   let armed = 0;      // обране в палітрі звірятко, яке ставиться тапом по клітинці
   let history = [];
+  let future = [];    // скасовані ходи для «Вперед»
   let timerId = null;
 
   // ---------- генератор ----------
@@ -108,9 +111,9 @@
       given: puzzle.map(v => v > 0),
       cells: puzzle.slice(),
       hinted: puzzle.map(() => false),
-      hints: 0, mistakes: 0, seconds: 0, done: false
+      hints: 0, undos: 0, mistakes: 0, seconds: 0, done: false
     };
-    history = [];
+    history = []; future = [];
     selected = -1;
     armed = 0;
     LG.store.set('sudoku:last', { n, level });
@@ -126,6 +129,7 @@
     if (s && !s.done && BOX[s.n] && Array.isArray(s.cells) && s.cells.length === s.n * s.n) {
       state = s;
       state.hinted = state.hinted || state.cells.map(() => false);
+      state.undos = state.undos || 0;
       buildBoard();
       startTimer();
       return true;
@@ -229,10 +233,12 @@
     });
     const filled = state.cells.filter(Boolean).length;
     $('progress').textContent = (opts.digits ? '🔢 ' : '🐾 ') + filled + '/' + n * n;
-    $('hintsUsed').textContent = '💡 ' + state.hints;
-    $('undo').disabled = !history.length || state.done;
-    $('erase').disabled = state.done || selected < 0 || state.given[selected] || !state.cells[selected];
-    $('hint').disabled = state.done;
+    const hintsLeft = Math.max(0, limit('hints') - state.hints), undosLeft = Math.max(0, limit('undos') - state.undos);
+    $('hintsUsed').textContent = '💡 ' + hintsLeft;
+    $('undo').classList.toggle('is-off', !history.length || state.done || !undosLeft);
+    $('redo').classList.toggle('is-off', !future.length || state.done);
+    $('erase').classList.toggle('is-off', state.done || selected < 0 || state.given[selected] || !state.cells[selected]);
+    $('hint').classList.toggle('is-off', state.done || !hintsLeft);
   }
 
   // ---------- дії ----------
@@ -247,7 +253,8 @@
   function setCell(i, v, opts2) {
     if (state.done || i < 0 || state.given[i]) return;
     if (state.cells[i] === v) return;
-    history.push({ i, prev: state.cells[i], prevHint: state.hinted[i] });
+    history.push({ i, prev: state.cells[i], prevHint: state.hinted[i], v, hint: !!(opts2 && opts2.hint) });
+    if (!(opts2 && opts2.redo)) future = [];
     state.cells[i] = v;
     state.hinted[i] = !!(opts2 && opts2.hint);
     if (v) {
@@ -263,8 +270,10 @@
   }
 
   function undo() {
+    if (!history.length || state.done || state.undos >= limit('undos')) return LG.play('error');
     const h = history.pop();
-    if (!h || state.done) return;
+    future.push(h);
+    state.undos++;
     state.cells[h.i] = h.prev;
     state.hinted[h.i] = h.prevHint;
     selected = h.i;
@@ -273,8 +282,16 @@
     save();
   }
 
+  function redo() {
+    const h = future.pop();
+    if (!h || state.done) return;
+    selected = h.i;
+    setCell(h.i, h.v, { hint: h.hint, redo: true });
+  }
+
   function hint() {
     if (state.done) return;
+    if (state.hints >= limit('hints')) return LG.play('error');
     let i = selected;
     if (i < 0 || state.given[i] || state.cells[i] === state.solution[i]) {
       // клітинка з найменшою кількістю варіантів — найзрозуміліша підказка
@@ -314,7 +331,7 @@
       '⭐'.repeat(stars) + '☆'.repeat(3 - stars) + '\n' +
       `Поле ${state.n}×${state.n}, ${LEVEL_NAMES[state.level]}. Час: ${time}.` +
       (state.hints ? ` Підказок: ${state.hints}.` : ' Без жодної підказки!'),
-      { onAgain: () => newGame(), delay: 900 }
+      { onAgain: () => newGame(), delay: 900, reward: true }
     );
   }
 
@@ -348,6 +365,7 @@
   });
 
   $('undo').addEventListener('click', undo);
+  $('redo').addEventListener('click', redo);
   $('erase').addEventListener('click', () => setCell(selected, 0));
   $('hint').addEventListener('click', hint);
   $('new').addEventListener('click', () => newGame());
@@ -361,19 +379,26 @@
     if (b) newGame(state.n, +b.dataset.level);
   });
 
-  function bindOpt(id, key) {
-    const input = $(id);
-    input.checked = opts[key];
-    input.addEventListener('change', () => {
+  // Налаштування: свої для судоку + спільні ліміти підказок і ходів назад
+  LG.addSettings(() => {
+    const w = document.createElement('div');
+    const OPTS = ['0', '1', '2', '3', '5', '10'];
+    const sel = (id, v) => `<select id="${id}">${OPTS.map(o => `<option ${o === String(v) ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+    const sw = (key, text) => `<label class="lg-set-row"><span>${text}</span><input type="checkbox" data-opt="${key}" ${opts[key] ? 'checked' : ''}></label>`;
+    w.innerHTML = sw('digits', 'Цифри замість звірят') + sw('mistakes', 'Підсвічувати помилки') + sw('same', 'Показувати однакових звірят') +
+      `<div class="lg-set-row"><span>Підказок за гру</span>${sel('hints-n', limit('hints'))}</div>
+      <div class="lg-set-row"><span>Ходів назад</span>${sel('undos-n', limit('undos'))}</div>`;
+    w.querySelectorAll('[data-opt]').forEach(input => input.addEventListener('change', () => {
+      const key = input.dataset.opt;
       opts[key] = input.checked;
       LG.store.set('sudoku:' + key, input.checked);
       main.classList.toggle('digits', opts.digits);
       paint();
-    });
-  }
-  bindOpt('optDigits', 'digits');
-  bindOpt('optMistakes', 'mistakes');
-  bindOpt('optSame', 'same');
+    }));
+    w.querySelector('#hints-n').addEventListener('change', e => { LG.store.set('hints', e.target.value); paint(); });
+    w.querySelector('#undos-n').addEventListener('change', e => { LG.store.set('undos', e.target.value); paint(); });
+    return w;
+  });
 
   document.addEventListener('keydown', e => {
     if (!state || state.done || e.target.closest('input, select, .lg-modal')) return;
@@ -395,6 +420,6 @@
 
   if (!restore()) {
     const last = LG.store.get('sudoku:last', { n: 4, level: 0 });
-    newGame(BOX[last.n] ? last.n : 4, [0, 1, 2].includes(last.level) ? last.level : 0);
+    newGame(BOX[last.n] ? last.n : 4, last.level >= 0 && last.level < 5 ? last.level : 0);
   }
 })();

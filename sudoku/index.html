@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Звірячі судоку</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
-  <link rel="stylesheet" href="../shared/kit.css?v=1790161692">
-  <link rel="stylesheet" href="style.css?v=1790161692">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790162142">
+  <link rel="stylesheet" href="style.css?v=1790162142">
 </head>
 <body>
   <main class="sd">
@@ -17,17 +17,18 @@
         <button type="button" role="radio" data-size="9">9×9</button>
       </div>
       <div class="seg" role="radiogroup" aria-label="Складність" id="level">
-        <button type="button" role="radio" data-level="0" title="Легко">🙂</button>
-        <button type="button" role="radio" data-level="1" title="Середньо">🤔</button>
-        <button type="button" role="radio" data-level="2" title="Складно">🧠</button>
+        <button type="button" role="radio" data-level="0" title="Дуже легко">1</button>
+        <button type="button" role="radio" data-level="1" title="Легко">2</button>
+        <button type="button" role="radio" data-level="2" title="Середньо">3</button>
+        <button type="button" role="radio" data-level="3" title="Складно">4</button>
+        <button type="button" role="radio" data-level="4" title="Дуже складно">5</button>
       </div>
-      <button type="button" class="lg-btn lg-btn-primary" id="new">✨ Нова гра</button>
     </section>
 
     <div class="sd-status">
       <span id="progress" class="chip">🐾 0/0</span>
       <span id="timer" class="chip" title="Час">⏱ 0:00</span>
-      <span id="hintsUsed" class="chip" title="Використано підказок">💡 0</span>
+      <span id="hintsUsed" class="chip" title="Лишилось підказок">💡 3</span>
     </div>
 
     <div class="sd-board-wrap">
@@ -36,22 +37,17 @@
 
     <div id="palette" class="sd-palette" aria-label="Звірята"></div>
 
-    <div class="sd-tools">
-      <button type="button" class="tool" id="undo"><span>↩️</span>Назад</button>
-      <button type="button" class="tool" id="erase"><span>🧽</span>Стерти</button>
-      <button type="button" class="tool" id="hint"><span>💡</span>Підказка</button>
+    <div class="lg-controls">
+      <button type="button" id="erase"><span class="ico">🧽</span><span class="lbl">Стерти</span></button>
+      <button type="button" id="new"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+      <button type="button" id="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
+      <button type="button" id="undo"><span class="ico">↩️</span><span class="lbl">Назад</span></button>
+      <button type="button" id="redo"><span class="ico">↪️</span><span class="lbl">Вперед</span></button>
     </div>
-
-    <details class="sd-options">
-      <summary>⚙️ Налаштування</summary>
-      <label class="switch"><input type="checkbox" id="optDigits"> <span>Цифри замість звірят</span></label>
-      <label class="switch"><input type="checkbox" id="optMistakes" checked> <span>Підсвічувати помилки</span></label>
-      <label class="switch"><input type="checkbox" id="optSame" checked> <span>Показувати однакових звірят</span></label>
-    </details>
   </main>
 
-  <script src="../shared/games.js?v=1790161692"></script>
-  <script src="../shared/kit.js?v=1790161692" data-game="sudoku"></script>
-  <script src="sudoku.js?v=1790161692"></script>
+  <script src="../shared/games.js?v=1790162142"></script>
+  <script src="../shared/kit.js?v=1790162142" data-game="sudoku"></script>
+  <script src="sudoku.js?v=1790162142"></script>
 </body>
 </html>
