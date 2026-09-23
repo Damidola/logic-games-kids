@@ -45,7 +45,6 @@ html.lg body.lg-game select,
 html.lg body.lg-game input { font-family: var(--lg-font); }
 
 /* Заголовки самих ігор дублюють верхню панель — ховаємо їх */
-html.lg body.lg-game .lg-hide { display: none !important; }
 
 /* ---------- верхня панель ---------- */
 .lg-bar {
@@ -67,7 +66,6 @@ html.lg body.lg-game .lg-hide { display: none !important; }
   white-space: nowrap; overflow: hidden; text-overflow: clip;
 }
 .lg-bar-title > span:last-child { overflow: hidden; text-overflow: ellipsis; }
-.lg-bar-emoji { font-size: 1.2em; }
 .lg-bar-actions { display: flex; gap: 8px; }
 /* права група такої ж ширини, як ліва — щоб назва була по центру */
 .lg-bar-right { justify-content: flex-end; }
@@ -106,10 +104,8 @@ html.lg .lg-bar .lg-bar-title { flex: none; min-width: 0; overflow: visible; }
 .lg-btn:hover { filter: brightness(1.04); }
 .lg-btn:active { transform: scale(.96); }
 .lg-btn-primary { background: var(--lg-primary); color: var(--lg-primary-ink); border-color: #5646D6; }
-.lg-btn-ghost { background: transparent; box-shadow: none; }
 .lg-btn-wide { width: 100%; margin-top: 8px; }
 
-.lg-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
 .lg-muted { color: var(--lg-muted); }
 .lg-chip {
   display: inline-block; padding: 3px 10px; border-radius: 999px;
@@ -163,12 +159,10 @@ html.lg .lg-bar .lg-bar-title { flex: none; min-width: 0; overflow: visible; }
 
 .lg-result { text-align: center; }
 .lg-result p { white-space: pre-line; }
-.lg-result .lg-row { flex-direction: column; align-items: stretch; max-width: 300px; margin-left: auto; margin-right: auto; }
 .lg-result-emoji { font-size: 96px; line-height: 1; margin: 6px 0 10px; animation: lg-pop .6s cubic-bezier(.2, 1.6, .4, 1); }
 .lg-result h2 { font-size: 34px; }
 .lg-result-btns { display: flex; gap: 14px; justify-content: center; margin-top: 18px; }
 html.lg .lg-modal .lg-btn-big { width: 96px; height: 80px; padding: 0; font-size: 40px; border-radius: 22px; }
-.lg-result-stars { font-size: 28px; margin: 4px 0 0; font-weight: 900; color: #B37A00; }
 .lg-result-img img, .lg-result-img video { display: block; max-width: 100%; max-height: 220px; margin: 8px auto; border-radius: 16px; object-fit: contain; }
 .lg-result-win h2 { color: #4435BF; }
 @keyframes lg-pop { from { transform: scale(.2) rotate(-20deg); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -269,7 +263,6 @@ html.lg .lg-modal .lg-modal-settings {
 .lg-modal-settings .lg-set-title { font-size: 12px; margin: 4px 0 2px; }
 .lg-modal-settings .swatches { gap: 5px; }
 .lg-modal-settings .swatch { border-radius: 8px; }
-.lg-modal-settings .diff-dots .dot { width: 26px; height: 26px; font-size: 11px; }
 html.lg .lg-modal .lg-modal-settings .lg-modal-x,
 html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
   position: absolute; float: none; top: 10px; right: 10px; margin: 0; z-index: 3;
