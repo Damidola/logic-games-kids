@@ -21,10 +21,6 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 .lg-hero { position: relative; isolation: isolate; }
 .lg-hero[hidden] { display: none; }
 .lg-play:has(.lg-hero[hidden]) { justify-content: center; }
-.lg-hero::before {
-  content: ''; position: absolute; inset: 0 8px; z-index: 0; border-radius: 22px;
-  background: #6ec6ff var(--scene) center / cover no-repeat; transition: background-image .35s ease;
-}
 .lg-hero-pic {
   position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; background: none; cursor: default;
   display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
@@ -32,9 +28,9 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 }
 .lg-hero-pic img {
   pointer-events: auto; cursor: pointer;
-  height: calc(100% - 12px); max-height: min(480px, calc(100vw - 84px)); aspect-ratio: 1; width: auto;
-  object-fit: cover; border-radius: 28%; background: var(--lg-surface-2);
-  box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
+  width: calc(100% - 16px); height: calc(100% - 4px); object-fit: cover; object-position: center 35%;
+  border-radius: 22px; background: var(--lg-surface-2);
+  box-shadow: 0 0 0 3px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
 }
 .lg-hero.switching img { opacity: .35; }
 .lg-hero.thinking img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
