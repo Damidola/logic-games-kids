@@ -120,8 +120,9 @@ html.lg body.lg-game {
 .game-controls .ico { font-size: 19px; line-height: 1; }
 .game-controls .lbl { font-size: 10px; font-weight: 800; line-height: 1; }
 .game-controls .counter { display: none !important; }
-.side-dot { display: block; width: 18px; height: 18px; border-radius: 50%; background: #1d1b30; border: 2px solid #fff; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
-#flip-board-button[data-side="b"] .side-dot { background: #fff; border-color: #1d1b30; }
+/* Кружечок показує, яким кольором граєш ти: білий — за білих, чорний — за чорних */
+.side-dot { display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #1d1b30; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
+#flip-board-button[data-side="b"] .side-dot { background: #1d1b30; border-color: #fff; }
 
 /* ---------- вибір суперника ---------- */
 .picker {

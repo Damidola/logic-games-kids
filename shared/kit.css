@@ -69,6 +69,8 @@ html.lg body.lg-game .lg-hide { display: none !important; }
 .lg-bar-title > span:last-child { overflow: hidden; text-overflow: ellipsis; }
 .lg-bar-emoji { font-size: 1.2em; }
 .lg-bar-actions { display: flex; gap: 8px; }
+/* права група такої ж ширини, як ліва — щоб назва була по центру */
+.lg-bar-right { min-width: 100px; justify-content: flex-end; }
 
 .lg-icon-btn {
   width: 46px; height: 46px; flex: none;

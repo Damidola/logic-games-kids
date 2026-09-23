@@ -258,11 +258,12 @@
     if (opts && opts.image) children.push(imgSlot);
     const buttons = el('div', { class: 'lg-result-btns' });
     const again = opts && opts.onAgain;
+    // Домик зліва, «ще раз» справа від нього
+    buttons.appendChild(el('a', { class: 'lg-btn lg-btn-big', href: root + 'index.html', 'aria-label': 'Усі ігри', title: 'Усі ігри', text: '🏠' }));
     buttons.appendChild(el('button', {
       class: 'lg-btn lg-btn-primary lg-btn-big', 'aria-label': 'Ще раз', title: 'Ще раз', text: '🔄',
       onclick: () => { closeModal(); if (again) again(); }
     }));
-    buttons.appendChild(el('a', { class: 'lg-btn lg-btn-big', href: root + 'index.html', 'aria-label': 'Усі ігри', title: 'Усі ігри', text: '🏠' }));
     children.push(buttons);
     setTimeout(() => openModal(el('div', { class: 'lg-result lg-result-' + kind }, children)), Math.max((opts && opts.delay) || 0, 700));
     // Картинка-нагорода (наприклад, котик) з'являється, коли завантажиться
@@ -315,17 +316,18 @@
   function buildBar() {
     const gearBtn = el('button', { class: 'lg-icon-btn lg-gear', type: 'button', title: 'Налаштування', 'aria-label': 'Налаштування', text: '⚙️', onclick: showSettings });
     const bar = el('header', { class: 'lg-bar' }, [
-      el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [
-        el('span', { text: '🏠' })
+      // Зліва: домик і знак питання; справа: шестерня
+      el('div', { class: 'lg-bar-actions' }, [
+        el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [
+          el('span', { text: '🏠' })
+        ]),
+        el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules })
       ]),
       el('div', { class: 'lg-bar-title' }, [
         el('span', { class: 'lg-bar-emoji', text: game.emoji }),
         el('span', { text: game.title })
       ]),
-      el('div', { class: 'lg-bar-actions' }, [
-        gearBtn,
-        el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules })
-      ])
+      el('div', { class: 'lg-bar-actions lg-bar-right' }, [gearBtn])
     ]);
     document.body.insertBefore(bar, document.body.firstChild);
   }

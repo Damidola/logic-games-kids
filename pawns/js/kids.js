@@ -93,14 +93,15 @@
         // capturedCounts[X] — скільки пішаків КОЛЬОРУ X було збито (це втрати X).
         const byAi = capturedCounts[playerColor] || 0;   // скільки моїх пішаків збив суперник
         const byMe = capturedCounts[aiColor] || 0;       // скільки пішаків суперника збив я
-        const row = (count, pieceColor, diff) => {
+        // Скільки збито — стільки й «+N» (одна пішака +1, дві +2 …)
+        const row = (count, pieceColor) => {
+            if (!count) return '';
             let html = '';
             for (let i = 0; i < count; i++) html += `<img src="${PIECES}${pieceColor}P.svg" alt="">`;
-            if (diff > 0) html += `<b>+${diff}</b>`;
-            return html;
+            return html + `<b>+${count}</b>`;
         };
-        top.innerHTML = row(byAi, playerColor, byAi - byMe);
-        bottom.innerHTML = row(byMe, aiColor, byMe - byAi);
+        top.innerHTML = row(byAi, playerColor);
+        bottom.innerHTML = row(byMe, aiColor);
     };
 
     // ---------- стрілка-підказка ----------
