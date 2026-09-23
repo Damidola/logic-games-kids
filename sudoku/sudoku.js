@@ -1,6 +1,5 @@
-/* Звірячі судоку: генератор з єдиним розв'язком, підказки, скасування ходу.
-   Спершу береш звірятко внизу (тап) і ставиш тапом у клітинки — або тягнеш звірятко пальцем у клітинку.
-   Туди, де воно вже є в рядку, стовпчику чи блоці, звірятко не ставиться (звук «ой»). */
+/* Звірячі судоку для малят: тапни звірятко внизу, потім клітинку — або затисни звірятко й відпусти над клітинкою.
+   Правильне звірятко одразу стає на місце назавжди; неправильне не ставиться (звук «ой»). */
 (function () {
   'use strict';
 
@@ -10,7 +9,6 @@
   // Скільки клітинок прибрати на рівнях 1–5
   const HOLES = { 3: [2, 3, 4, 5, 5], 4: [4, 6, 8, 9, 10], 5: [6, 9, 12, 14, 16], 6: [10, 14, 18, 21, 24], 9: [30, 38, 46, 51, 56] };
   const LEVEL_NAMES = ['дуже легко', 'легко', 'середньо', 'складно', 'дуже складно'];
-  const ERASE = -1;
   // Спільні для всіх ігор ліміти підказок і ходів назад (за замовчуванням по 3)
   const limit = key => Number(LG.store.get(key, '3'));
 
@@ -25,10 +23,8 @@
     same: LG.store.get('sudoku:same', true)
   };
 
-  let state = null;   // { n, level, solution[], given[], cells[], hinted[], hints, undos, mistakes, seconds, done }
-  let armed = 0;      // звірятко «в руці» (або ERASE — гумка)
-  let history = [];
-  let future = [];    // скасовані ходи для «Вперед»
+  let state = null;   // { n, level, solution[], given[], mine[], cells[], hinted[], hints, mistakes, seconds, done }
+  let armed = 0;      // звірятко «в руці»
   let timerId = null;
 
   // ---------- генератор ----------
@@ -115,10 +111,10 @@
       n, level, solution,
       given: puzzle.map(v => v > 0),
       cells: puzzle.slice(),
+      mine: puzzle.map(() => false),
       hinted: puzzle.map(() => false),
-      hints: 0, undos: 0, mistakes: 0, seconds: 0, done: false
+      hints: 0, mistakes: 0, seconds: 0, done: false
     };
-    history = []; future = [];
     armed = 0;
     LG.store.set('sudoku:last', { n, level });
     buildBoard();
@@ -133,7 +129,10 @@
     if (s && !s.done && s.n in BOX && Array.isArray(s.cells) && s.cells.length === s.n * s.n) {
       state = s;
       state.hinted = state.hinted || state.cells.map(() => false);
-      state.undos = state.undos || 0;
+      state.mine = state.mine || state.cells.map(() => false);
+      // стара гра могла мати неправильних звірят — прибираємо їх
+      state.cells = state.cells.map((v, i) => (state.given[i] || v === state.solution[i] ? v : 0));
+      state.cells.forEach((v, i) => { if (v && !state.given[i]) { state.given[i] = true; state.mine[i] = true; } });
       buildBoard();
       startTimer();
       return true;
@@ -208,7 +207,8 @@
     [...boardEl.children].forEach((cell, i) => {
       const v = state.cells[i];
       cell.querySelector('.v').textContent = sym(v);
-      cell.classList.toggle('given', state.given[i]);
+      cell.classList.toggle('given', state.given[i] && !state.mine[i]);
+      cell.classList.toggle('mine', !!state.mine[i]);
       cell.classList.toggle('same', opts.same && armed > 0 && v === armed);
       cell.classList.toggle('free', armed > 0 && !v);
       cell.classList.toggle('bad', bad.has(i) && !state.given[i]);
@@ -228,16 +228,11 @@
       b.classList.toggle('armed', armed === v);
       b.setAttribute('aria-label', (opts.digits ? 'Цифра ' : 'Звірятко ') + v + ', лишилось ' + Math.max(0, left));
     });
-    main.classList.toggle('erasing', armed === ERASE);
     main.classList.toggle('empty-hand', !armed);
     const filled = state.cells.filter(Boolean).length;
     $('progress').textContent = (opts.digits ? '🔢 ' : '🐾 ') + filled + '/' + n * n;
-    const hintsLeft = Math.max(0, limit('hints') - state.hints), undosLeft = Math.max(0, limit('undos') - state.undos);
+    const hintsLeft = Math.max(0, limit('hints') - state.hints);
     $('hintsUsed').textContent = '💡 ' + hintsLeft;
-    $('undo').classList.toggle('is-off', !history.length || state.done || !undosLeft);
-    $('redo').classList.toggle('is-off', !future.length || state.done);
-    $('erase').classList.toggle('on', armed === ERASE);
-    $('erase').classList.toggle('is-off', state.done);
     $('hint').classList.toggle('is-off', state.done || !hintsLeft);
   }
 
@@ -247,43 +242,24 @@
     c.classList.remove('nope'); void c.offsetWidth; c.classList.add('nope');
   }
 
-  // Поставити звірятко v у клітинку i (0 — прибрати). Не за правилами — «ой» і нічого не ставимо.
-  function setCell(i, v, opts2) {
-    if (state.done || i < 0 || state.given[i]) return false;
-    if (state.cells[i] === v) return false;
-    if (v && !(opts2 && opts2.hint) && PEERS[state.n][i].some(p => state.cells[p] === v)) {
+  // Поставити звірятко v у клітинку i. Правильне — одразу стає на місце назавжди (як підказане на початку).
+  // Неправильне — «ой», і нічого не ставиться.
+  function place(i, v, fromHint) {
+    if (state.done || i < 0 || state.given[i] || !v) return false;
+    if (v !== state.solution[i]) {
       state.mistakes++; LG.play('error'); shake(i);
-      PEERS[state.n][i].forEach(p => { if (state.cells[p] === v) shake(p); });
       save();
       return false;
     }
-    history.push({ i, prev: state.cells[i], prevHint: state.hinted[i], v, hint: !!(opts2 && opts2.hint) });
-    if (!(opts2 && opts2.redo)) future = [];
     state.cells[i] = v;
-    state.hinted[i] = !!(opts2 && opts2.hint);
-    LG.play(v ? 'place' : 'tap');
-    paint(v ? i : -1);
+    state.given[i] = true;
+    state.mine[i] = true;
+    state.hinted[i] = !!fromHint;
+    LG.play('place');
+    paint(i);
     save();
     checkWin();
     return true;
-  }
-
-  function undo() {
-    if (!history.length || state.done || state.undos >= limit('undos')) return LG.play('error');
-    const h = history.pop();
-    future.push(h);
-    state.undos++;
-    state.cells[h.i] = h.prev;
-    state.hinted[h.i] = h.prevHint;
-    LG.play('tap');
-    paint();
-    save();
-  }
-
-  function redo() {
-    const h = future.pop();
-    if (!h || state.done) return;
-    setCell(h.i, h.v, { hint: h.hint, redo: true });
   }
 
   function hint() {
@@ -292,13 +268,13 @@
     // клітинка з найменшою кількістю варіантів — найзрозуміліша підказка
     let best = -1, bestLen = 99;
     state.cells.forEach((v, j) => {
-      if (state.given[j] || v === state.solution[j]) return;
-      const len = v ? 0 : candidates(state.n, state.cells, j).length;
+      if (state.given[j]) return;
+      const len = candidates(state.n, state.cells, j).length;
       if (len < bestLen) { best = j; bestLen = len; }
     });
     if (best < 0) return;
     state.hints++;
-    setCell(best, state.solution[best], { hint: true });
+    place(best, state.solution[best], true);
   }
 
   function checkWin() {
@@ -327,87 +303,78 @@
     );
   }
 
-  // ---------- дотики: тап по звірятку → тап по клітинках; або перетягнути звірятко в клітинку ----------
+  // ---------- дотики ----------
+  // 1) тап по звірятку внизу, потім тап по клітинці; 2) або затиснути звірятко і відпустити над клітинкою.
   const cellAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest('.cell'); };
-  let drag = null; // { v, from (індекс клітинки або -1), x, y, ghost, moved }
-  function startDrag(e, v, from) {
-    drag = { v, from, x: e.clientX, y: e.clientY, ghost: null, moved: false, target: e.target };
-  }
+  let drag = null; // { v, x, y, ghost, moved }
+  paletteEl.addEventListener('pointerdown', e => {
+    const b = e.target.closest('.pal');
+    if (!b || state.done || b.classList.contains('done')) return;
+    e.preventDefault();
+    try { b.releasePointerCapture(e.pointerId); } catch (err) { /* немає захоплення */ }
+    drag = { v: +b.dataset.v, x: e.clientX, y: e.clientY, ghost: null, moved: false };
+  });
   document.addEventListener('pointermove', e => {
-    if (!drag || !drag.v) return;
-    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) {
+    if (!drag) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 10) {
       drag.moved = true;
+      armed = drag.v; paint();
       drag.ghost = document.createElement('div');
       drag.ghost.className = 'sd-ghost';
       drag.ghost.textContent = sym(drag.v);
       document.body.appendChild(drag.ghost);
-      if (drag.from >= 0) boardEl.children[drag.from].classList.add('lifting');
     }
     if (drag.moved) {
       drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
-      [...boardEl.querySelectorAll('.over')].forEach(c => c.classList.remove('over'));
-      const c = cellAt(e.clientX, e.clientY); if (c) c.classList.add('over');
+      boardEl.querySelectorAll('.over').forEach(c => c.classList.remove('over'));
+      const c = cellAt(e.clientX, e.clientY); if (c && !state.given[+c.dataset.i]) c.classList.add('over');
     }
-  }, { passive: true });
+  });
   const endDrag = e => {
     if (!drag) return;
     const d = drag; drag = null;
-    [...boardEl.querySelectorAll('.over, .lifting')].forEach(c => c.classList.remove('over', 'lifting'));
-    if (!d.moved) return tapped(d, e);
-    d.ghost.remove();
-    if (e.type !== 'pointerup' || state.done) return;
-    const c = cellAt(e.clientX, e.clientY);
-    if (d.from >= 0) { // перетягнули звірятко з поля: в іншу клітинку — перенести, за поле — прибрати
-      if (!c) return setCell(d.from, 0);
-      const to = +c.dataset.i;
-      if (to === d.from || state.given[to]) return;
-      setCell(d.from, 0);
-      if (!setCell(to, d.v)) { history.pop(); state.cells[d.from] = d.v; paint(); save(); }
-      return;
+    boardEl.querySelectorAll('.over').forEach(c => c.classList.remove('over'));
+    if (!d.moved) { // простий тап по звірятку — взяти його (або покласти назад)
+      armed = armed === d.v ? 0 : d.v; LG.play('tap'); return paint();
     }
-    if (c) setCell(+c.dataset.i, d.v);
+    d.ghost.remove();
+    if (e.type !== 'pointerup') return;
+    const c = cellAt(e.clientX, e.clientY);
+    if (c) place(+c.dataset.i, d.v);
   };
   document.addEventListener('pointerup', endDrag);
   document.addEventListener('pointercancel', endDrag);
 
-  function tapped(d, e) {
-    if (state.done || e.type !== 'pointerup') return;
-    const pal = d.target.closest('.pal'), cell = d.target.closest('.cell');
-    if (pal) { armed = armed === d.v ? 0 : d.v; LG.play('tap'); return paint(); }
-    if (!cell) return;
-    const i = +cell.dataset.i;
-    if (state.given[i]) return LG.play('tap');
-    if (armed === ERASE) return setCell(i, 0);
-    if (armed) return setCell(i, state.cells[i] === armed ? 0 : armed);
-    // Звірятко ще не взяте: підкажемо, що спершу — звірятко внизу
-    if (!state.cells[i]) { paletteEl.classList.remove('nudge'); void paletteEl.offsetWidth; paletteEl.classList.add('nudge'); LG.play('tap'); }
-  }
-
-  paletteEl.addEventListener('pointerdown', e => {
-    const b = e.target.closest('.pal');
-    if (b && !state.done) startDrag(e, +b.dataset.v, -1);
-  });
-  boardEl.addEventListener('pointerdown', e => {
+  boardEl.addEventListener('click', e => {
     const c = e.target.closest('.cell');
     if (!c || state.done) return;
     const i = +c.dataset.i;
-    const own = state.cells[i] && !state.given[i];
-    startDrag(e, own ? state.cells[i] : 0, own ? i : -2); // підказані з самого початку звірята не рухаються
+    if (state.given[i]) return;
+    if (armed) return place(i, armed);
+    // звірятко ще не взяте — палітра «кличе»
+    paletteEl.classList.remove('nudge'); void paletteEl.offsetWidth; paletteEl.classList.add('nudge'); LG.play('tap');
   });
 
-  $('undo').addEventListener('click', undo);
-  $('redo').addEventListener('click', redo);
-  $('erase').addEventListener('click', () => { armed = armed === ERASE ? 0 : ERASE; LG.play('tap'); paint(); });
   $('hint').addEventListener('click', hint);
-  $('new').addEventListener('click', () => newGame());
+  $('new').addEventListener('click', () => confirmTap($('new'), () => newGame()));
 
+  // Змінити поле чи складність посеред гри — двома тапами, щоб випадково не стерти гру
+  let pending = null;
+  function confirmTap(btn, action) {
+    const started = state && !state.done && state.mine.some(Boolean);
+    if (!started || pending === btn) { pending = null; document.querySelectorAll('.confirm').forEach(b => b.classList.remove('confirm')); return action(); }
+    document.querySelectorAll('.confirm').forEach(b => b.classList.remove('confirm'));
+    pending = btn; btn.classList.add('confirm'); LG.play('tap');
+    LG.toast('Натисни ще раз — почнемо нову гру');
+    setTimeout(() => { if (pending === btn) { pending = null; btn.classList.remove('confirm'); } }, 2500);
+  }
   $('size').addEventListener('click', e => {
     const b = e.target.closest('[data-size]');
-    if (b) newGame(+b.dataset.size, state.level);
+    if (b && +b.dataset.size !== state.n) confirmTap(b, () => newGame(+b.dataset.size, state.level));
   });
   $('level').addEventListener('click', e => {
     const b = e.target.closest('[data-level]');
-    if (b) newGame(state.n, +b.dataset.level);
+    if (b && +b.dataset.level !== state.level) confirmTap(b, () => newGame(state.n, +b.dataset.level));
   });
 
   // Налаштування: свої для судоку + спільні ліміти підказок і ходів назад
@@ -417,8 +384,7 @@
     const sel = (id, v) => `<select id="${id}">${OPTS.map(o => `<option ${o === String(v) ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
     const sw = (key, text) => `<label class="lg-set-row"><span>${text}</span><input type="checkbox" data-opt="${key}" ${opts[key] ? 'checked' : ''}></label>`;
     w.innerHTML = sw('digits', 'Цифри замість звірят') + sw('mistakes', 'Підсвічувати помилки') + sw('same', 'Показувати однакових звірят') +
-      `<div class="lg-set-row"><span>Підказок за гру</span>${sel('hints-n', limit('hints'))}</div>
-      <div class="lg-set-row"><span>Ходів назад</span>${sel('undos-n', limit('undos'))}</div>`;
+      `<div class="lg-set-row"><span>Підказок за гру</span>${sel('hints-n', limit('hints'))}</div>`;
     w.querySelectorAll('[data-opt]').forEach(input => input.addEventListener('change', () => {
       const key = input.dataset.opt;
       opts[key] = input.checked;
@@ -427,7 +393,6 @@
       paint();
     }));
     w.querySelector('#hints-n').addEventListener('change', e => { LG.store.set('hints', e.target.value); paint(); });
-    w.querySelector('#undos-n').addEventListener('change', e => { LG.store.set('undos', e.target.value); paint(); });
     return w;
   });
 

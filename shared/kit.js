@@ -51,8 +51,9 @@
     lose: () => [392, 330, 262].forEach((f, i) => tone(f, i * 0.16, 0.3, 'sine', 0.12)),
     draw: () => [440, 440].forEach((f, i) => tone(f, i * 0.18, 0.2, 'sine', 0.12))
   };
-  // Звукові файли (звук перемоги — той самий, що був у старій версії гри)
-  const FILES = { win: 'shared/sounds/win.mp3' };
+  // Звук перемоги: довгий (зі старої версії гри) — лише в довгих іграх (шахи, шашки, пішаки…),
+  // у швидких (хрестики-нулики, сірники, задачки) — короткий звук перемоги Lichess
+  const FILES = { win: game && game.long ? 'shared/sounds/win.mp3' : 'shared/sounds/victory.mp3' };
   function playFile(url) {
     if (LG.muted || LG.volume <= 0) return;
     try { const a = new Audio(url); a.volume = LG.volume; a.play().catch(() => {}); } catch (e) { /* без звуку */ }

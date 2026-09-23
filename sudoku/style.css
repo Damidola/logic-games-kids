@@ -102,3 +102,10 @@ html.lg body.lg-game { position: fixed; inset: 0; margin: 0; height: 100svh; min
 #erase.on { background: var(--lg-primary-soft); outline: 3px solid var(--lg-primary); }
 .sd-ghost { position: fixed; z-index: 60; pointer-events: none; font-size: calc(var(--cell, 60px) * .9); line-height: 1; transform: translate(-50%, -70%) scale(1.25); filter: drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
 .digits .sd-ghost, .sd-ghost { font-family: var(--lg-font); font-weight: 900; }
+
+.sd .lg-controls { grid-template-columns: repeat(2, 1fr); width: min(100%, 360px); }
+/* правильно поставлене звірятко — назавжди на місці */
+.cell.mine { background: #E4F8EE; }
+.cell.mine .v { animation: none; }
+.pal { touch-action: none; -webkit-user-select: none; user-select: none; }
+.seg button.confirm, .lg-controls button.confirm { outline: 3px dashed #FF9F1C; outline-offset: 2px; animation: nudge .5s ease; }

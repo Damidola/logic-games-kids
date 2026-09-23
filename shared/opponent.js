@@ -15,7 +15,7 @@ export const OPPONENTS = [
   ['Балерина Капучина', 2, 'ballerina.jpg'],
   ['Лірілі Ларіла', 3, 'lirili.jpg'], ['Тралалело Тралала', 3, 'tralalero.jpg'], ['Тун-тун-тун-сахур', 4, 'tung-tung.jpg'],
   ['Брр Брр Патапім', 4, 'patapim.jpg']
-].map(([name, level, file]) => ({ name, level, avatar: A(file) }));
+].map(([name, level, file]) => ({ name, level, avatar: A(file), bg: A('bg/' + file.replace(/\.\w+$/, '.jpg')) }));
 
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
@@ -23,8 +23,8 @@ export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Нова�
    el — порожній контейнер над дошкою. */
 export function mountOpponent(el, opts = {}) {
   const LG = window.LG;
-  let index = 0; // щоразу при відкритті — хом'ячок
-  let level = OPPONENTS[0].level;
+  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.jpg')); // щоразу при відкритті — мавпочка
+  let level = OPPONENTS[index].level;
   el.classList.add('lg-hero');
   el.innerHTML = `
     <button type="button" class="lg-hero-pic" aria-label="Обрати суперника"><img alt=""></button>
@@ -34,7 +34,7 @@ export function mountOpponent(el, opts = {}) {
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
   // Картинки вантажимо заздалегідь — тоді нічого не блимає
-  setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
+  setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; new Image().src = o.bg; }), 1200);
 
   function placeArrows() {
     const w = el.getBoundingClientRect(), a = img.getBoundingClientRect();
@@ -49,6 +49,7 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
+    el.style.setProperty('--scene', `url("${o.bg}")`); // фон — своя сцена тваринки
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
@@ -91,7 +92,7 @@ export function mountOpponent(el, opts = {}) {
   // Показувати тваринку з фоном можна вимкнути в налаштуваннях
   const applyVisible = () => { el.hidden = !LG.store.get('showOpponent', true); };
   applyVisible();
-  show(0, true);
+  show(index, true);
 
   return {
     level: () => level,
