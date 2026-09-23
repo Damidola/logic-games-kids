@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Реверсі</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790179950">
-  <link rel="stylesheet" href="../shared/play.css?v=1790179950">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790180412">
+  <link rel="stylesheet" href="../shared/play.css?v=1790180412">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 500px, calc(100svh - var(--lg-bar-h) - 16px - 150px - 60px)); }
     .rv-board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; padding: 2px; box-sizing: border-box; aspect-ratio: 1; background: #1f5f3f; border-radius: 14px; }
@@ -27,12 +27,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790179950"></script>
-  <script src="../shared/kit.js?v=1790179950" data-game="reversi" data-night="on"></script>
+  <script src="../shared/games.js?v=1790180412"></script>
+  <script src="../shared/kit.js?v=1790180412" data-game="reversi" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790179950';
-    import { createRules } from './rules.js?v=1790179950';
-    import { reversiView } from './view.js?v=1790179950';
+    import { startGame } from '../shared/game.js?v=1790180412';
+    import { createRules } from './rules.js?v=1790180412';
+    import { reversiView } from './view.js?v=1790180412';
     startGame({ rules: createRules(), view: reversiView, sideNames: { w: '⚫ Чорні', b: '⚪ Білі' } });
   </script>
 </body>

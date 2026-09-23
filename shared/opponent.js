@@ -1,5 +1,5 @@
-/* Суперник-тваринка для всіх ігор з роботом: у кожної тваринки своя картинка зі своїм фоном
-   (фотографії тварин вклеєно в окремі сцени), маленькі стрілочки, вибір на весь екран.
+/* Суперник-тваринка для всіх ігор з роботом: широка картинка на всю ширину — тваринка у своїй сцені
+   (як бот на chess.com), маленькі стрілочки, вибір на весь екран.
    Тварина = рівень робота (1–5). У налаштуваннях тваринку можна сховати. */
 const ROOT = new URL('..', import.meta.url).href;
 const A = f => ROOT + 'shared/opponents/' + f;
@@ -15,7 +15,7 @@ export const OPPONENTS = [
   ['Балерина Капучина', 2, 'ballerina.jpg'],
   ['Лірілі Ларіла', 3, 'lirili.jpg'], ['Тралалело Тралала', 3, 'tralalero.jpg'], ['Тун-тун-тун-сахур', 4, 'tung-tung.jpg'],
   ['Брр Брр Патапім', 4, 'patapim.jpg']
-].map(([name, level, file]) => ({ name, level, avatar: A(file), bg: A('bg/' + file.replace(/\.\w+$/, '.jpg')) }));
+].map(([name, level, file]) => ({ name, level, avatar: A(file) }));
 
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
@@ -34,7 +34,7 @@ export function mountOpponent(el, opts = {}) {
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
   // Картинки вантажимо заздалегідь — тоді нічого не блимає
-  setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; new Image().src = o.bg; }), 1200);
+  setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
 
   function placeArrows() {
     const w = el.getBoundingClientRect(), a = img.getBoundingClientRect();
@@ -49,7 +49,6 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
-    el.style.setProperty('--scene', `url("${o.bg}")`); // фон — своя сцена тваринки
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
