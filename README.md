@@ -18,7 +18,7 @@
 | ⚪ | **Реверсі** — Отелло | 7+ | стратегія |
 | 🧱 | **Коридор** — Quoridor: фішка й стінки | 7+ | просторове мислення |
 | 👑 | **8 ферзів** — класична задача | 7+ | логіка |
-| 🏆 | **Мат в 1 хід** — 1120 задач: мало / середньо / багато фігур, вибір фігури | 6+ | шахова тактика |
+| 🏆 | **Шахові задачі** — задачі Lichess: мат в 1 і в 2 ходи, вилка, зв’язка, прострел та інші прийоми; практика закінчень проти Stockfish | 6+ | шахова тактика |
 | 🏍️ | **Райдер** — чорно-біла траса: тримай палець, крути сальто | 5+ | координація |
 | 🔴 | **Чотири в ряд** — кидай фішки, збери четвірку | 5+ | просторове мислення |
 | 🦎 | **Переправа** — саламандра проти риб | 6+ | стратегія |
@@ -85,7 +85,7 @@ python3 -m http.server 8000
 
 ## Ідеї на майбутнє
 
-Шахові задачі (каркас уже готовий: позиція FEN + відповідь, як у Lichess), турецькі шашки, доміно, рендзю, «Мисливці й вовк», дорога, Ханойські башти, нім.
+Турецькі шашки, доміно, рендзю, «Мисливці й вовк», дорога, Ханойські башти, нім.
 
 ## Сторонні матеріали
 
@@ -94,6 +94,8 @@ python3 -m http.server 8000
 - У «Як ходять фігури» з lila також шрифти (`learn/assets/font`: Noto Sans і Roboto — SIL OFL / Apache 2.0, шрифт іконок lichess — AGPLv3+) і звуки уроків (`learn/assets/sound`, lila `public/sound`).
 - Дошки в `shared/boards/` і стилі дошки `shared/vendor/lichess-board.css` — з Lichess (lila authors, pirouetti), AGPLv3+.
 - Набори фігур у `shared/pieces/*` — з Lichess; ліцензії кожного набору перелічені в [COPYING.md](https://github.com/lichess-org/lila/blob/master/COPYING.md) (cburnett, merida — GPLv2+; fantasy — MIT; california, cardinal, anarcandy, horsey — CC BY-NC-SA 4.0; pixel — AGPLv3+; xkcd — CC BY-NC 2.5; alpha — лише некомерційне використання).
+- Шахові задачі (`mate/puzzles.json`) — з [відкритої бази задач Lichess](https://database.lichess.org/#puzzles), CC0; вибірку взято з [mcognetta/lichess-combined-puzzle-game-db](https://github.com/mcognetta/lichess-combined-puzzle-game-db) (CC0), відбір — `tools/pick-puzzles.py`.
+- Рушій для практики закінчень — [Stockfish.js 10](https://github.com/nmrugg/stockfish.js) (`shared/vendor/stockfish/`), GPL-3.0.
 - Персонажі-роботи — RoboHash ([e1ven/Robohash](https://github.com/e1ven/Robohash)); 90 роликів-нагород — з публічних колекцій гіфок на GitHub (public/moarcats, tlberglund/animated-gifs, Carol42/random-cat-gifs, onprema/catgifs), перекодовані в короткі MP4/WebM без звуку.
 
 Оскільки сюди входить код під GPL-3.0 і AGPLv3+, увесь проєкт поширюється на умовах AGPLv3+.
