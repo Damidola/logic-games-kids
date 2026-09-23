@@ -61,7 +61,8 @@ export class RunCtrl {
       this.redraw,
     );
 
-    this.stageStarting(this.levelCtrl.blueprint.id === 1 && this.stageScore() === 0 && !restarting);
+    // без вікна «Етап N: … Поїхали!» — одразу дошка з першим завданням
+    this.stageStarting(false && this.levelCtrl.blueprint.id === 1 && this.stageScore() === 0 && !restarting);
     this.stageCompleted(false);
 
     if (!this.opts.stageId) return;

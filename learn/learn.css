@@ -33,3 +33,19 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
 .learn__main #promotion-choice .explanation { width: 50%; padding: 10px 12px; border-radius: 7px; }
 .learn__main #promotion-choice .explanation h2 { margin: 0 0 6px; font-size: 17px; }
 .learn__main #promotion-choice .explanation p { margin: 4px 0; font-size: 13px; line-height: 1.3; }
+
+/* Урок: лише дошка, завдання й номери рівнів — без великого заголовка й списку всіх уроків */
+.learn--run .learn__main.main-board { margin-top: 22px; }
+.learn--run .learn__table .title { display: none; }
+.learn--run .learn__side .stages > .categ { display: none; }
+@media (max-width: 799px) {
+  .learn--run .learn__table { margin-top: 10px; }
+  .learn--run .learn__table .goal { font-size: 16px; font-weight: 700; }
+}
+/* комп'ютер: дошка на всю висоту екрана (у lila ширину дошки задають спільні змінні сторінки) */
+@media (min-width: 800px) {
+  #learn-app > .learn--run { max-width: none; gap: 20px; justify-content: center;
+    ---col2-uniboard-width: min(calc(100svh - var(--lg-bar-h) - 60px), calc(100vw - 480px));
+    ---col3-uniboard-width: min(calc(100svh - var(--lg-bar-h) - 60px), calc(100vw - 720px)); }
+  .learn--run .learn__main.main-board { margin-top: 0; }
+}
