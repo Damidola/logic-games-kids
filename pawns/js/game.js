@@ -30,6 +30,12 @@ const opponents = [
         avatar: 'img/avatars/capybara.jpg' 
     },
     {
+        name: 'Тралалело',
+        difficulty: 'easy',
+        avatar: 'img/avatars/tralalero.png',
+        pixel: true
+    },
+    {
         name: 'Кіт',
         difficulty: 'medium',
         avatar: 'img/avatars/cat.jpg' 
@@ -38,6 +44,12 @@ const opponents = [
         name: 'Собака',
         difficulty: 'advanced',
         avatar: 'img/avatars/dog.jpg' 
+    },
+    {
+        name: 'Тун-тун-сахур',
+        difficulty: 'advanced',
+        avatar: 'img/avatars/tung-tung.png',
+        pixel: true
     },
     {
         name: 'Пінгвін',
@@ -72,7 +84,7 @@ let playerColor = 'w'; // Color controlled by human at bottom ('w' or 'b')
 let aiColor = 'b'; // AI's color in PvAI mode
 let gameMode = 'pvai'; // 'pvai' or 'pvp'
 let aiDifficulty = 'medium'; // 'easy', 'medium', 'hard', or null in PvP
-let currentOpponentIndex = 0; // Default opponent (Хом'як)
+let currentOpponentIndex = (window.LG && LG.store.get('pawns:opp', 0)) || 0; // збережений вибір
 let moveHistory = []; // Array of past game states for undo
 let lastMove = null; // { from: {r,c}, to: {r,c}, ... }
 let enPassantTargetSquare = null; // { row, col } or null
@@ -107,7 +119,7 @@ function initGame(keepOpponent = false, mode = 'pvai') {
     lastMove = null;
     enPassantTargetSquare = null;
     capturedCounts = { w: 0, b: 0 };
-    isEnPassantEnabled = false; // Отключить взятие на проходе по умолчанию
+    isEnPassantEnabled = !!(window.LG && LG.store.get('pawns:ep', false)); // налаштування
     
     // Clear any hint highlights
     if (hintHighlightedSquares) {
@@ -116,6 +128,7 @@ function initGame(keepOpponent = false, mode = 'pvai') {
         
         if (fromHintSq) fromHintSq.classList.remove('hint-highlight');
         if (toHintSq) toHintSq.classList.remove('hint-highlight');
+        if (typeof clearHintArrow === 'function') clearHintArrow();
     }
     
     if (hintHighlightTimeout) clearTimeout(hintHighlightTimeout);
@@ -175,7 +188,7 @@ function initGame(keepOpponent = false, mode = 'pvai') {
     // Only if we're not coming from a flipBoard call (check if we're initializing the game from scratch)
     if (!keepOpponent || gameMode !== 'pvai') {
         const flipButton = document.getElementById('flip-board-button');
-        flipButton.textContent = playerColor === 'w' ? '⚫' : '⚪'; 
+        flipButton.dataset.side = playerColor; 
     }
 
     updateEnPassantButton();
@@ -268,12 +281,14 @@ function checkGameOver() {
 }
 
 function requestHint() {
+    if (!canRequestHint()) return;
     // Clear any existing hint before showing a new one
     if (hintHighlightedSquares) {
         const fromHintSq = getSquareElement(hintHighlightedSquares.from.row, hintHighlightedSquares.from.col);
         const toHintSq = getSquareElement(hintHighlightedSquares.to.row, hintHighlightedSquares.to.col);
         if (fromHintSq) fromHintSq.classList.remove('hint-highlight');
         if (toHintSq) toHintSq.classList.remove('hint-highlight');
+        if (typeof clearHintArrow === 'function') clearHintArrow();
         hintHighlightedSquares = null;
         if (hintHighlightTimeout) {
             clearTimeout(hintHighlightTimeout);
@@ -318,6 +333,7 @@ function requestHint() {
                     from: { row: bestMove.from.row, col: bestMove.from.col },
                     to: { row: bestMove.to.row, col: bestMove.to.col }
                 };
+                if (typeof showHintArrow === 'function') showHintArrow(hintHighlightedSquares);
                 
                 console.log("Hint displayed - will remain until a move is made");
             } else {
@@ -385,6 +401,7 @@ function updateCapturedPawnsCounter(delta = 1) {
     
     // Update count directly from the tracking variable instead of incrementing
     countElement.textContent = capturedByPlayer;
+    if (typeof renderMaterial === 'function') renderMaterial();
     
     // Set standard pawn emoji regardless of player color
     pawnIcon.textContent = '♟️';
@@ -401,6 +418,7 @@ function resetCapturedPawnsCounter() {
     
     // Обновляем отображаемый счетчик
     countElement.textContent = '0';
+    if (typeof renderMaterial === 'function') renderMaterial();
     
     // Set standard pawn emoji
     pawnIcon.textContent = '♟️';
@@ -417,6 +435,7 @@ function makeMove(fromRow, fromCol, toRow, toCol, isEnPassant = false, isCapture
         
         if (fromHintSq) fromHintSq.classList.remove('hint-highlight');
         if (toHintSq) toHintSq.classList.remove('hint-highlight');
+        if (typeof clearHintArrow === 'function') clearHintArrow();
         
         hintHighlightedSquares = null; // Reset the stored hint
         
@@ -637,7 +656,7 @@ function flipBoard() {
     
     // Set circle color to the OPPOSITE of the player's color
     const flipButton = document.getElementById('flip-board-button');
-    flipButton.textContent = playerColor === 'w' ? '⚫' : '⚪'; 
+    flipButton.dataset.side = playerColor; 
 }
 
 

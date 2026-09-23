@@ -212,3 +212,41 @@ html.lg .lg-modal .lg-btn-primary { background-color: var(--lg-primary); color: 
 @media (max-width: 420px) {
   html.lg .lg-bar .lg-icon-btn { width: 42px; height: 42px; }
 }
+
+/* ---------- налаштування ---------- */
+.lg-settings h2 { margin: 0 0 14px; padding-right: 40px; }
+.lg-set-group { background: var(--lg-surface-2); border-radius: 16px; padding: 6px 14px; margin-bottom: 12px; }
+.lg-set-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; font-weight: 800; font-size: 17px; }
+.lg-set-row + .lg-set-row { border-top: 1px solid var(--lg-line); }
+.lg-set-row input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none; flex: none;
+  width: 52px; height: 30px; border-radius: 999px; background: #C9C4DE; position: relative; cursor: pointer; transition: background .2s;
+}
+.lg-set-row input[type="checkbox"]::after {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s;
+}
+.lg-set-row input[type="checkbox"]:checked { background: var(--lg-mint); }
+.lg-set-row input[type="checkbox"]:checked::after { transform: translateX(22px); }
+.lg-range { flex: 1; max-width: 220px; accent-color: var(--lg-primary); height: 28px; }
+.lg-set-title { font-weight: 900; font-size: 16px; margin: 8px 0 6px; }
+
+/* ---------- нічна тема (вмикається грою, що її підтримує) ---------- */
+html.lg-night {
+  --lg-bg: #15142A;
+  --lg-surface: #24223F;
+  --lg-surface-2: #2E2B4E;
+  --lg-ink: #F2F0FF;
+  --lg-muted: #ABA6D2;
+  --lg-line: #3A3763;
+  --lg-primary-soft: #3B3675;
+}
+html.lg.lg-night body.lg-game {
+  background-color: var(--lg-bg);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(108, 92, 231, .22) 0 140px, transparent 141px),
+    radial-gradient(circle at 90% 30%, rgba(77, 163, 255, .12) 0 120px, transparent 121px);
+}
+html.lg-night .lg-bar { background: rgba(28, 26, 50, .92); }
+html.lg-night .lg-modal-x { color: var(--lg-ink); }
+html.lg-night .lg-rules-goal { background: #3A3350; }

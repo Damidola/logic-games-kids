@@ -444,8 +444,8 @@ function registerEvents() {
     }
 
     // Game control buttons
-    restartButton.addEventListener('click', () => initGame(true));
-    flipBoardButton.addEventListener('click', handleFlipBoard);
+    restartButton.addEventListener('click', () => { if (!aiThinking) initGame(true); });
+    flipBoardButton.addEventListener('click', () => { if (!aiThinking && !gameOver) handleFlipBoard(); });
     undoButton.addEventListener('click', undoMove);
     hintButton.addEventListener('click', requestHint);
     enPassantToggleButton.addEventListener('click', toggleEnPassant);

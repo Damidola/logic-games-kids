@@ -7,7 +7,7 @@
   <meta name="description" content="Безкоштовні логічні ігри для дітей українською: шашки, шахи, судоку зі звірятами, чотири в ряд та інші. З порадами для батьків.">
   <meta name="theme-color" content="#FFF7EC">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
-  <link rel="stylesheet" href="shared/kit.css?v=1790105296">
+  <link rel="stylesheet" href="shared/kit.css?v=1790140436">
   <style>
     body {
       margin: 0;
@@ -21,84 +21,42 @@
       background-attachment: fixed;
       -webkit-tap-highlight-color: transparent;
     }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 48px; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; }
 
     /* ---------- шапка ---------- */
-    .hero {
-      display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
-      padding: 32px 0 18px;
-    }
-    .mascot {
-      width: 110px; height: 110px; border-radius: 34px;
-      display: grid; place-items: center; font-size: 72px;
-      background: var(--lg-surface); box-shadow: var(--lg-shadow);
-      animation: bob 3.2s ease-in-out infinite;
-    }
-    @keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
-    .hero h1 { margin: 0; font-size: clamp(32px, 6vw, 52px); font-weight: 900; line-height: 1.05; letter-spacing: -.5px; }
-    .hero h1 span { color: var(--lg-primary); }
-    .hero p { margin: 8px 0 0; font-size: clamp(17px, 2.4vw, 20px); color: var(--lg-muted); font-weight: 700; }
-    .progress { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 999px; background: var(--lg-surface);
-      border: 2px solid var(--lg-line); font-weight: 800; font-size: 15px;
-    }
+    .top { display: flex; align-items: center; gap: 10px; padding: 14px 2px 12px; }
+    .top .owl { font-size: 34px; line-height: 1; }
+    .top h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -.3px; }
+    .top h1 span { color: var(--lg-primary); }
+    .top .stars { margin-left: auto; font-weight: 900; font-size: 16px; padding: 6px 12px; border-radius: 999px; background: var(--lg-surface); border: 2px solid var(--lg-line); }
 
-    /* ---------- фільтри ---------- */
-    .filters { display: flex; gap: 10px; overflow-x: auto; padding: 14px 2px 10px; scrollbar-width: none; }
-    .filters::-webkit-scrollbar { display: none; }
-    .filter {
-      flex: none; min-height: 44px; padding: 8px 16px; border-radius: 999px;
-      font: 800 16px var(--lg-font); color: var(--lg-ink);
-      background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer;
-      box-shadow: 0 3px 0 var(--lg-line);
-    }
-    .filter[aria-pressed="true"] { background: var(--lg-ink); color: #fff; border-color: var(--lg-ink); box-shadow: 0 3px 0 #15132b; }
-
-    /* ---------- картки ігор ---------- */
-    .grid {
-      display: grid; gap: 18px; margin-top: 8px;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    }
+    /* ---------- ігри: усі одразу на екрані ---------- */
+    .grid { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
     .card {
       --c: #6C5CE7;
-      position: relative; display: flex; flex-direction: column;
-      text-decoration: none; color: inherit;
-      background: var(--lg-surface); border-radius: 24px; overflow: hidden;
-      border: 2px solid var(--lg-line);
-      box-shadow: 0 6px 0 var(--lg-line);
-      transition: transform .15s ease, box-shadow .15s ease;
-    }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 var(--lg-line); }
-    .card:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--lg-line); }
-    .card:focus-visible { outline: 4px solid var(--lg-sky); outline-offset: 3px; }
-    .card-art {
-      position: relative; height: 128px; display: grid; place-items: center;
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      aspect-ratio: 1 / 1.08; padding: 8px 4px;
+      text-decoration: none; color: #fff; text-align: center;
       background:
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 0 26px, transparent 27px),
-        radial-gradient(circle at 85% 75%, rgba(255,255,255,.25) 0 40px, transparent 41px),
+        radial-gradient(circle at 22% 20%, rgba(255,255,255,.28) 0 18%, transparent 19%),
         var(--c);
+      border-radius: 22px; box-shadow: 0 5px 0 rgba(0,0,0,.18);
+      transition: transform .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color: transparent;
     }
-    .card-art .big { font-size: 70px; filter: drop-shadow(0 6px 0 rgba(0,0,0,.12)); transition: transform .2s; }
-    .card:hover .big { transform: scale(1.1) rotate(-6deg); }
-    .badge-new {
-      position: absolute; top: 12px; left: 12px;
-      background: #fff; color: #E0413F; font-weight: 900; font-size: 13px;
-      padding: 4px 10px; border-radius: 999px; box-shadow: 0 3px 0 rgba(0,0,0,.12);
-    }
+    .card:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
+    .card:focus-visible { outline: 4px solid var(--lg-sky); outline-offset: 3px; }
+    .card .big { font-size: clamp(38px, 12vw, 64px); line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.15)); }
+    .card h2 { margin: 0; font-size: clamp(13px, 3.8vw, 18px); font-weight: 900; line-height: 1.1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
     .wins {
-      position: absolute; top: 12px; right: 12px;
-      background: rgba(255,255,255,.92); font-weight: 900; font-size: 14px;
-      padding: 4px 10px; border-radius: 999px;
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(255,255,255,.95); color: var(--lg-ink); font-weight: 900; font-size: 12px;
+      padding: 2px 7px; border-radius: 999px;
     }
-    .card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .card h2 { margin: 0; font-size: 22px; font-weight: 900; line-height: 1.15; }
-    .card p { margin: 0; color: var(--lg-muted); font-weight: 700; font-size: 15px; line-height: 1.35; }
-    .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
-    .tag { font-size: 13px; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: var(--lg-surface-2); }
-    .level { letter-spacing: 1px; }
-    .empty { grid-column: 1 / -1; text-align: center; color: var(--lg-muted); font-weight: 800; padding: 30px; }
+    @media (min-width: 700px) {
+      .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .card h2 { font-size: 20px; }
+    }
 
     /* ---------- для батьків ---------- */
     .parents {
@@ -132,37 +90,18 @@
 
     footer { text-align: center; color: var(--lg-muted); font-weight: 700; font-size: 14px; margin-top: 36px; }
 
-    @media (max-width: 560px) {
-      .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; padding-top: 22px; gap: 12px; }
-      .mascot { width: 88px; height: 88px; font-size: 58px; border-radius: 28px; }
-      .progress { justify-content: center; }
-      .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .card-art { height: 96px; }
-      .card-art .big { font-size: 52px; }
-      .card h2 { font-size: 18px; }
-      .card p { display: none; }
-      .card-body { padding: 10px 12px 12px; }
-      .tag { font-size: 12px; padding: 3px 7px; }
-      .parents { padding: 20px 14px; }
-      .skills td:first-child { white-space: normal; }
-    }
-    @media (prefers-reduced-motion: reduce) { .mascot { animation: none; } }
+    @media (max-width: 560px) { .parents { padding: 20px 14px; } .skills td:first-child { white-space: normal; } }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header class="hero">
-      <div class="mascot" aria-hidden="true">🦉</div>
-      <div>
-        <h1>Логічні <span>ігри</span></h1>
-        <p id="greeting">Привіт! У що пограємо сьогодні?</p>
-        <div class="progress" id="progress"></div>
-      </div>
+    <header class="top">
+      <span class="owl" aria-hidden="true">🦉</span>
+      <h1>Логічні <span>ігри</span></h1>
+      <span class="stars" id="stars" hidden></span>
     </header>
 
-    <nav class="filters" aria-label="Фільтр ігор" id="filters"></nav>
-
-    <main class="grid" id="grid" aria-live="polite"></main>
+    <main class="grid" id="grid"></main>
 
     <section class="parents" id="parents" aria-labelledby="parents-title">
       <h2 id="parents-title">👨‍👩‍👧 Для батьків</h2>
@@ -205,16 +144,13 @@
         <h3>🧠 Що розвиває кожна гра</h3>
         <table class="skills" id="skills"></table>
       </div>
-      <div class="box" style="margin-top:16px" id="tools">
-        <h3>🛠️ Інструменти</h3>
-      </div>
     </section>
 
     <footer>Зроблено з любов’ю для маленьких мислителів 💜</footer>
   </div>
 
-  <script src="shared/games.js?v=1790105296"></script>
-  <script src="shared/kit.js?v=1790105296"></script>
+  <script src="shared/games.js?v=1790140436"></script>
+  <script src="shared/kit.js?v=1790140436"></script>
   <script>
   (function () {
     const games = window.LG_GAMES;
@@ -223,74 +159,23 @@
     const $ = id => document.getElementById(id);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-    // Привітання за часом доби
-    const h = new Date().getHours();
-    $('greeting').textContent =
-      h < 6 ? 'Ще не спиш? Одна коротка гра — і в ліжко 🌙' :
-      h < 12 ? 'Доброго ранку! Розімнемо мозок? ☀️' :
-      h < 18 ? 'Привіт! У що пограємо сьогодні?' :
-      'Добрий вечір! Час для гри на кмітливість 🌆';
+    // Найважливіші ігри — першими
+    const ORDER = ['pawns', 'checkers', 'corners', 'chushki', 'footprints', 'chess', 'connect4', 'ttt', 'wolfs', 'salamandra', 'sudoku'];
+    const list = ORDER.map(id => games.find(g => g.id === id)).filter(Boolean)
+      .concat(games.filter(g => !ORDER.includes(g.id)));
 
-    function plural(n, one, few, many) {
-      const m10 = n % 10, m100 = n % 100;
-      if (m10 === 1 && m100 !== 11) return one;
-      if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
-      return many;
-    }
-
-    // Загальний прогрес
     const totalWins = Object.values(stats).reduce((a, s) => a + (s.wins || 0), 0);
-    const tried = Object.keys(stats).filter(k => games.some(g => g.id === k)).length;
-    $('progress').innerHTML =
-      `<span class="pill">⭐ ${totalWins} ${plural(totalWins, 'перемога', 'перемоги', 'перемог')}</span>` +
-      `<span class="pill">🎮 зіграно ${tried} з ${games.length} ігор</span>`;
-
-    // Фільтри
-    const FILTERS = [
-      { id: 'all', label: '✨ Усі', test: () => true },
-      { id: 'little', label: '🧸 Для малят', test: g => g.tags.includes('little') },
-      { id: 'puzzle', label: '🧩 Головоломки', test: g => g.tags.includes('puzzle') },
-      { id: 'classic', label: '🏛️ Класика', test: g => g.tags.includes('classic') },
-      { id: 'chess', label: '♟️ Шахові', test: g => g.tags.includes('chess') }
-    ];
-    let active = LG.store.get('filter', 'all');
-    if (!FILTERS.some(f => f.id === active)) active = 'all';
-
-    function renderFilters() {
-      $('filters').innerHTML = FILTERS.map(f =>
-        `<button class="filter" type="button" data-f="${f.id}" aria-pressed="${f.id === active}">${f.label}</button>`).join('');
-    }
-    $('filters').addEventListener('click', e => {
-      const b = e.target.closest('[data-f]');
-      if (!b) return;
-      active = b.dataset.f;
-      LG.store.set('filter', active);
-      renderFilters(); renderGrid();
-    });
+    if (totalWins) { $('stars').hidden = false; $('stars').textContent = '⭐ ' + totalWins; }
 
     function renderGrid() {
-      const f = FILTERS.find(x => x.id === active);
-      const list = games.filter(f.test);
-      $('grid').innerHTML = list.length ? list.map(g => {
+      $('grid').innerHTML = list.map(g => {
         const s = stats[g.id];
-        const mode = g.mode.includes('robot') ? '🤖 з роботом' : '🧩 сам';
         return `<a class="card" href="${g.path}" style="--c:${g.color}">
-          <div class="card-art">
-            ${g.isNew ? '<span class="badge-new">Новинка!</span>' : ''}
-            ${s && s.wins ? `<span class="wins" title="Перемог">⭐ ${s.wins}</span>` : ''}
-            <span class="big" aria-hidden="true">${g.emoji}</span>
-          </div>
-          <div class="card-body">
-            <h2>${esc(g.title)}</h2>
-            <p>${esc(g.short)}</p>
-            <div class="meta">
-              <span class="tag">${g.age}+ р.</span>
-              <span class="tag">${mode}</span>
-              <span class="tag level" title="Складність">${'●'.repeat(g.level)}${'○'.repeat(3 - g.level)}</span>
-            </div>
-          </div>
+          ${s && s.wins ? `<span class="wins">⭐ ${s.wins}</span>` : ''}
+          <span class="big" aria-hidden="true">${g.emoji}</span>
+          <h2>${esc(g.title)}</h2>
         </a>`;
-      }).join('') : '<div class="empty">Тут поки порожньо 🙈</div>';
+      }).join('');
     }
 
     // Батьківський блок
@@ -315,8 +200,6 @@
       $('skills').innerHTML = games.map(g =>
         `<tr><td>${g.emoji} ${esc(g.title)}</td><td>${esc(g.skills.join(', '))}</td></tr>`).join('');
 
-      $('tools').insertAdjacentHTML('beforeend', window.LG_TOOLS.map(t =>
-        `<p>${esc(t.short)}</p><div class="link-row"><a class="lg-btn" href="${t.path}">${t.emoji} ${esc(t.title)}</a></div>`).join(''));
 
       const sel = $('break');
       sel.value = String(LG.store.get('breakMinutes', 0));
@@ -329,7 +212,6 @@
       });
     }
 
-    renderFilters();
     renderGrid();
     renderParents();
   })();

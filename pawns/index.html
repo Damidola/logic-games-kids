@@ -2,96 +2,69 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Пішаки</title>
-    <!-- Link Google Fonts -->
-    
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="css/styles.css?v=1790105296">
-    <link rel="stylesheet" href="css/board.css?v=1790105296">
-    <link rel="stylesheet" href="css/ui.css?v=1790105296">
-    <link rel="stylesheet" href="../shared/kit.css?v=1790105296">
-    <link rel="stylesheet" href="css/kids.css?v=1790105572">
+    <link rel="stylesheet" href="css/styles.css?v=1790140436">
+    <link rel="stylesheet" href="css/board.css?v=1790140436">
+    <link rel="stylesheet" href="css/ui.css?v=1790140436">
+    <link rel="stylesheet" href="../shared/kit.css?v=1790140436">
+    <link rel="stylesheet" href="css/kids.css?v=1790140436">
 </head>
 <body>
     <div class="game-container">
-        <div class="top-bar"></div>
+        <!-- Великий суперник: натисни, щоб обрати іншого -->
+        <button type="button" id="opponent-hero" class="opponent-hero" aria-label="Обрати суперника">
+            <img id="ai-avatar" src="" alt="Суперник">
+        </button>
 
-        <!-- Status and Opponent Selector -->
-        <div class="status-area">
-            <!-- Opponent Selector (hidden in PvP by CSS) -->
-            <div id="opponent-selector">
-                <button id="prev-opponent" class="arrow-button" title="Попередній суперник">◀</button>
-                <div class="opponent-card">
-                    <img id="ai-avatar" src="" alt="Суперник"> <!-- src set by JS -->
-                    <div class="opponent-text"><span class="vs">Твій суперник</span><b id="ai-name"></b><span id="ai-level"></span></div>
-                    <div id="captured-pawns-counter" class="captured-pawns-counter">
-                        <span class="pawn-icon"></span>
-                        <span class="count">0</span>
-                    </div>
-                </div>
-                <button id="next-opponent" class="arrow-button" title="Наступний суперник">▶</button>
-            </div>
-        </div>
-        
-        <!-- Board -->
+        <div class="material" id="material-top" aria-label="Що збив суперник"></div>
         <div class="board-wrapper">
             <div id="chessboard"></div>
-            <button id="theme-toggle-button" class="theme-toggle-button" title="Змінити тему дошки">🎨</button>
+            <svg id="hint-arrow" class="hint-arrow" viewBox="0 0 8 8" aria-hidden="true"></svg>
         </div>
+        <div class="material" id="material-bottom" aria-label="Що збив ти"></div>
 
-        <!-- Game Controls -->
+        <!-- Кнопки -->
         <div class="game-controls">
-            <!-- Left Controls -->
-            <button id="restart-button" title="Перезапустити гру">🔄</button>
-            <button id="flip-board-button" title="Перевернути дошку">⚫</button>
-            
-            <!-- Center Controls -->
-            <div class="center-buttons">
-                <button id="undo-button" title="Скасувати хід">↩️ <span id="undo-count" class="counter"></span></button>
-                <button id="hint-button" title="Підказка">💡 <span id="hint-count" class="counter"></span></button>
-                <button id="en-passant-toggle" class="toggle-button active" title="Взяття на проході: Увімкнено">
-                    <span class="icon"></span>
-                </button>
-            </div>
-        </div>
-    </div> <!-- End game-container -->
-
-    <!-- Win Modal -->
-    <div id="win-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" title="Закрити">×</span>
-            <h2 id="win-message">Перемога</h2>
-            <img id="cat-photo" src="" alt="Котик для переможця!">
-            <div class="modal-buttons">
-                <button id="play-again-button">Грати знову</button>
-                <button id="ok-button">OK</button>
-            </div>
+            <button id="restart-button" class="ctl" title="Почати заново"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+            <button id="undo-button" class="ctl" title="Скасувати хід"><span class="ico">↩️</span><span class="lbl">Назад</span><span id="undo-count" class="counter"></span></button>
+            <button id="hint-button" class="ctl" title="Підказка"><span class="ico">💡</span><span class="lbl">Підказка</span><span id="hint-count" class="counter"></span></button>
+            <button id="flip-board-button" class="ctl" title="Грати іншим кольором"><span class="ico side-dot"></span><span class="lbl">Колір</span></button>
         </div>
     </div>
-    
-    <!-- Sound Effects -->
-    <audio id="move-sound" src="https://lichess.org/assets/sound/standard/Move.ogg" preload="auto"></audio>
-    <audio id="capture-sound" src="https://lichess.org/assets/sound/standard/Capture.ogg" preload="auto"></audio>
-    <audio id="win-sound" src="img/avatars/win.mp3" preload="auto"></audio>
 
-    <!-- JavaScript Files -->
-    <script src="../shared/games.js?v=1790105296"></script>
-    <script src="../shared/kit.js?v=1790105296" data-game="pawns"></script>
-    <script src="js/game.js?v=1790105296"></script>      <!-- Defines state, constants, move logic, game init -->
-    <script src="js/ai.js?v=1790105296"></script>         <!-- AI logic, depends on game state/moves -->
-    <script src="js/ui.js?v=1790105296"></script>         <!-- UI elements, rendering, modal (contains board.js, modal.js) -->
-    <script src="js/interaction.js?v=1790105296"></script> <!-- Event listeners, handlers, main init (contains events.js) -->
-    <script>
-        // Кнопку зміни кольорів дошки переносимо у верхню панель,
-        // щоб унизу лишилось рівно 5 кнопок і все вміщалось на екран.
-        document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById('theme-toggle-button');
-            const bar = document.querySelector('.lg-bar-actions');
-            if (btn && bar) { btn.className = 'lg-icon-btn theme-in-bar'; bar.prepend(btn); }
-        });
-        // Сторінку не можна прокручувати пальцем
-        document.addEventListener('touchmove', e => { if (!e.target.closest('.lg-modal')) e.preventDefault(); }, { passive: false });
-    </script>
+    <!-- Вибір суперника -->
+    <div id="opponent-picker" class="picker" hidden>
+        <div class="picker-card">
+            <div class="picker-grid" id="picker-grid"></div>
+        </div>
+    </div>
+
+    <!-- Старі елементи, на які ще посилається код гри (приховані) -->
+    <div hidden>
+        <div class="status-area"><div id="opponent-selector">
+            <button id="prev-opponent"></button><button id="next-opponent"></button>
+            <b id="ai-name"></b><span id="ai-level"></span>
+        </div></div>
+        <button id="theme-toggle-button"></button>
+        <button id="en-passant-toggle" class="toggle-button"><span class="icon"></span></button>
+        <div id="captured-pawns-counter"><span class="pawn-icon"></span><span class="count">0</span></div>
+        <div id="win-modal" class="modal"><div class="modal-content">
+            <span class="close-button"></span><h2 id="win-message"></h2><img id="cat-photo" alt="">
+            <button id="play-again-button"></button><button id="ok-button"></button>
+        </div></div>
+    </div>
+
+    <audio id="move-sound" src="../shared/sounds/move.mp3" preload="auto"></audio>
+    <audio id="capture-sound" src="../shared/sounds/capture.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="../shared/sounds/win.mp3" preload="auto"></audio>
+
+    <script src="../shared/games.js?v=1790140436"></script>
+    <script src="../shared/kit.js?v=1790140436" data-game="pawns" data-night="on"></script>
+    <script src="js/game.js?v=1790140436"></script>
+    <script src="js/ai.js?v=1790140436"></script>
+    <script src="js/ui.js?v=1790140436"></script>
+    <script src="js/interaction.js?v=1790140436"></script>
+    <script src="js/kids.js?v=1790140436"></script>
 </body>
 </html>

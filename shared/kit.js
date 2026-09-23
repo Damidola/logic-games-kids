@@ -12,6 +12,8 @@
   const gameId = script && script.dataset.game;
   const root = (script && script.getAttribute('src') || '').replace(/shared\/kit\.js.*$/, '');
   const game = (window.LG_GAMES || []).find(g => g.id === gameId) || null;
+  // Гра може підтримувати нічну тему: <script ... data-night="on">
+  const nightSupported = !!(script && script.dataset.night);
 
   // ---------- сховище (може бути недоступне в приватному режимі) ----------
   const store = {
@@ -35,7 +37,7 @@
     osc.type = type || 'sine';
     osc.frequency.setValueAtTime(freq, t);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(vol || 0.18, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, (vol || 0.18) * LG.volume), t + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     osc.connect(gain).connect(audioCtx.destination);
     osc.start(t);
@@ -49,7 +51,14 @@
     lose: () => [392, 330, 262].forEach((f, i) => tone(f, i * 0.16, 0.3, 'sine', 0.12)),
     draw: () => [440, 440].forEach((f, i) => tone(f, i * 0.18, 0.2, 'sine', 0.12))
   };
+  // Звукові файли (звук перемоги — той самий, що був у старій версії гри)
+  const FILES = { win: 'shared/sounds/win.mp3' };
+  function playFile(url) {
+    if (LG.muted || LG.volume <= 0) return;
+    try { const a = new Audio(url); a.volume = LG.volume; a.play().catch(() => {}); } catch (e) { /* без звуку */ }
+  }
   function play(name) {
+    if (FILES[name]) return playFile(root + FILES[name]);
     if (LG.muted || !SOUNDS[name]) return;
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -269,19 +278,43 @@
   }
 
   // ---------- верхня панель ----------
-  function buildBar() {
-    const muteBtn = el('button', {
-      class: 'lg-icon-btn', type: 'button',
-      onclick: () => { LG.muted = !LG.muted; store.set('muted', LG.muted); paintMute(); if (!LG.muted) play('tap'); }
+  // ---------- налаштування (шестерня у верхній панелі) ----------
+  const settingsBuilders = [];
+  function switchRow(label, checked, onChange) {
+    const input = el('input', { type: 'checkbox' });
+    input.checked = checked;
+    input.addEventListener('change', () => onChange(input.checked));
+    return el('label', { class: 'lg-set-row' }, [el('span', { text: label }), input]);
+  }
+  function showSettings() {
+    const vol = el('input', { type: 'range', min: '0', max: '100', step: '5', value: String(Math.round(LG.volume * 100)), class: 'lg-range', 'aria-label': 'Гучність' });
+    vol.addEventListener('input', () => {
+      LG.volume = +vol.value / 100; store.set('volume', LG.volume);
+      document.dispatchEvent(new CustomEvent('lg:volume', { detail: LG.volume }));
     });
-    function paintMute() {
-      muteBtn.textContent = LG.muted ? '🔇' : '🔊';
-      muteBtn.title = LG.muted ? 'Увімкнути звук' : 'Вимкнути звук';
-      muteBtn.setAttribute('aria-label', muteBtn.title);
-      document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted }));
+    vol.addEventListener('change', () => play('tap'));
+    const body = el('div', { class: 'lg-settings' }, [
+      el('h2', { text: '⚙️ Налаштування' }),
+      el('div', { class: 'lg-set-group' }, [
+        switchRow('🔊 Звук', !LG.muted, on => { LG.muted = !on; store.set('muted', LG.muted); document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted })); if (on) play('tap'); }),
+        el('div', { class: 'lg-set-row' }, [el('span', { text: 'Гучність' }), vol])
+      ])
+    ]);
+    if (nightSupported) {
+      body.appendChild(el('div', { class: 'lg-set-group' }, [
+        switchRow('🌙 Нічна тема', document.documentElement.classList.contains('lg-night'), on => {
+          document.documentElement.classList.toggle('lg-night', on); store.set('night:' + gameId, on);
+        })
+      ]));
     }
-    paintMute();
+    settingsBuilders.forEach(fn => { const part = fn(); if (part) body.appendChild(el('div', { class: 'lg-set-group' }, [part])); });
+    body.appendChild(el('button', { class: 'lg-btn lg-btn-primary lg-btn-wide', text: 'Готово', onclick: closeModal }));
+    openModal(body, { cls: 'lg-modal-settings' });
+  }
 
+  // ---------- верхня панель ----------
+  function buildBar() {
+    const gearBtn = el('button', { class: 'lg-icon-btn lg-gear', type: 'button', title: 'Налаштування', 'aria-label': 'Налаштування', text: '⚙️', onclick: showSettings });
     const bar = el('header', { class: 'lg-bar' }, [
       el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [
         el('span', { text: '🏠' })
@@ -291,7 +324,7 @@
         el('span', { text: game.title })
       ]),
       el('div', { class: 'lg-bar-actions' }, [
-        muteBtn,
+        gearBtn,
         el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules })
       ])
     ]);
@@ -302,6 +335,10 @@
   const LG = window.LG = {
     game,
     muted: store.get('muted', false),
+    volume: store.get('volume', 0.8),
+    playFile,
+    showSettings,
+    addSettings: fn => settingsBuilders.push(fn),
     store,
     play,
     toast,
@@ -322,6 +359,7 @@
 
   function init() {
     document.documentElement.classList.add('lg');
+    if (nightSupported) document.documentElement.classList.toggle('lg-night', store.get('night:' + gameId, script.dataset.night === 'on'));
     document.body.classList.add('lg-game', 'lg-game-' + gameId);
     document.title = game.title + ' · Логічні ігри';
     buildBar();

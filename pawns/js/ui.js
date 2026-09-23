@@ -200,29 +200,10 @@ function updateButtonStates() {
     const undoAllowed = canUndo();
     const hintAllowed = canRequestHint();
 
-    undoButton.disabled = !undoAllowed;
-    hintButton.disabled = !hintAllowed;
-
-    // Format counts (show only if finite and > 0)
-    const formatCount = (count) => ''; 
-    const undoText = ''; 
-    const hintText = ''; 
-
-    undoCountEl.textContent = undoText;
-    hintCountEl.textContent = hintText;
-    undoCountEl.style.display = undoText ? 'inline' : 'none';
-    hintCountEl.style.display = hintText ? 'inline' : 'none';
-
-    // Disable opponent switching during AI turn
-    const opponentSwitchDisabled = aiThinking;
-    prevOpponentButton.disabled = opponentSwitchDisabled || opponents.length <= 1;
-    nextOpponentButton.disabled = opponentSwitchDisabled || opponents.length <= 1;
-
-    // Disable interaction-sensitive buttons during AI turn or game over
-    const interactionDisabled = aiThinking || gameOver;
-    enPassantToggleButton.disabled = interactionDisabled;
-    flipBoardButton.disabled = interactionDisabled;
-    restartButton.disabled = aiThinking; // Allow restart if game over
+    // Кнопки більше не «блимають» неактивними під час ходу робота:
+    // вони завжди виглядають однаково, а зайві натискання просто ігноруються.
+    undoButton.classList.toggle('is-off', !undoAllowed);
+    hintButton.classList.toggle('is-off', !hintAllowed);
 }
 
 function updateEnPassantButton() {
@@ -278,6 +259,7 @@ function playSound(soundElement) {
     if (window.LG && LG.muted) return;
     if (soundElement?.play) {
         soundElement.currentTime = 0;
+        if (window.LG) soundElement.volume = LG.volume;
         soundElement.play().catch(error => console.warn("Audio play failed:", error.name, error.message));
     }
 }
