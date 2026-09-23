@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Мат в 1 хід</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790178575">
+  <link rel="stylesheet" href="../shared/play.css?v=1790178575">
+  <style>
+    .mt { justify-content: center; gap: 8px; }
+    .mt-setup { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .seg { display: inline-flex; padding: 3px; gap: 3px; border-radius: 14px; background: var(--lg-surface); border: 2px solid var(--lg-line); }
+    .seg button { min-width: 44px; min-height: 36px; padding: 2px 8px; border: 0; border-radius: 10px; font: 900 15px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer; }
+    .seg button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
+    .seg button mpiece { display: inline-block; width: 26px; height: 26px; background-size: cover; vertical-align: middle; }
+    .mt-goal { display: flex; align-items: center; gap: 10px; font: 900 16px var(--lg-font); color: var(--lg-ink); min-height: 30px; }
+    .mt-lives { letter-spacing: 2px; font-size: 15px; }
+    .mt-count { padding: 3px 10px; border-radius: 999px; background: var(--lg-surface); border: 2px solid var(--lg-line); font-size: 14px; }
+    .mt .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 90px - 40px - 60px - 30px)); }
+    .mt .lg-board-wrap.solved cg-board { box-shadow: 0 0 0 5px #2ECC9A; }
+    .mt .lg-board-wrap.wrong cg-board { animation: mtshake .35s ease; }
+    @keyframes mtshake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .mt .lg-controls { grid-template-columns: repeat(3, 1fr); width: min(100%, 420px); }
+  </style>
+</head>
+<body>
+  <main class="lg-play mt">
+    <div class="mt-setup">
+      <div class="seg" id="level" role="radiogroup" aria-label="Скільки фігур">
+        <button type="button" role="radio" data-l="few">Мало фігур</button>
+        <button type="button" role="radio" data-l="mid">Середньо</button>
+        <button type="button" role="radio" data-l="many">Багато</button>
+      </div>
+      <div class="seg" id="piece" role="radiogroup" aria-label="Якою фігурою мат"></div>
+    </div>
+    <div class="mt-goal"><span id="goal">Мат в 1 хід!</span><span class="mt-lives" id="lives"></span><span class="mt-count" id="count">✅ 0</span></div>
+    <div class="lg-board-wrap" id="wrap"><div class="lg-board-el" id="board"></div></div>
+    <div class="lg-controls">
+      <button type="button" id="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
+      <button type="button" id="show"><span class="ico">👀</span><span class="lbl">Розв’язок</span></button>
+      <button type="button" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
+    </div>
+  </main>
+  <script src="../shared/games.js?v=1790178575"></script>
+  <script src="../shared/kit.js?v=1790178575" data-game="mate" data-night="on"></script>
+  <script type="module" src="mate.js?v=1790178575"></script>
+</body>
+</html>

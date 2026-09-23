@@ -7,7 +7,7 @@
   <meta name="description" content="Безкоштовні логічні ігри для дітей українською: шашки, шахи, судоку зі звірятами, чотири в ряд та інші. З порадами для батьків.">
   <meta name="theme-color" content="#15142A">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
-  <link rel="stylesheet" href="shared/kit.css?v=1790178318">
+  <link rel="stylesheet" href="shared/kit.css?v=1790178575">
   <style>
     body {
       margin: 0;
@@ -119,8 +119,8 @@
     <footer>Зроблено з любов’ю для маленьких мислителів 💜</footer>
   </div>
 
-  <script src="shared/games.js?v=1790178318"></script>
-  <script src="shared/kit.js?v=1790178318"></script>
+  <script src="shared/games.js?v=1790178575"></script>
+  <script src="shared/kit.js?v=1790178575"></script>
   <script>
   (function () {
     const games = window.LG_GAMES;
@@ -130,7 +130,7 @@
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
     // Найважливіші ігри — першими
-    const ORDER = ['pawns', 'checkers', 'wolfs', 'learn', 'corners', 'chushki', 'footprints', 'chess', 'queens', 'reversi', 'quoridor', 'dots', 'connect4', 'ttt', 'nim', 'hanoi', 'rider', 'salamandra', 'sudoku'];
+    const ORDER = ['pawns', 'checkers', 'wolfs', 'learn', 'corners', 'chushki', 'footprints', 'chess', 'mate', 'queens', 'reversi', 'quoridor', 'dots', 'connect4', 'ttt', 'nim', 'hanoi', 'rider', 'salamandra', 'sudoku'];
     const list = ORDER.map(id => games.find(g => g.id === id)).filter(Boolean)
       .concat(games.filter(g => !ORDER.includes(g.id)));
 
