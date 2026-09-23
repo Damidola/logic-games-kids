@@ -15,10 +15,10 @@ const DATA = await (await fetch(new URL('puzzles.json', import.meta.url))).json(
 const GROUPS = [
   ['Мат в 1 хід', [
     ['m1rook', 'rook', 'Турою', 'Найпростіші — тура й король'],
-    ['m1queen', 'queen', 'Ферзем', 'Ферзь — найсильніша фігура'],
     ['m1bishop', 'bishop', 'Слоном', 'Слон ходить навскоси'],
-    ['m1knight', 'knight', 'Конем', 'Кінь стрибає літерою «Г»'],
     ['m1pawn', 'pawn', 'Пішаком', 'Хід пішаком або перетворення'],
+    ['m1queen', 'queen', 'Ферзем', 'Ферзь — найсильніша фігура'],
+    ['m1knight', 'knight', 'Конем', 'Кінь стрибає літерою «Г»'],
     ['m1mix', '🎲', 'Різні', 'Будь-якою фігурою']]],
   ['Мат в 2 ходи', [
     ['mate2', '🏆', 'Мат в 2 ходи', 'Хід, відповідь суперника — і мат']]],
@@ -72,12 +72,13 @@ const shake = () => { wrap.classList.remove('wrong'); void wrap.offsetWidth; wra
 
 // Тимчасовий напис під дошкою
 let flash = 0;
-function say(text) {
+function say(text, ms = 1900) {
   $('task').textContent = text; $('task').classList.add('say');
-  clearTimeout(flash); flash = setTimeout(() => { flash = 0; $('task').classList.remove('say'); paint(); }, 1900);
+  clearTimeout(flash); flash = setTimeout(() => { flash = 0; $('task').classList.remove('say'); paint(); }, ms);
 }
 // Як суперник рятується від шаху: король тікає, фігуру, що шахує, б'ють або закриваються
-function escape(p) {
+function escape(p) { return escapes(p)[0]; }
+function escapes(p) {
   const list = [];
   for (const [from, dests] of p.allDests()) for (const to of dests) {
     const pc = p.board.get(from), victim = p.board.get(to);
@@ -85,10 +86,10 @@ function escape(p) {
     const uci = makeSquare(from) + makeSquare(to) + (m.promotion ? 'q' : '');
     if (pc.role === 'king' && victim && victim.color === pc.color) continue; // рокіровка
     list.push({ uci, rank: pc.role === 'king' ? (victim ? 1 : 0) : victim ? 2 : 3,
-      text: pc.role === 'king' ? (victim ? 'Король збив фігуру — це не мат' : 'Король утік — це ще не мат') : victim ? 'Фігуру, що шахує, збили — це не мат' : 'Від шаху закрилися — це не мат' });
+      text: pc.role === 'king' ? (victim ? 'Король збив фігуру — це не мат' : 'Король утік — туди ніхто не б’є') : victim ? 'Фігуру, що шахує, просто збили' : 'Від шаху закрилися іншою фігурою' });
   }
   list.sort((a, b) => a.rank - b.rank);
-  return list[0];
+  return list;
 }
 // Вибір фігури для перетворення пішака, як на Lichess
 function askPromotion(to, color) {
@@ -194,13 +195,17 @@ async function puzzleMove(from, to) {
     // Шах, але не мат: показуємо, як суперник рятується, — і повертаємо назад
     if (MATE_SEC(sec) && test.isCheck()) {
       show(test, [from, to]);
-      const r = escape(test);
+      const outs = escapes(test), r = outs[0];
+      say('Шах, але не мат: ' + (outs.length > 1 ? 'ось як можна врятуватися 👇' : 'ось як урятуватися 👇'), 3600);
+      // стрілки: усі способи врятуватися (куди тікає король, хто б'є, хто закриває)
+      setTimeout(() => { if (t === token) board.shapes(outs.slice(0, 8).map(o => ({ orig: o.uci.slice(0, 2), dest: o.uci.slice(2, 4), brush: o.rank === 0 ? 'green' : o.rank === 3 ? 'blue' : 'red' }))); }, 350);
       setTimeout(() => {
         if (t !== token || !r) return;
+        board.clearHint();
         const { q, lm } = playUci(test, r.uci); show(q, lm);
-        say(r.text);
-        setTimeout(back, 1500);
-      }, 650);
+        say(r.text, 2200);
+        setTimeout(back, 1800);
+      }, 1900);
       return;
     }
     shake();

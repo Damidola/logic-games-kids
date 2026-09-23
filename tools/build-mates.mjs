@@ -178,9 +178,59 @@ for (let t = 0; t < 300000 && under.length < 16; t++) {
   under.push({ id: 'n' + under.length, fen: makeFen(pr.toSetup()), sol: makeUci(mv), role: 'pawn', promo: 'knight', n: count(pr), rating: 900 });
 }
 
+// Складені задачі на 3–6 фігур: мат ставить саме ця фігура, і кожна фігура на дошці потрібна
+// (без будь-якої з них мату вже немає). Позиції перебираємо випадково й перевіряємо правилами chessops.
+const minimal = (p, isMate) => [...p.board.occupied].every(sq => p.board.get(sq).role === 'king' || !(() => { const q = without(p, sq); return q && isMate(q); })());
+function compose(role, lo, hi, want, tries = 3e6) {
+  const out = [];
+  const W = { rook: 'rook', queen: 'queen', bishop: 'bishop', knight: 'knight', pawn: 'pawn' }[role];
+  for (let t = 0; t < tries && out.length < want; t++) {
+    const s = Chess.default().toSetup(); s.board = s.board.clone(); for (const sq of [...s.board.occupied]) s.board.take(sq);
+    const put = (sq, pc) => { if (s.board.get(sq)) return false; s.board.set(sq, pc); return true; };
+    const n = lo + rnd(hi - lo + 1);
+    // чорний король частіше біля краю — там матують
+    const bf = [0, 7, rnd(8), rnd(8)][rnd(4)], br = [0, 7, rnd(8), 7][rnd(4)];
+    put(br * 8 + bf, { role: 'king', color: 'black' });
+    put(rnd(64), { role: 'king', color: 'white' });
+    let sq = role === 'pawn' ? 8 * (1 + rnd(6)) + rnd(8) : rnd(64);
+    if (!put(sq, { role: W, color: 'white' })) continue;
+    let ok = true;
+    for (let k = 3; k < n && ok; k++) {
+      // чорні фігури поруч із королем (закривають клітинки) або ще одна біла фігура
+      const near = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]][rnd(8)];
+      const white = Math.random() < 0.3;
+      const f = white ? rnd(8) : bf + near[0], r = white ? rnd(8) : br + near[1];
+      if (!onBoard(f, r)) { ok = false; break; }
+      const roles = white ? ['pawn', 'rook', 'bishop', 'knight'] : ['pawn', 'pawn', 'pawn', 'rook', 'bishop', 'knight'];
+      const rr = roles[rnd(roles.length)];
+      if (rr === 'pawn' && (r === 0 || r === 7)) { ok = false; break; }
+      ok = put(r * 8 + f, { role: rr, color: white ? 'white' : 'black' });
+    }
+    if (!ok) continue;
+    s.turn = 'white'; s.castlingRights = SquareSet.empty();
+    const res = Chess.fromSetup(s); if (!res.isOk) continue;
+    const q = res.unwrap();
+    if (q.isCheck() || q.isEnd() || count(q) !== n) continue;
+    const ms = mateIn1Moves(q);
+    if (!ms.length || ms.length > 2 || ms.some(m => q.board.get(m.from).role !== W)) continue;
+    if (role !== 'pawn' && ms.some(m => m.promotion)) continue;
+    if (!minimal(q, x => mateIn1Moves(x).some(m => x.board.get(m.from)?.role === W))) continue;
+    const key = shape(makeFen(q.toSetup())); if (seen.has(key)) continue; seen.add(key);
+    out.push({ id: `c-${role}-${n}-${out.length}`, fen: makeFen(q.toSetup()), sol: makeUci(ms[0]), role, promo: ms[0].promotion || '', n, rating: 400 + 50 * n });
+  }
+  return out;
+}
+const easyFirst = (role, list) => {
+  const a = compose(role, role === 'bishop' || role === 'knight' ? 4 : 3, 4, 10), b = compose(role, 5, 6, 10);
+  console.log(role, 'складені:', a.length, '+', b.length);
+  return [...a.sort(easy), ...b.sort(easy), ...list];
+};
 const res = {
-  m1rook: progress(byRole('rook'), PLAN), m1bishop: progress(byRole('bishop'), PLAN), m1queen: progress(byRole('queen'), PLAN), m1knight: progress(byRole('knight'), PLAN),
-  m1pawn: [...progress(pawnPush, [[3, 5, 10], [6, 8, 6]]), ...progress(under, [[3, 9, 10]]), ...progress(pawnQueen, [[3, 8, 6]])].sort(easy),
+  m1rook: easyFirst('rook', progress(byRole('rook'), [[4, 12, 15]])),
+  m1bishop: easyFirst('bishop', progress(byRole('bishop'), [[5, 12, 15]])),
+  m1pawn: easyFirst('pawn', [...progress(under, [[3, 9, 8]]), ...progress(pawnPush, [[4, 9, 8]]), ...progress(pawnQueen, [[4, 9, 4]])].sort(easy)),
+  m1queen: easyFirst('queen', progress(byRole('queen'), [[4, 12, 15]])),
+  m1knight: easyFirst('knight', progress(byRole('knight'), [[5, 12, 15]])),
 };
 const used = new Set(Object.values(res).flat().map(z => z.id));
 res.m1mix = progress(m1.filter(z => !used.has(z.id)), [[4, 5, 10], [6, 8, 20], [9, 14, 10]]).sort(() => Math.random() - .5);
