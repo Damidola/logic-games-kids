@@ -18,7 +18,7 @@ export const choice = (label, key, def, options, onChange) => () => {
 };
 const colorName = s => (s === 'w' ? 'white' : 'black');
 
-/* startGame({ rules, root, options, view, autoClose, extraSettings(), sideNames, quick })
+/* startGame({ rules, root, options, view, autoClose, extraSettings(), sideNames, quick, player })
    quick: { key, def, options: [[значення, підпис], …] } — кнопки під дошкою (напр. розмір поля) */
 export function startGame(cfg) {
   const { rules } = cfg;
@@ -43,7 +43,7 @@ export function startGame(cfg) {
   const $ = s => root.querySelector(s);
 
   // ---------- стан партії ----------
-  let player = 'w';          // яким кольором грає дитина
+  let player = cfg.player || 'w'; // яким кольором грає дитина
   let history = [];          // позиції від початку партії
   let pos = 0;               // яку позицію зараз показано
   let hintsLeft, undosLeft, lastHint = null, thinking = false, over = false, aiTimer = null;

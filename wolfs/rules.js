@@ -1,41 +1,50 @@
-/* «Фігури й пішаки»: білі пішаки проти чорних фігур (кінь, слон, ферзь) або пішаків.
-   Пішаки виграють, якщо хоч один дійде до кінця дошки; фігури — якщо зіб'ють усіх пішаків.
-   Фігури ходять за шаховими правилами (без шаху). Немає ходів — нічия. */
+/* «Фігури й пішаки»: білі пішаки проти чорних фігур (тура, слон, кінь, ферзь) або проти пішаків.
+   Пішак, що дійшов до кінця дошки, стає ферзем — але перемога, лише якщо цього ферзя не з'їли
+   наступним ходом. Фігури виграють, коли зіб'ють усіх пішаків. Фігури ходять за шаховими правилами
+   (без шаху). Немає ходів — нічия. */
 import { squareName as N } from '../shared/board.js';
 
+// Від найпростішого для фігур до найважчого. [ключ, фігури, скільки пішаків]
 export const MODES = [
-  ['p_vs_p1', '♟ 4 пішаки проти 4'], ['p_vs_p2', '♟ 6 пішаків проти 6'],
-  ['n_vs_p1', '♞ 2 коні проти 4 пішаків'], ['n_vs_p2', '♞ 2 коні проти 6 пішаків'],
-  ['b_vs_p1', '♝ 2 слони проти 4 пішаків'], ['b_vs_p2', '♝ 2 слони проти 6 пішаків'],
-  ['q_vs_p', '♛ Ферзь проти 8 пішаків']
+  ['q_p8', 'Q', 8], ['r_p5', 'R', 5], ['b_p3', 'B', 3], ['n_p3', 'N', 3],
+  ['bb_p8', 'BB', 8], ['nn_p6', 'NN', 6], ['p_vs_p1', 'PPPP', 4], ['p_vs_p2', 'PPPPPP', 6]
 ];
-const ROLE = { P: 'pawn', N: 'knight', B: 'bishop', Q: 'queen' };
-const VALUE = { N: 320, B: 330, Q: 900 };
+const NAMES = { Q: 'ферзь', R: 'тура', B: 'слон', N: 'кінь', BB: '2 слони', NN: '2 коні', PPPP: '4 пішаки', PPPPPP: '6 пішаків' };
+export const modeLabel = ([, f, n]) => `${NAMES[f]} проти ${n} пішаків`;
+// Кнопка режиму: картинки фігур «проти» кількості пішаків
+export const modeButton = ([, f, n]) => {
+  const role = { Q: 'queen', R: 'rook', B: 'bishop', N: 'knight', P: 'pawn' };
+  const pcs = f.startsWith('P') ? `<mpiece class="pawn black"></mpiece><small>${f.length}</small>` : [...f].map(c => `<mpiece class="${role[c]} black"></mpiece>`).join('');
+  return `${pcs}<small>vs</small><small>${n}</small><mpiece class="pawn white"></mpiece>`;
+};
+const ROLE = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen' };
+const VALUE = { N: 320, B: 330, R: 500, Q: 900 };
 const other = s => (s === 'w' ? 'b' : 'w');
 const inside = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
 const STEPS = {
   N: [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]],
   B: [[-1, -1], [-1, 1], [1, -1], [1, 1]],
+  R: [[-1, 0], [1, 0], [0, -1], [0, 1]],
   Q: [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]]
 };
-
+// Пішаки — по центру другого ряду; фігури — у куті / з краю
+const PAWN_COLS = { 3: [2, 3, 4], 4: [2, 3, 4, 5], 5: [1, 2, 3, 4, 5], 6: [1, 2, 3, 4, 5, 6], 8: [0, 1, 2, 3, 4, 5, 6, 7] };
 function setup(mode) {
+  const [, f, n] = MODES.find(m => m[0] === mode) || MODES[0];
   const b = Array(64).fill(null), put = (r, c, color, t) => { b[r * 8 + c] = { c: color, t }; };
-  const whites = cols => cols.forEach(c => put(6, c, 'w', 'P'));
-  switch (mode) {
-    case 'p_vs_p1': [2, 3, 4, 5].forEach(c => { put(6, c, 'w', 'P'); put(1, c, 'b', 'P'); }); break;
-    case 'p_vs_p2': [1, 2, 3, 4, 5, 6].forEach(c => { put(6, c, 'w', 'P'); put(1, c, 'b', 'P'); }); break;
-    case 'n_vs_p1': whites([2, 3, 4, 5]); put(0, 1, 'b', 'N'); put(0, 6, 'b', 'N'); break;
-    case 'n_vs_p2': whites([1, 2, 3, 4, 5, 6]); put(0, 1, 'b', 'N'); put(0, 6, 'b', 'N'); break;
-    case 'b_vs_p1': whites([2, 3, 4, 5]); put(0, 2, 'b', 'B'); put(0, 5, 'b', 'B'); break;
-    case 'b_vs_p2': whites([1, 2, 3, 4, 5, 6]); put(0, 2, 'b', 'B'); put(0, 5, 'b', 'B'); break;
-    default: whites([0, 1, 2, 3, 4, 5, 6, 7]); put(0, 3, 'b', 'Q');
-  }
+  PAWN_COLS[n].forEach(c => put(6, c, 'w', 'P'));
+  if (f.startsWith('P')) PAWN_COLS[n].forEach(c => put(1, c, 'b', 'P'));
+  else if (f === 'Q') put(0, 3, 'b', 'Q');
+  else if (f === 'R') put(0, 0, 'b', 'R');
+  else if (f === 'B') put(0, 5, 'b', 'B');
+  else if (f === 'N') put(0, 6, 'b', 'N');
+  else if (f === 'BB') { put(0, 2, 'b', 'B'); put(0, 5, 'b', 'B'); }
+  else if (f === 'NN') { put(0, 1, 'b', 'N'); put(0, 6, 'b', 'N'); }
   return b;
 }
 
 export function createRules(opts = {}) {
-  const mode = () => (opts.mode ? opts.mode() : 'q_vs_p');
+  const mode = () => { const m = opts.mode ? opts.mode() : 'q_p8'; return MODES.some(x => x[0] === m) ? m : 'q_p8'; };
 
   function pieceMoves(b, i) {
     const p = b[i], out = [], r0 = i >> 3, c0 = i & 7;
@@ -71,17 +80,22 @@ export function createRules(opts = {}) {
     return out;
   }
   function play(s, m) {
-    const b = s.b.slice(), cap = { ...s.cap };
+    const b = s.b.slice(), cap = { w: s.cap.w.slice(), b: s.cap.b.slice() };
     if (b[m.j]) cap[s.t].push(b[m.j].t);
     b[m.j] = b[m.i]; b[m.i] = null;
-    return { b, t: other(s.t), mode: s.mode, cap };
+    // пішак на останньому ряду стає ферзем; якщо суперник його не з'їв — перемога
+    let promo = null, won = null;
+    const p = b[m.j];
+    if (p.t === 'P' && (m.j >> 3) === (p.c === 'w' ? 0 : 7)) { b[m.j] = { c: p.c, t: 'Q', promo: true }; promo = { side: p.c, sq: m.j }; }
+    if (s.promo && s.promo.side !== s.t && b[s.promo.sq] && b[s.promo.sq].promo && b[s.promo.sq].c === s.promo.side) won = s.promo.side;
+    return { b, t: other(s.t), mode: s.mode, cap, promo, won };
   }
   function result(s) {
+    if (s.won) return { winner: s.won, text: 'Пішак дійшов до кінця й став ферзем!' };
     let wp = 0, bp = 0;
     for (let i = 0; i < 64; i++) {
-      const p = s.b[i]; if (!p || p.t !== 'P') continue;
-      if (p.c === 'w') { wp++; if (i >> 3 === 0) return { winner: 'w', text: 'Білий пішак дійшов до кінця дошки!' }; }
-      else { bp++; if (i >> 3 === 7) return { winner: 'b', text: 'Чорний пішак дійшов до кінця дошки!' }; }
+      const p = s.b[i]; if (!p || !(p.t === 'P' || p.promo)) continue;
+      if (p.c === 'w') wp++; else bp++;
     }
     if (!wp) return { winner: 'b', text: 'Усі білі пішаки збиті!' };
     if (s.mode.startsWith('p_vs_p') && !bp) return { winner: 'w', text: 'Усі чорні пішаки збиті!' };
@@ -94,16 +108,16 @@ export function createRules(opts = {}) {
       const p = s.b[i]; if (!p) continue;
       let x;
       if (p.t === 'P') { const adv = p.c === 'w' ? 6 - (i >> 3) : (i >> 3) - 1; x = 100 + adv * adv * 8; }
-      else x = VALUE[p.t];
+      else x = VALUE[p.t] + (p.promo ? 1500 : 0); // новий ферзь майже виграв
       v += p.c === side ? x : -x;
     }
     return v;
   }
   return {
-    initial: () => ({ b: setup(mode()), t: 'w', mode: mode(), cap: { w: [], b: [] } }),
+    initial: () => ({ b: setup(mode()), t: 'w', mode: mode(), cap: { w: [], b: [] }, promo: null, won: null }),
     moves, play, result, evaluate,
     turn: s => s.t,
-    key: s => s.b.map(p => (p ? p.c + p.t : '..')).join('') + s.t,
+    key: s => s.b.map(p => (p ? p.c + p.t : '..')).join('') + s.t + (s.promo ? s.promo.sq : ''),
     pieces: s => { const m = new Map(); s.b.forEach((p, i) => p && m.set(N(i), { role: ROLE[p.t], color: p.c === 'w' ? 'white' : 'black' })); return m; },
     captured: s => s.cap,
     moveOrder: (s, m) => m.gain,
