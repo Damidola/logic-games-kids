@@ -70,7 +70,12 @@ html.lg body.lg-game .lg-hide { display: none !important; }
 .lg-bar-emoji { font-size: 1.2em; }
 .lg-bar-actions { display: flex; gap: 8px; }
 /* права група такої ж ширини, як ліва — щоб назва була по центру */
-.lg-bar-right { min-width: 100px; justify-content: flex-end; }
+.lg-bar-right { justify-content: flex-end; }
+/* Сітка: ліва й права групи однакової ширини, назва по центру й ніколи не обрізається */
+html.lg .lg-bar { display: grid; grid-template-columns: 1fr auto 1fr; }
+html.lg .lg-bar .lg-bar-actions:first-child { justify-self: start; }
+html.lg .lg-bar .lg-bar-right { justify-self: end; }
+html.lg .lg-bar .lg-bar-title { flex: none; min-width: 0; overflow: visible; }
 
 .lg-icon-btn {
   width: 46px; height: 46px; flex: none;
@@ -258,7 +263,7 @@ html.lg .lg-modal .lg-modal-settings {
   max-height: min(56svh, 520px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
   padding: 14px 12px 12px; touch-action: pan-y;
 }
-.lg-modal-settings .lg-settings h2 { font-size: 17px; margin: 4px 0 8px; padding-right: 76px; }
+.lg-modal-settings .lg-settings h2 { font-size: 17px; margin: 0 0 8px; padding-right: 76px; min-height: 64px; display: flex; align-items: center; }
 .lg-modal-settings .lg-set-group { padding: 2px 10px; margin-bottom: 6px; border-radius: 12px; }
 .lg-modal-settings .lg-set-row { min-height: 32px; padding: 3px 0; font-size: 13px; gap: 4px 10px; }
 .lg-modal-settings .lg-set-title { font-size: 12px; margin: 4px 0 2px; }
@@ -267,7 +272,7 @@ html.lg .lg-modal .lg-modal-settings {
 .lg-modal-settings .diff-dots .dot { width: 26px; height: 26px; font-size: 11px; }
 html.lg .lg-modal .lg-modal-settings .lg-modal-x,
 html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
-  position: sticky; float: right; top: 0; margin: -4px -2px 0 0; z-index: 3;
+  position: sticky; float: right; top: 0; margin: 0; z-index: 3;
   width: 64px; height: 64px; border-radius: 50%;
   background: #E53935; color: #fff; font-size: 34px; font-weight: 900; line-height: 1;
   box-shadow: 0 3px 10px rgba(0, 0, 0, .35); border: 3px solid #fff;

@@ -298,7 +298,7 @@
     });
     vol.addEventListener('change', () => play('tap'));
     const body = el('div', { class: 'lg-settings' }, [
-      el('h2', { text: '⚙️ Налаштування' }),
+      el('h2', { text: 'Налаштування' }),
       el('div', { class: 'lg-set-group' }, [
         switchRow('🔊 Звук', !LG.muted, on => { LG.muted = !on; store.set('muted', LG.muted); document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted })); if (on) play('tap'); }),
         el('div', { class: 'lg-set-row' }, [el('span', { text: 'Гучність' }), vol])
