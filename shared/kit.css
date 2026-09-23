@@ -272,8 +272,19 @@ html.lg .lg-modal .lg-modal-settings {
 .lg-modal-settings .diff-dots .dot { width: 26px; height: 26px; font-size: 11px; }
 html.lg .lg-modal .lg-modal-settings .lg-modal-x,
 html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
-  position: sticky; float: right; top: 0; margin: 0; z-index: 3;
+  position: absolute; float: none; top: 10px; right: 10px; margin: 0; z-index: 3;
   width: 64px; height: 64px; border-radius: 50%;
   background: #E53935; color: #fff; font-size: 34px; font-weight: 900; line-height: 1;
   box-shadow: 0 3px 10px rgba(0, 0, 0, .35); border: 3px solid #fff;
 }
+
+/* Налаштування: рівні рядки — підпис зліва, перемикач/список справа */
+.lg-modal-settings .lg-set-row { display: grid; grid-template-columns: 1fr auto; align-items: center; min-height: 38px; }
+.lg-modal-settings .lg-set-row select { width: 76px; min-height: 32px; padding: 2px 6px; font-size: 14px; text-align: center; }
+.lg-modal-settings .lg-set-row .lg-range { width: 150px; }
+.lg-modal-settings .lg-set-title { margin-top: 8px; }
+
+.lg-piece-sets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 2px 0 6px; }
+.lg-piece-set { aspect-ratio: 1; padding: 3px; border-radius: 10px; border: 3px solid transparent; background: #F0D9B5; cursor: pointer; }
+.lg-piece-set img { width: 100%; height: 100%; display: block; }
+.lg-piece-set.active { border-color: var(--lg-primary); }

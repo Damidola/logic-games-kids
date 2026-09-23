@@ -14,39 +14,39 @@ const fallbackCatImage = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
 
 // --- Opponent Definitions (using local images) ---
 const opponents = [
-    { name: 'Хом’ячок', difficulty: 'very_easy', avatar: 'img/avatars/hamster.png' },
-    { name: 'Бонго-кіт', difficulty: 'very_easy', avatar: 'img/avatars/bongo.jpg' },
-    { name: 'Мавпочка', difficulty: 'completely_random', avatar: 'img/avatars/monkey.png' },
-    { name: 'Єнот Педро', difficulty: 'completely_random', avatar: 'img/avatars/pedro.jpg' },
-    { name: 'Робот Бульба', difficulty: 'completely_random', avatar: 'img/avatars/robot-blob.jpg' },
-    { name: 'Капібара', difficulty: 'easy', avatar: 'img/avatars/capybara.jpg' },
-    { name: 'Сова', difficulty: 'easy', avatar: 'img/avatars/owl.jpg' },
-    { name: 'Кіт Очі-блюдця', difficulty: 'easy', avatar: 'img/avatars/bigeyes.jpg' },
-    { name: 'Зелений робот', difficulty: 'easy', avatar: 'img/avatars/robot-green.jpg' },
-    { name: 'Кіт', difficulty: 'medium', avatar: 'img/avatars/cat.jpg' },
-    { name: 'Видра', difficulty: 'medium', avatar: 'img/avatars/otter.jpg' },
-    { name: 'Драматичний мопс', difficulty: 'medium', avatar: 'img/avatars/pug.jpg' },
-    { name: 'Кіт Смадж', difficulty: 'medium', avatar: 'img/avatars/smudge.jpg' },
-    { name: 'Рокер', difficulty: 'medium', avatar: 'img/avatars/rocker.jpg' },
-    { name: 'Собака', difficulty: 'advanced', avatar: 'img/avatars/dog.jpg' },
-    { name: 'Хитрий кіт', difficulty: 'advanced', avatar: 'img/avatars/evilcat.jpg' },
-    { name: 'Сердитий птах', difficulty: 'advanced', avatar: 'img/avatars/frogmouth.jpg' },
-    { name: 'Монстрик', difficulty: 'advanced', avatar: 'img/avatars/monster.jpg' },
+    { name: 'Хом’ячок', difficulty: 'giveaway', avatar: 'img/avatars/hamster.png' },
+    { name: 'Бонго-кіт', difficulty: 'giveaway', avatar: 'img/avatars/bongo.jpg' },
+    { name: 'Мавпочка', difficulty: 'weak', avatar: 'img/avatars/monkey.png' },
+    { name: 'Єнот Педро', difficulty: 'weak', avatar: 'img/avatars/pedro.jpg' },
+    { name: 'Робот Бульба', difficulty: 'weak', avatar: 'img/avatars/robot-blob.jpg' },
+    { name: 'Капібара', difficulty: 'novice', avatar: 'img/avatars/capybara.jpg' },
+    { name: 'Сова', difficulty: 'novice', avatar: 'img/avatars/owl.jpg' },
+    { name: 'Кіт Очі-блюдця', difficulty: 'novice', avatar: 'img/avatars/bigeyes.jpg' },
+    { name: 'Зелений робот', difficulty: 'novice', avatar: 'img/avatars/robot-green.jpg' },
+    { name: 'Кіт', difficulty: 'easy', avatar: 'img/avatars/cat.jpg' },
+    { name: 'Видра', difficulty: 'easy', avatar: 'img/avatars/otter.jpg' },
+    { name: 'Драматичний мопс', difficulty: 'easy', avatar: 'img/avatars/pug.jpg' },
+    { name: 'Кіт Смадж', difficulty: 'easy', avatar: 'img/avatars/smudge.jpg' },
+    { name: 'Рокер', difficulty: 'easy', avatar: 'img/avatars/rocker.jpg' },
+    { name: 'Собака', difficulty: 'medium', avatar: 'img/avatars/dog.jpg' },
+    { name: 'Хитрий кіт', difficulty: 'medium', avatar: 'img/avatars/evilcat.jpg' },
+    { name: 'Сердитий птах', difficulty: 'medium', avatar: 'img/avatars/frogmouth.jpg' },
+    { name: 'Монстрик', difficulty: 'medium', avatar: 'img/avatars/monster.jpg' },
     { name: 'Пінгвін', difficulty: 'hard', avatar: 'img/avatars/penguin.jpg' },
     { name: 'Жовтий робот', difficulty: 'hard', avatar: 'img/avatars/robot-yellow.jpg' },
     { name: 'Тигр', difficulty: 'expert', avatar: 'img/avatars/tiger.jpg' },
     { name: 'Залізний робот', difficulty: 'expert', avatar: 'img/avatars/robot-iron.jpg' },
-    { name: 'Бананіта Дельфініта', difficulty: 'easy', avatar: 'img/avatars/bananita.jpg' },
-    { name: 'Балерина Капучина', difficulty: 'easy', avatar: 'img/avatars/ballerina.jpg' },
-    { name: 'Шимпанзіні Бананіні', difficulty: 'easy', avatar: 'img/avatars/chimpanzini.jpg' },
-    { name: 'Лірілі Ларіла', difficulty: 'easy', avatar: 'img/avatars/lirili.jpg' },
-    { name: 'Тралалело Тралала', difficulty: 'medium', avatar: 'img/avatars/tralalero.jpg' },
-    { name: 'Бурбалоні Лулілолі', difficulty: 'medium', avatar: 'img/avatars/burbaloni.jpg' },
-    { name: 'Ракуні Вотермелуні', difficulty: 'medium', avatar: 'img/avatars/raccooni.jpg' },
-    { name: 'Блуберіні Октопусіні', difficulty: 'medium', avatar: 'img/avatars/blueberini.jpg' },
+    { name: 'Бананіта Дельфініта', difficulty: 'giveaway', avatar: 'img/avatars/bananita.jpg' },
+    { name: 'Балерина Капучина', difficulty: 'weak', avatar: 'img/avatars/ballerina.jpg' },
+    { name: 'Шимпанзіні Бананіні', difficulty: 'weak', avatar: 'img/avatars/chimpanzini.jpg' },
+    { name: 'Лірілі Ларіла', difficulty: 'novice', avatar: 'img/avatars/lirili.jpg' },
+    { name: 'Тралалело Тралала', difficulty: 'novice', avatar: 'img/avatars/tralalero.jpg' },
+    { name: 'Бурбалоні Лулілолі', difficulty: 'easy', avatar: 'img/avatars/burbaloni.jpg' },
+    { name: 'Ракуні Вотермелуні', difficulty: 'easy', avatar: 'img/avatars/raccooni.jpg' },
+    { name: 'Блуберіні Октопусіні', difficulty: 'easy', avatar: 'img/avatars/blueberini.jpg' },
     { name: 'Фріго Камело', difficulty: 'medium', avatar: 'img/avatars/frigo.jpg' },
-    { name: 'Свініно Бомбондіно', difficulty: 'advanced', avatar: 'img/avatars/svinino.jpg' },
-    { name: 'Тун-тун-тун-сахур', difficulty: 'advanced', avatar: 'img/avatars/tung-tung.jpg' },
+    { name: 'Свініно Бомбондіно', difficulty: 'medium', avatar: 'img/avatars/svinino.jpg' },
+    { name: 'Тун-тун-тун-сахур', difficulty: 'medium', avatar: 'img/avatars/tung-tung.jpg' },
     { name: 'Брр Брр Патапім', difficulty: 'advanced', avatar: 'img/avatars/patapim.jpg' },
     { name: 'Кокофанто Елефанто', difficulty: 'advanced', avatar: 'img/avatars/cocofanto.jpg' },
     { name: 'Тріппі Тропі', difficulty: 'advanced', avatar: 'img/avatars/trippi.jpg' },
@@ -167,6 +167,8 @@ function initGame(keepOpponent = false, mode = 'pvai') {
     console.log(`PvAI Opponent: ${currentOpponent.name} (${aiDifficulty})`);
 
     switch (aiDifficulty) {
+        case 'giveaway': case 'weak': case 'novice':
+            hintsRemaining = Infinity; undosRemaining = Infinity; break;
         case 'completely_random': hintsRemaining = Infinity; undosRemaining = Infinity; break;
         case 'very_easy': hintsRemaining = Infinity; undosRemaining = Infinity; break;
         case 'easy': hintsRemaining = MAX_HINTS_MEDIUM; undosRemaining = MAX_UNDOS_MEDIUM; break;
@@ -178,10 +180,9 @@ function initGame(keepOpponent = false, mode = 'pvai') {
 
     // Обмеження кількості підказок і ходів назад з налаштувань (якщо задане)
     if (window.LG) {
-        const hintCap = LG.store.get('pawns:hintLimit', 'inf');
-        if (hintCap !== 'inf') hintsRemaining = Number(hintCap);
-        const undoCap = LG.store.get('pawns:undoLimit', 'inf');
-        if (undoCap !== 'inf') undosRemaining = Number(undoCap);
+        // За замовчуванням — по 3 підказки й 3 ходи назад на партію
+        hintsRemaining = Number(LG.store.get('pawns:hints', '3'));
+        undosRemaining = Number(LG.store.get('pawns:undos', '3'));
     }
 
     // Common Setup
@@ -679,8 +680,8 @@ function undoMove() {
         currentPlayer = stateToRestore.currentPlayer;
         capturedCounts = stateToRestore.capturedCounts;
         enPassantTargetSquare = stateToRestore.enPassantTargetSquare;
-        undosRemaining = stateToRestore.undosRemaining; 
-        hintsRemaining = stateToRestore.hintsRemaining;
+        // Лічильники не відкочуємо: хід назад витрачається, підказки не повертаються
+        if (undosRemaining !== Infinity) undosRemaining = Math.max(0, undosRemaining - 1);
         isEnPassantEnabled = stateToRestore.isEnPassantEnabled;
         gameMode = stateToRestore.gameMode; // Restore mode in case it changed
         playerColor = stateToRestore.playerColor; // Restore player color

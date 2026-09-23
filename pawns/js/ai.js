@@ -68,6 +68,9 @@ function calculateAiMove() {
     let bestMove = null;
     try {
         switch (aiDifficulty) {
+            case 'giveaway':  bestMove = giveawayAI(moves, boardCopy, aiColor); break;
+            case 'weak':      bestMove = weakAI(moves, boardCopy, aiColor); break;
+            case 'novice':    bestMove = noviceAI(moves, boardCopy, aiColor); break;
             case 'completely_random': bestMove = completelyRandomAI(moves); break;
             case 'very_easy': bestMove = veryEasyAI(moves); break;
             case 'easy':      bestMove = easyAI(moves, boardCopy, aiColor, epCopy); break;
@@ -107,6 +110,64 @@ function getAllMovesForAI(color, currentBoard, currentEpTarget) {
         }
     }
     return allMoves;
+}
+
+// --- Три найслабші рівні: поступове наростання складності ---
+const pick = a => a[Math.floor(Math.random() * a.length)];
+// Чи б'ють пішаки кольору color клітинку (r, c)
+function pawnAttacks(board, r, c, color) {
+    const fr = color === 'w' ? r + 1 : r - 1;
+    return board[fr]?.[c - 1] === color || board[fr]?.[c + 1] === color;
+}
+function moveInfo(m, board, ai) {
+    const me = ai === 'w' ? 'b' : 'w';
+    const nb = board.map(row => row.slice());
+    nb[m.to.row][m.to.col] = ai; nb[m.from.row][m.from.col] = null;
+    const hangs = pawnAttacks(nb, m.to.row, m.to.col, me);            // стане під бій
+    const dir = ai === 'w' ? -1 : 1;                                   // куди йде пішак AI
+    const blocks = board[m.to.row + dir]?.[m.to.col] === me;          // стає впритул перед пішаком гравця
+    const threatens = board[m.to.row + dir]?.[m.to.col - 1] === me || board[m.to.row + dir]?.[m.to.col + 1] === me;
+    // Пішак гравця, якого б'ємо, вже далеко пройшов?
+    const goal = me === 'w' ? 0 : 7;
+    const runner = m.isCapture && Math.abs(m.to.row - goal) <= 3;
+    return { hangs, blocks, threatens, runner };
+}
+
+// Рівень 1 — піддається: не б'є, ставить пішаків під бій, виграшний хід — лише якщо інших нема
+function giveawayAI(moves, board, ai) {
+    const notWin = moves.filter(m => !m.reachesEnd);
+    const pool = notWin.length ? notWin : moves;
+    const quiet = pool.filter(m => !m.isCapture);
+    const base = quiet.length && Math.random() < 0.9 ? quiet : pool;
+    const hanging = base.filter(m => moveInfo(m, board, ai).hangs);
+    return hanging.length && Math.random() < 0.6 ? pick(hanging) : pick(base);
+}
+
+// Рівень 2 — слабкий: здебільшого випадково, але пішака, що біжить уперед, часто б'є
+// або зустрічає своїм; сам виграє не завжди
+function weakAI(moves, board, ai) {
+    const wins = moves.filter(m => m.reachesEnd);
+    if (wins.length && Math.random() < 0.6) return pick(wins);
+    const info = moves.map(m => ({ m, ...moveInfo(m, board, ai) }));
+    const stopRunner = info.filter(x => x.runner || x.blocks || (x.threatens && !x.hangs));
+    if (stopRunner.length && Math.random() < 0.4) return pick(stopRunner).m;
+    const captures = moves.filter(m => m.isCapture);
+    if (captures.length && Math.random() < 0.25) return pick(captures);
+    return pick(moves.filter(m => !m.reachesEnd).length ? moves.filter(m => !m.reachesEnd) : moves);
+}
+
+// Рівень 3 — новачок: виграє, коли може; частіше б'є; інколи уникає підставлятися
+function noviceAI(moves, board, ai) {
+    const wins = moves.filter(m => m.reachesEnd);
+    if (wins.length) return pick(wins);
+    const info = moves.map(m => ({ m, ...moveInfo(m, board, ai) }));
+    const safeCaptures = info.filter(x => x.m.isCapture && !x.hangs);
+    if (safeCaptures.length && Math.random() < 0.8) return pick(safeCaptures).m;
+    const stopRunner = info.filter(x => x.runner || x.blocks || (x.threatens && !x.hangs));
+    if (stopRunner.length && Math.random() < 0.7) return pick(stopRunner).m;
+    const safe = info.filter(x => !x.hangs);
+    if (safe.length && Math.random() < 0.5) return pick(safe).m;
+    return pick(moves);
 }
 
 // AI Difficulty Levels

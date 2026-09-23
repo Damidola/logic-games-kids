@@ -336,7 +336,28 @@
   }
 
   // ---------- публічне API ----------
+  // ---------- набори фігур (з Lichess): спільні для шахових ігор ----------
+  const PIECE_SETS = ['cburnett', 'merida', 'alpha', 'california', 'cardinal', 'anarcandy', 'fantasy', 'horsey', 'pixel', 'xkcd'];
+  function pieceSetPicker(onChange) {
+    const cur = store.get('pieceSet', 'cburnett');
+    const grid = el('div', { class: 'lg-piece-sets' });
+    PIECE_SETS.forEach(name => {
+      const b = el('button', { type: 'button', class: 'lg-piece-set' + (name === cur ? ' active' : ''), title: name, 'aria-label': name }, [
+        el('img', { src: root + 'shared/pieces/' + name + '/wN.svg', alt: '' })
+      ]);
+      b.addEventListener('click', () => {
+        store.set('pieceSet', name);
+        grid.querySelectorAll('.lg-piece-set').forEach(x => x.classList.toggle('active', x === b));
+        onChange(name);
+      });
+      grid.appendChild(b);
+    });
+    return el('div', {}, [el('div', { class: 'lg-set-title', text: 'Фігури' }), grid]);
+  }
+
   const LG = window.LG = {
+    pieceSet: () => store.get('pieceSet', 'cburnett'),
+    pieceSetPicker,
     game,
     muted: store.get('muted', false),
     volume: store.get('volume', 0.8),

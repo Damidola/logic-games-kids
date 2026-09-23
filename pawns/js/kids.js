@@ -11,13 +11,20 @@
     const pickerGrid = document.getElementById('picker-grid');
     const arrowSvg = document.getElementById('hint-arrow');
     const FILES = 'abcdefgh';
-    const PIECES = '../shared/pieces/';
+    let PIECES = '../shared/pieces/' + LG.pieceSet() + '/';
+    function applyPieceSet() {
+        PIECES = '../shared/pieces/' + LG.pieceSet() + '/';
+        const abs = f => `url("${new URL(PIECES + f, location.href).href}")`;
+        document.body.style.setProperty('--pw', abs('wP.svg'));
+        document.body.style.setProperty('--pb', abs('bP.svg'));
+        if (window.renderMaterial) renderMaterial();
+    }
 
     // Рівні складності — у тому порядку, в якому вони вперше зустрічаються серед
     // тварин-суперників, незалежно від того, яку тварину зараз показано.
     // 5 рівнів складності в налаштуваннях
-    const DIFF_TIERS = ['very_easy', 'easy', 'medium', 'hard', 'expert'];
-    const TIER_OF = { completely_random: 0, very_easy: 0, easy: 1, medium: 2, advanced: 3, hard: 3, expert: 4 };
+    const DIFF_TIERS = ['giveaway', 'weak', 'novice', 'medium', 'expert'];
+    const TIER_OF = { giveaway: 0, very_easy: 0, weak: 1, completely_random: 1, novice: 2, easy: 2, medium: 3, advanced: 3, hard: 4, expert: 4 };
 
     // ---------- кольори дошки ----------
     // Перша — класична коричнева (дерево), вона й за замовчуванням.
@@ -126,23 +133,14 @@
     };
 
     // ---------- фон за персонажем: космос для роботів, море для риб і т.д. ----------
-    const HERO_BG = {
-        hamster: 'summer', bongo: 'rainbow', monkey: 'jungle', pedro: 'night', 'robot-blob': 'space',
-        capybara: 'summer', owl: 'night', bigeyes: 'rainbow', 'robot-green': 'space', cat: 'autumn',
-        otter: 'sea', pug: 'summer', smudge: 'winter', rocker: 'summer', dog: 'autumn', evilcat: 'night',
-        frogmouth: 'jungle', monster: 'space', penguin: 'winter', 'robot-yellow': 'space', tiger: 'jungle',
-        'robot-iron': 'space', bananita: 'beach', ballerina: 'rainbow', chimpanzini: 'jungle', lirili: 'desert',
-        tralalero: 'beach', burbaloni: 'beach', raccooni: 'summer', blueberini: 'sea', frigo: 'desert',
-        svinino: 'beach', 'tung-tung': 'night', patapim: 'jungle', cocofanto: 'jungle', trippi: 'sea',
-        gorillo: 'jungle', glorbo: 'summer', vaca: 'space', udin: 'autumn', bombardiro: 'summer', rhino: 'desert'
-    };
-    function heroBgFor(o) {
-        const key = o.avatar.split('/').pop().replace(/\.\w+$/, '');
-        return HERO_BG[key] || 'summer';
-    }
+    // Сусідні персонажі одного рівня мають одну сцену — фон міняється рідко
+    const HERO_BG = { giveaway: 'summer', very_easy: 'summer', weak: 'rainbow', completely_random: 'rainbow',
+        novice: 'jungle', easy: 'sea', medium: 'autumn', advanced: 'winter', hard: 'night', expert: 'space' };
+    function heroBgFor(o) { return HERO_BG[o.difficulty] || 'summer'; }
     // Усі сцени завантажуємо одразу — тоді при зміні персонажа фон не блимає
     ['space', 'summer', 'winter', 'sea', 'jungle', 'desert', 'beach', 'night', 'rainbow', 'autumn']
         .forEach(n => { new Image().src = 'img/bg/' + n + '.svg'; });
+    setTimeout(() => opponents.forEach(o => { new Image().src = o.avatar; }), 1500);
 
     // ---------- великий суперник і вибір ----------
     const heroWrap = document.querySelector('.opponent-wrap');
@@ -191,9 +189,16 @@
         LG.store.set('pawns:aiDifficultyOverride', null); // обрана тварина сама визначає складність
         const o = opponents[i];
         aiDifficulty = o.difficulty;
-        avatarEl.src = o.avatar;
-        avatarEl.alt = o.name;
-        updateOpponentLabel();
+        // Плавна зміна: нова картинка спершу вантажиться, потім м'яко з'являється
+        const img = new Image();
+        img.onload = img.onerror = () => {
+            if (currentOpponentIndex !== i) return;
+            avatarEl.src = o.avatar; avatarEl.alt = o.name;
+            updateOpponentLabel();
+            heroWrap.classList.remove('switching');
+        };
+        heroWrap.classList.add('switching');
+        img.src = o.avatar;
     }
     hero.addEventListener('click', openPicker);
     picker.addEventListener('click', e => {
@@ -223,14 +228,9 @@
     // ---------- налаштування: складність, підказки, ходи назад ----------
     LG.addSettings(() => {
         const wrap = document.createElement('div');
-        const HINT_OPTIONS = [
-            { v: 'inf', t: 'Без обмежень' },
-            { v: '3', t: '3' },
-            { v: '5', t: '5' },
-            { v: '10', t: '10' }
-        ];
-        const hintCap = String(LG.store.get('pawns:hintLimit', 'inf'));
-        const undoCap = String(LG.store.get('pawns:undoLimit', 'inf'));
+        const HINT_OPTIONS = ['0', '1', '2', '3', '5', '10'].map(v => ({ v, t: v }));
+        const hintCap = String(LG.store.get('pawns:hints', '3'));
+        const undoCap = String(LG.store.get('pawns:undos', '3'));
         wrap.innerHTML = `
             <div class="lg-set-title">Складність гри (тварину не міняє)</div>
             <div class="diff-dots" id="diff-dots">${DIFF_TIERS.map((d, i) =>
@@ -252,10 +252,12 @@
             paintDots(i);
         }));
         wrap.querySelector('#hint-cap').addEventListener('change', e => {
-            LG.store.set('pawns:hintLimit', e.target.value);
+            LG.store.set('pawns:hints', e.target.value);
+            hintsRemaining = Number(e.target.value); updateButtonStates();
         });
         wrap.querySelector('#undo-cap').addEventListener('change', e => {
-            LG.store.set('pawns:undoLimit', e.target.value);
+            LG.store.set('pawns:undos', e.target.value);
+            undosRemaining = Number(e.target.value); updateButtonStates();
         });
         return wrap;
     });
@@ -301,7 +303,10 @@
         if (!e.target.closest('.lg-modal, .picker-card')) e.preventDefault();
     }, { passive: false });
 
+    LG.addSettings(() => LG.pieceSetPicker(applyPieceSet));
+
     document.addEventListener('DOMContentLoaded', () => {
+        applyPieceSet();
         paintHero();
         updateCoords();
         renderMaterial();

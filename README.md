@@ -69,3 +69,9 @@ python3 -m http.server 8000
 ## Ідеї на майбутнє
 
 Турецькі шашки, доміно, рендзю, «Мисливці й вовк», дорога, Ханойські башти, нім.
+
+## Сторонні матеріали
+
+- Рівні гри «Як ходять фігури» взято з Lichess Learn ([lichess-org/lila](https://github.com/lichess-org/lila), `ui/learn`), ліцензія AGPLv3+.
+- Набори фігур у `shared/pieces/*` — з Lichess; ліцензії кожного набору перелічені в [COPYING.md](https://github.com/lichess-org/lila/blob/master/COPYING.md) (cburnett, merida — GPLv2+; fantasy — MIT; california, cardinal, anarcandy, horsey — CC BY-NC-SA 4.0; pixel — AGPLv3+; xkcd — CC BY-NC 2.5; alpha — лише некомерційне використання).
+- Персонажі-роботи — RoboHash ([e1ven/Robohash](https://github.com/e1ven/Robohash)); ролики-нагороди — з публічних колекцій гіфок на GitHub.

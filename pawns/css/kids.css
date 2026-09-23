@@ -23,7 +23,10 @@ html.lg body.lg-game {
 .opponent-wrap::before {
     content: ''; position: absolute; inset: 0 8px; z-index: 0; border-radius: 22px;
     background: #6ec6ff center / cover no-repeat;
+    transition: background-image .35s ease;
 }
+#opponent-hero #ai-avatar { transition: opacity .15s ease; }
+.opponent-wrap.switching #ai-avatar { opacity: .35; }
 .opponent-wrap[data-bg="space"]::before { background-image: url(../img/bg/space.svg); }
 .opponent-wrap[data-bg="summer"]::before { background-image: url(../img/bg/summer.svg); }
 .opponent-wrap[data-bg="winter"]::before { background-image: url(../img/bg/winter.svg); }
@@ -103,8 +106,8 @@ html.lg body.lg-game {
     color: transparent !important; text-shadow: none !important; font-size: 0 !important;
     background: center / 88% no-repeat;
 }
-#chessboard .piece.white, .piece-touch-clone.white { background-image: url(../../shared/pieces/wP.svg); }
-#chessboard .piece.black, .piece-touch-clone.black { background-image: url(../../shared/pieces/bP.svg); }
+#chessboard .piece.white, .piece-touch-clone.white { background-image: var(--pw, url(../../shared/pieces/wP.svg)); }
+#chessboard .piece.black, .piece-touch-clone.black { background-image: var(--pb, url(../../shared/pieces/bP.svg)); }
 .piece-touch-clone { filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .35)); }
 
 /* Координати: цифри зліва вгорі, літери знизу праворуч */
@@ -217,3 +220,8 @@ html.lg .lg-bar .lg-icon-btn { width: 38px; height: 38px; font-size: 18px; borde
 html.lg .lg-bar .lg-bar-title { font-size: clamp(17px, 5vw, 22px); }
 /* «Вперед» тьмяна, поки нема куди повертати */
 #redo-button.is-off { opacity: .4; }
+
+/* Смуга з персонажем опущена до дошки: рядок «збив суперник» лежить на її нижньому краї */
+#material-top { position: relative; z-index: 2; margin-top: -26px; height: 22px; padding-right: 16px; }
+#material-top b { text-shadow: 0 1px 3px rgba(0,0,0,.6); color: #fff; }
+.opponent-wrap { margin-bottom: 0; }
