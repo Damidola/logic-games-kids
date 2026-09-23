@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Пішаки</title>
-    <link rel="stylesheet" href="css/styles.css?v=1790140487">
-    <link rel="stylesheet" href="css/board.css?v=1790140487">
-    <link rel="stylesheet" href="css/ui.css?v=1790140487">
-    <link rel="stylesheet" href="../shared/kit.css?v=1790140487">
-    <link rel="stylesheet" href="css/kids.css?v=1790140487">
+    <link rel="stylesheet" href="css/styles.css?v=1790141637">
+    <link rel="stylesheet" href="css/board.css?v=1790141637">
+    <link rel="stylesheet" href="css/ui.css?v=1790141637">
+    <link rel="stylesheet" href="../shared/kit.css?v=1790141637">
+    <link rel="stylesheet" href="css/kids.css?v=1790141637">
 </head>
 <body>
     <div class="game-container">
@@ -26,10 +26,10 @@
 
         <!-- Кнопки -->
         <div class="game-controls">
-            <button id="restart-button" class="ctl" title="Почати заново"><span class="ico">🔄</span></button>
-            <button id="undo-button" class="ctl" title="Скасувати хід"><span class="ico">↩️</span><span id="undo-count" class="counter"></span></button>
-            <button id="hint-button" class="ctl" title="Підказка"><span class="ico">💡</span><span id="hint-count" class="counter"></span></button>
-            <button id="flip-board-button" class="ctl" title="Грати іншим кольором"><span class="ico side-dot"></span></button>
+            <button id="restart-button" class="ctl" title="Почати заново"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+            <button id="undo-button" class="ctl" title="Скасувати хід"><span class="ico">↩️</span><span class="lbl">Назад</span><span id="undo-count" class="counter"></span></button>
+            <button id="hint-button" class="ctl" title="Підказка"><span class="ico">💡</span><span class="lbl">Підказка</span><span id="hint-count" class="counter"></span></button>
+            <button id="flip-board-button" class="ctl" title="Грати іншим кольором"><span class="ico side-dot"></span><span class="lbl">Колір</span></button>
         </div>
     </div>
 
@@ -59,12 +59,12 @@
     <audio id="capture-sound" src="../shared/sounds/capture.mp3" preload="auto"></audio>
     <audio id="win-sound" src="../shared/sounds/win.mp3" preload="auto"></audio>
 
-    <script src="../shared/games.js?v=1790140487"></script>
-    <script src="../shared/kit.js?v=1790140487" data-game="pawns" data-night="on"></script>
-    <script src="js/game.js?v=1790140487"></script>
-    <script src="js/ai.js?v=1790140487"></script>
-    <script src="js/ui.js?v=1790140487"></script>
-    <script src="js/interaction.js?v=1790140487"></script>
-    <script src="js/kids.js?v=1790140487"></script>
+    <script src="../shared/games.js?v=1790141637"></script>
+    <script src="../shared/kit.js?v=1790141637" data-game="pawns" data-night="on"></script>
+    <script src="js/game.js?v=1790141637"></script>
+    <script src="js/ai.js?v=1790141637"></script>
+    <script src="js/ui.js?v=1790141637"></script>
+    <script src="js/interaction.js?v=1790141637"></script>
+    <script src="js/kids.js?v=1790141637"></script>
 </body>
 </html>

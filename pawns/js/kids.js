@@ -21,9 +21,24 @@
         { name: 'Сіра', light: '#E6E6E6', dark: '#8A8A8A' }
     ];
     let boardColors = LG.store.get('pawns:board', PRESETS[0]);
+
+    function hexToRgb(hex) {
+        hex = (hex || '#000000').replace('#', '');
+        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+        const n = parseInt(hex, 16) || 0;
+        return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    }
+    function rgba(c, a) { return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')'; }
+
+    // Колір підказки «куди можна піти» рахуємо з обраної палітри дошки,
+    // тож він завжди чіткий і міняється разом з кольором дошки.
     function applyBoardColors() {
         document.body.style.setProperty('--sq-light', boardColors.light);
         document.body.style.setProperty('--sq-dark', boardColors.dark);
+        const dark = hexToRgb(boardColors.dark);
+        const inverted = { r: 255 - dark.r, g: 255 - dark.g, b: 255 - dark.b };
+        document.body.style.setProperty('--move-dot', rgba(dark, .82));
+        document.body.style.setProperty('--move-capture-dot', rgba(inverted, .82));
     }
     applyBoardColors();
 
@@ -135,7 +150,50 @@
     const origRender = window.renderBoard;
     window.renderBoard = function () { origRender(); updateCoords(); };
 
-    // ---------- налаштування гри ----------
+    // ---------- налаштування: суперник і складність ----------
+    LG.addSettings(() => {
+        const wrap = document.createElement('div');
+        const HINT_OPTIONS = [
+            { v: 'inf', t: 'Без обмежень' },
+            { v: '3', t: '3 підказки' },
+            { v: '5', t: '5 підказок' },
+            { v: '10', t: '10 підказок' }
+        ];
+        const hintCap = String(LG.store.get('pawns:hintLimit', 'inf'));
+        wrap.innerHTML = `
+            <div class="lg-set-row"><span>Складність суперника</span></div>
+            <input type="range" id="diff-range" class="lg-range" style="width:100%;max-width:none"
+                min="0" max="${opponents.length - 1}" step="1" value="${currentOpponentIndex}">
+            <div class="lg-set-row"><span id="diff-name" style="font-weight:900"></span><span id="diff-stars" style="color:var(--lg-sun)"></span></div>
+            <div class="lg-set-row"><span>Кількість підказок</span>
+                <select id="hint-cap">${HINT_OPTIONS.map(o => `<option value="${o.v}" ${o.v === hintCap ? 'selected' : ''}>${o.t}</option>`).join('')}</select>
+            </div>`;
+        const range = wrap.querySelector('#diff-range');
+        const nameEl = wrap.querySelector('#diff-name');
+        const starsEl = wrap.querySelector('#diff-stars');
+        const paint = i => {
+            const o = opponents[i];
+            nameEl.textContent = o.name;
+            starsEl.textContent = '★'.repeat(Math.ceil((i + 1) / opponents.length * 5));
+        };
+        paint(currentOpponentIndex);
+        range.addEventListener('input', () => paint(+range.value));
+        range.addEventListener('change', () => {
+            const i = +range.value;
+            if (i === currentOpponentIndex) return;
+            currentOpponentIndex = i;
+            LG.store.set('pawns:opp', i);
+            cleanupInteractionState(true);
+            playerColor = 'w';
+            initGame(false, 'pvai');
+        });
+        wrap.querySelector('#hint-cap').addEventListener('change', e => {
+            LG.store.set('pawns:hintLimit', e.target.value);
+        });
+        return wrap;
+    });
+
+    // ---------- налаштування: дошка ----------
     LG.addSettings(() => {
         const wrap = document.createElement('div');
         wrap.innerHTML = `

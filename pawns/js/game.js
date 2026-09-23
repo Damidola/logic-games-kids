@@ -174,6 +174,12 @@ function initGame(keepOpponent = false, mode = 'pvai') {
         case 'expert': hintsRemaining = MAX_HINTS_MEDIUM; undosRemaining = MAX_UNDOS_MEDIUM; break;
     }
 
+    // Обмеження кількості підказок з налаштувань (якщо задане)
+    if (window.LG) {
+        const hintCap = LG.store.get('pawns:hintLimit', 'inf');
+        if (hintCap !== 'inf') hintsRemaining = Number(hintCap);
+    }
+
     // Common Setup
     boardState = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
     for (let c = 0; c < BOARD_SIZE; c++) {

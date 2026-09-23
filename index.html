@@ -7,7 +7,7 @@
   <meta name="description" content="Безкоштовні логічні ігри для дітей українською: шашки, шахи, судоку зі звірятами, чотири в ряд та інші. З порадами для батьків.">
   <meta name="theme-color" content="#15142A">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
-  <link rel="stylesheet" href="shared/kit.css?v=1790140944">
+  <link rel="stylesheet" href="shared/kit.css?v=1790141637">
   <style>
     body {
       margin: 0;
@@ -21,20 +21,20 @@
       background-attachment: fixed;
       -webkit-tap-highlight-color: transparent;
     }
-    .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 12px; }
 
     /* ---------- шапка ---------- */
-    .top { display: flex; align-items: center; gap: 10px; padding: 14px 2px 12px; }
+    .top { display: flex; align-items: center; gap: 10px; padding: 10px 2px 8px; }
     .top .owl { font-size: 34px; line-height: 1; }
     .top h1 { margin: 0; font-size: clamp(24px, 7.6vw, 34px); font-weight: 900; letter-spacing: -.3px; white-space: nowrap; }
     .top h1 span { color: var(--lg-primary); }
 
     /* ---------- ігри: усі одразу на екрані ---------- */
-    .grid { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+    .grid { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); }
     .card {
       --c: #6C5CE7;
       position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-      aspect-ratio: 1 / 1.08; padding: 8px 4px;
+      aspect-ratio: 1 / 0.96; padding: 6px 4px;
       text-decoration: none; color: #fff; text-align: center;
       background:
         radial-gradient(circle at 22% 20%, rgba(255,255,255,.28) 0 18%, transparent 19%),
@@ -53,9 +53,9 @@
     }
 
     /* ---------- для батьків: сховано за непомітною стрілкою ---------- */
-    .reveal { display: flex; justify-content: center; margin-top: 18px; }
+    .reveal { display: flex; justify-content: center; margin-top: 6px; }
     .reveal button {
-      width: 40px; height: 26px; border: 0; background: none; cursor: pointer;
+      width: 40px; height: 20px; border: 0; background: none; cursor: pointer;
       color: var(--lg-muted); opacity: .35; font-size: 20px; line-height: 1;
       transition: opacity .15s, transform .2s;
     }
@@ -84,7 +84,7 @@
     .skills td:first-child { font-weight: 800; white-space: nowrap; padding-right: 10px; }
     .skills td:last-child { color: var(--lg-muted); font-weight: 700; }
 
-    footer { text-align: center; color: var(--lg-muted); font-weight: 700; font-size: 14px; margin-top: 18px; }
+    footer { text-align: center; color: var(--lg-muted); font-weight: 700; font-size: 12px; margin-top: 6px; line-height: 1.3; padding: 0 8px; }
 
     @media (max-width: 560px) { .parents.open { padding: 20px 14px; } .skills td:first-child { white-space: normal; } }
   </style>
@@ -122,8 +122,8 @@
     <footer>Зроблено з любов’ю для маленьких мислителів 💜</footer>
   </div>
 
-  <script src="shared/games.js?v=1790140944"></script>
-  <script src="shared/kit.js?v=1790140944"></script>
+  <script src="shared/games.js?v=1790141637"></script>
+  <script src="shared/kit.js?v=1790141637"></script>
   <script>
   (function () {
     const games = window.LG_GAMES;
@@ -133,7 +133,7 @@
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
     // Найважливіші ігри — першими
-    const ORDER = ['pawns', 'checkers', 'corners', 'chushki', 'footprints', 'chess', 'connect4', 'ttt', 'wolfs', 'salamandra', 'sudoku'];
+    const ORDER = ['pawns', 'checkers', 'wolfs', 'corners', 'chushki', 'footprints', 'chess', 'connect4', 'ttt', 'salamandra', 'sudoku'];
     const list = ORDER.map(id => games.find(g => g.id === id)).filter(Boolean)
       .concat(games.filter(g => !ORDER.includes(g.id)));
 

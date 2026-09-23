@@ -1,4 +1,4 @@
-/* «Пішаки»: усе на одному екрані, великий суперник, дошка як у Lichess */
+/* «Пішаки»: усе на одному екрані, великий нерухомий суперник, дошка як у Lichess */
 :root { --sq-light: #EEEED2; --sq-dark: #769656; }
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 html.lg body.lg-game {
@@ -14,39 +14,36 @@ html.lg body.lg-game {
     display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 
-/* ---------- суперник ---------- */
+/* ---------- суперник: великий, без анімації ---------- */
 .opponent-hero {
     flex: 1 1 0; min-height: 90px; width: 100%; overflow: visible;
     display: flex; align-items: center; justify-content: center;
-    background: none; border: 0; padding: 4px 0; cursor: pointer; position: relative;
+    background: none; border: 0; padding: 2px 0; cursor: pointer; position: relative;
     -webkit-tap-highlight-color: transparent;
 }
 #opponent-hero #ai-avatar {
-    position: absolute; top: 6px; bottom: 10px; left: 0; right: 0; margin: auto;
-    height: calc(100% - 16px); max-height: 360px; width: auto; max-width: 90%; aspect-ratio: 1; object-fit: cover; border: 0;
+    position: absolute; top: 2px; bottom: 2px; left: 0; right: 0; margin: auto;
+    height: calc(100% - 4px); max-height: 480px; width: auto; max-width: 96%; aspect-ratio: 1; object-fit: cover; border: 0;
     border-radius: 28%; background: var(--lg-surface-2);
     box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35);
-    animation: hero-bob 3s ease-in-out infinite;
 }
 #opponent-hero.pixel #ai-avatar { object-fit: contain; image-rendering: pixelated; padding: 6%; box-sizing: border-box; }
-#opponent-hero.thinking #ai-avatar { animation: hero-think .5s ease-in-out infinite alternate; }
-@keyframes hero-bob { 50% { transform: translateY(-5px) rotate(-1.5deg); } }
-@keyframes hero-think { from { transform: rotate(-4deg) scale(1.02); } to { transform: rotate(4deg) scale(1.02); } }
+#opponent-hero.thinking #ai-avatar { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
 
 /* ---------- рахунок збитих фігур ---------- */
 .material {
-    width: min(100vw, 560px); height: 26px; flex: none; padding: 0 10px; box-sizing: border-box;
+    width: min(100vw, 560px); height: 24px; flex: none; padding: 0 10px; box-sizing: border-box;
     display: flex; align-items: center; justify-content: flex-end;
-    font-weight: 900; color: var(--lg-ink); font-size: 16px;
+    font-weight: 900; color: var(--lg-ink); font-size: 15px;
 }
-.material img { width: 22px; height: 22px; margin-left: -6px; }
+.material img { width: 20px; height: 20px; margin-left: -6px; }
 .material img:first-child { margin-left: 0; }
 .material b { margin-left: 6px; }
 
 /* ---------- дошка ---------- */
 .board-wrapper {
-    position: relative; margin: 0; padding: 0; flex: none;
-    width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 52px - 76px - 96px - 24px));
+    position: relative; margin: 0 0 6px; padding: 0; flex: none;
+    width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 66px - 78px - 30px));
     max-width: none; aspect-ratio: 1;
 }
 #chessboard { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
@@ -56,6 +53,12 @@ html.lg body.lg-game {
 #chessboard .square.last-move-from.dark, #chessboard .square.last-move-to.dark { background-color: #AAA23A !important; }
 #chessboard .square.selected-piece-origin { background-color: #829769 !important; }
 #chessboard .square.hint-highlight { box-shadow: inset 0 0 0 4px #FF9F1C; border-radius: 0; }
+
+/* Мітки ходів: колір рахується з обраної палітри дошки (див. kids.js) */
+#chessboard .square.valid-move::before { background-color: var(--move-dot, rgba(76, 175, 80, .85)); }
+#chessboard .square.valid-move.move-capture::before { background-color: var(--move-capture-dot, rgba(255, 87, 34, .85)); }
+#chessboard .square.touch-drag-target-valid::before { background-color: var(--move-dot, rgba(76, 175, 80, .7)) !important; }
+#chessboard .square.touch-drag-target-valid.move-capture::before { background-color: var(--move-capture-dot, rgba(255, 87, 34, .7)) !important; }
 
 /* Фігури Lichess (cburnett) */
 #chessboard .piece, .piece-touch-clone {
@@ -79,24 +82,25 @@ html.lg body.lg-game {
 .hint-arrow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; opacity: 0; transition: opacity .2s; }
 .hint-arrow.show { opacity: .95; }
 
-/* ---------- кнопки ---------- */
+/* ---------- кнопки: компактні, з дрібним підписом ---------- */
 .game-controls {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
     width: min(100vw, 560px); padding: 0 10px; box-sizing: border-box; margin: 0; flex: none;
 }
 .game-controls button.ctl {
-    height: 68px; min-width: 0; padding: 4px 2px; margin: 0; position: static; top: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-    font: 800 13px var(--lg-font); color: var(--lg-ink); text-shadow: none;
-    background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 18px;
-    box-shadow: 0 4px 0 var(--lg-line); transition: none;
+    height: 50px; min-width: 0; padding: 3px 2px; margin: 0; position: static; top: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    font: 800 10px var(--lg-font); color: var(--lg-ink); text-shadow: none;
+    background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 14px;
+    box-shadow: 0 3px 0 var(--lg-line); transition: none;
 }
-.game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: 0 4px 0 var(--lg-line); }
-.game-controls button.ctl:active { transform: translateY(4px); box-shadow: none; top: 0; }
+.game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: 0 3px 0 var(--lg-line); }
+.game-controls button.ctl:active { transform: translateY(3px); box-shadow: none; top: 0; }
 .game-controls button.ctl:disabled { opacity: 1; cursor: pointer !important; }
-.game-controls .ico { font-size: 32px; line-height: 1; }
+.game-controls .ico { font-size: 19px; line-height: 1; }
+.game-controls .lbl { font-size: 10px; font-weight: 800; line-height: 1; }
 .game-controls .counter { display: none !important; }
-.side-dot { display: block; width: 32px; height: 32px; border-radius: 50%; background: #1d1b30; border: 3px solid #fff; box-shadow: 0 0 0 2px #8b88a8; box-sizing: border-box; }
+.side-dot { display: block; width: 18px; height: 18px; border-radius: 50%; background: #1d1b30; border: 2px solid #fff; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
 #flip-board-button[data-side="b"] .side-dot { background: #fff; border-color: #1d1b30; }
 
 /* ---------- вибір суперника ---------- */
@@ -130,5 +134,9 @@ html.lg body.lg-game {
 .swatch { aspect-ratio: 1; border-radius: 12px; border: 3px solid transparent; cursor: pointer; padding: 0; }
 .swatch.active { border-color: var(--lg-primary); }
 .lg-set-row input[type="color"] { width: 52px; height: 36px; border: 0; padding: 0; background: none; cursor: pointer; }
+.lg-set-row select {
+    min-height: 38px; padding: 4px 10px; border-radius: 10px;
+    border: 2px solid var(--lg-line); font: 800 14px var(--lg-font); color: var(--lg-ink); background: var(--lg-surface);
+}
 
 #win-modal { display: none !important; }

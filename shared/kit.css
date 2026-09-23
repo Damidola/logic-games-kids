@@ -62,7 +62,7 @@ html.lg body.lg-game .lg-hide { display: none !important; }
 .lg-bar-title {
   flex: 1; min-width: 0;
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-weight: 900; font-size: clamp(18px, 4.6vw, 24px);
+  font-weight: 900; font-size: clamp(20px, 5.6vw, 28px);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .lg-bar-title > span:last-child { overflow: hidden; text-overflow: ellipsis; }
@@ -214,9 +214,9 @@ html.lg .lg-modal .lg-btn-primary { background-color: var(--lg-primary); color: 
 }
 
 /* ---------- налаштування ---------- */
-.lg-settings h2 { margin: 0 0 14px; padding-right: 40px; }
-.lg-set-group { background: var(--lg-surface-2); border-radius: 16px; padding: 6px 14px; margin-bottom: 12px; }
-.lg-set-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; font-weight: 800; font-size: 17px; }
+.lg-settings h2 { margin: 0 0 12px; padding-right: 40px; font-size: 22px; }
+.lg-set-group { background: var(--lg-surface-2); border-radius: 16px; padding: 4px 12px; margin-bottom: 10px; }
+.lg-set-row { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px 14px; min-height: 42px; padding: 6px 0; font-weight: 800; font-size: 15px; }
 .lg-set-row + .lg-set-row { border-top: 1px solid var(--lg-line); }
 .lg-set-row input[type="checkbox"] {
   appearance: none; -webkit-appearance: none; flex: none;
@@ -228,8 +228,8 @@ html.lg .lg-modal .lg-btn-primary { background-color: var(--lg-primary); color: 
 }
 .lg-set-row input[type="checkbox"]:checked { background: var(--lg-mint); }
 .lg-set-row input[type="checkbox"]:checked::after { transform: translateX(22px); }
-.lg-range { flex: 1; max-width: 220px; accent-color: var(--lg-primary); height: 28px; }
-.lg-set-title { font-weight: 900; font-size: 16px; margin: 8px 0 6px; }
+.lg-range { flex: 1 1 120px; min-width: 90px; max-width: 100%; accent-color: var(--lg-primary); height: 26px; }
+.lg-set-title { font-weight: 900; font-size: 14px; margin: 8px 0 4px; }
 
 /* ---------- нічна тема (вмикається грою, що її підтримує) ---------- */
 html.lg-night {
