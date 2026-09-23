@@ -34,18 +34,29 @@
         return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
     }
     function rgba(c, a) { return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')'; }
+    // Чи схожий колір на зелений (щоб не загубити зелену мітку ходу на зеленій дошці)
+    function isGreenish(hex) {
+        const c = hexToRgb(hex);
+        return c.g > c.r + 15 && c.g > c.b + 15;
+    }
 
-    // Колір підказки «куди можна піти» рахуємо з обраної палітри дошки,
-    // тож він завжди чіткий і міняється разом з кольором дошки.
+    // Мітка «куди можна піти» завжди зелена й добре видна на будь-якій дошці.
+    // Виняток — сама дошка зелена: тоді мітка жовта, щоб не зливатися з фоном.
     function applyBoardColors() {
         document.body.style.setProperty('--sq-light', boardColors.light);
         document.body.style.setProperty('--sq-dark', boardColors.dark);
-        const dark = hexToRgb(boardColors.dark);
-        const inverted = { r: 255 - dark.r, g: 255 - dark.g, b: 255 - dark.b };
-        document.body.style.setProperty('--move-dot', rgba(dark, .82));
-        document.body.style.setProperty('--move-capture-dot', rgba(inverted, .82));
+        const greenBoard = isGreenish(boardColors.dark) || isGreenish(boardColors.light);
+        document.body.style.setProperty('--move-dot', greenBoard ? 'rgba(255, 193, 7, .88)' : 'rgba(46, 204, 64, .85)');
+        document.body.style.setProperty('--move-capture-dot', 'rgba(230, 74, 25, .85)');
     }
     applyBoardColors();
+
+    // ---------- показувати підказки ходів (кому вони заважають — можна вимкнути) ----------
+    let showMoveHints = LG.store.get('pawns:showHints', true);
+    function applyMoveHints() {
+        document.body.classList.toggle('hide-move-hints', !showMoveHints);
+    }
+    applyMoveHints();
 
     function isFlipped() { return chessboardEl.classList.contains('flipped'); }
 
@@ -204,6 +215,7 @@
             </div>
             <div class="lg-set-row"><span>Світлі клітинки</span><input type="color" id="c-light" value="${boardColors.light}"></div>
             <div class="lg-set-row"><span>Темні клітинки</span><input type="color" id="c-dark" value="${boardColors.dark}"></div>
+            <label class="lg-set-row"><span>Показувати, куди можна ходити</span><input type="checkbox" id="hints-toggle" ${showMoveHints ? 'checked' : ''}></label>
             <label class="lg-set-row"><span>Взяття на проході</span><input type="checkbox" id="ep-toggle" ${isEnPassantEnabled ? 'checked' : ''}></label>`;
         const light = wrap.querySelector('#c-light'), dark = wrap.querySelector('#c-dark');
         const mark = () => wrap.querySelectorAll('.swatch').forEach((s, i) =>
@@ -219,6 +231,11 @@
         wrap.querySelector('#ep-toggle').addEventListener('change', e => {
             LG.store.set('pawns:ep', e.target.checked);
             if (isEnPassantEnabled !== e.target.checked) toggleEnPassant();
+        });
+        wrap.querySelector('#hints-toggle').addEventListener('change', e => {
+            showMoveHints = e.target.checked;
+            LG.store.set('pawns:showHints', showMoveHints);
+            applyMoveHints();
         });
         mark();
         return wrap;

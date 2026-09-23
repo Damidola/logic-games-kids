@@ -150,3 +150,9 @@ html.lg body.lg-game {
     background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer;
 }
 .diff-dots .dot.filled { background: var(--lg-primary); border-color: #5646D6; color: #fff; }
+
+/* ---------- підказки ходів можна вимкнути в налаштуваннях ---------- */
+body.hide-move-hints #chessboard .square.valid-move::before,
+body.hide-move-hints #chessboard .square.touch-drag-target-valid::before {
+    display: none;
+}
