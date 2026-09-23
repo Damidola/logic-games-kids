@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Чотири в ряд</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790196959">
-  <link rel="stylesheet" href="../shared/play.css?v=1790196959">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790197255">
+  <link rel="stylesheet" href="../shared/play.css?v=1790197255">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 520px, calc((100svh - var(--lg-bar-h) - 16px - 170px - 60px) * 7 / 6)); aspect-ratio: 7 / 6; }
     .c4-board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1.4%; padding: 1.8%; box-sizing: border-box; background: #3B5BDB; border-radius: 22px; }
@@ -19,16 +19,17 @@
     .c4-cell.win { box-shadow: 0 0 0 4px #fff, 0 0 14px 4px rgba(255, 255, 255, .8); }
     @keyframes drop { from { transform: translateY(-300%); } }
     @keyframes glow { 50% { background: rgba(255, 159, 28, .15); } }
+    @media (min-width: 900px) and (min-aspect-ratio: 1/1) { html.lg .lg-play > .lg-board-wrap { width: min(var(--lg-bh) * 7 / 6, var(--lg-bw)); } }
   </style>
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790196959"></script>
-  <script src="../shared/kit.js?v=1790196959" data-game="connect4" data-night="on"></script>
+  <script src="../shared/games.js?v=1790197255"></script>
+  <script src="../shared/kit.js?v=1790197255" data-game="connect4" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790196959';
-    import { createRules } from './rules.js?v=1790196959';
-    import { connect4View } from './view.js?v=1790196959';
+    import { startGame } from '../shared/game.js?v=1790197255';
+    import { createRules } from './rules.js?v=1790197255';
+    import { connect4View } from './view.js?v=1790197255';
     startGame({ rules: createRules(), view: connect4View, sideNames: { w: '🔴 Червоні', b: '🟡 Жовті' } });
   </script>
 </body>

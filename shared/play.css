@@ -111,3 +111,32 @@ cg-board square.mark-red { background: rgba(255, 107, 107, .32); }
 .lg-quick button { min-width: 48px; min-height: 34px; padding: 2px 8px; border: 0; border-radius: 10px; font: 900 15px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer; }
 .lg-quick button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
 .lg-quick button.confirm { outline: 3px dashed #FF9F1C; outline-offset: 1px; }
+
+/* ---------- комп'ютер / планшет боком: велика дошка ліворуч, праворуч вузька колонка ----------
+   Дошка — на всю висоту екрана, тваринка маленька, кнопки більші. Телефон (вертикально) не змінюється. */
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  html.lg { --lg-side: clamp(250px, 24vw, 340px); --lg-mat: 26px;
+    --lg-bh: calc(100svh - var(--lg-bar-h) - 16px - 2 * var(--lg-mat) - 12px);
+    --lg-bw: calc(100vw - var(--lg-side) - 32px - 48px); }
+  html.lg body.lg-game { padding-bottom: 8px; }
+  html.lg .lg-play {
+    max-width: none; width: auto; height: 100%; display: grid; justify-content: center; align-content: center;
+    grid-template-columns: auto var(--lg-side); grid-template-rows: repeat(8, auto) 1fr; column-gap: 32px; row-gap: 0;
+  }
+  html.lg .lg-play > * { grid-column: 2; margin-bottom: 12px; width: 100%; justify-self: center; }
+  html.lg .lg-play > .lg-board-wrap {
+    grid-column: 1; grid-row: 1 / span 9; align-self: center; margin: var(--lg-mat) 0;
+    width: min(var(--lg-bh), var(--lg-bw)); height: auto;
+  }
+  html.lg .lg-play > .lg-material {
+    grid-column: 1; grid-row: 1 / span 9; align-self: start; width: 100%; margin: 0; padding: 0 2px;
+  }
+  html.lg .lg-play > .lg-material[data-side="bottom"] { align-self: end; }
+  html.lg .lg-hero-slot + .lg-turn + .lg-material { margin-top: 0; }
+  html.lg .lg-hero-slot + .lg-turn + .lg-material b { color: var(--lg-ink); text-shadow: none; }
+  html.lg .lg-play > .lg-hero-slot { flex: none; height: min(34svh, calc(var(--lg-side) * .9)); min-height: 0; }
+  html.lg .lg-hero-pic img { max-height: none; }
+  html.lg .lg-play > .lg-quick { width: auto; max-width: 100%; box-sizing: border-box; flex-wrap: wrap; justify-content: center; }
+  html.lg .lg-play > .lg-controls { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0; }
+  html.lg .lg-quick button { min-height: 44px; min-width: 64px; font-size: 18px; }
+}

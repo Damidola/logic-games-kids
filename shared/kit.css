@@ -297,3 +297,9 @@ html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
 .lg-controls button:active { transform: scale(.93); }
 .lg-controls .ico { font-size: 14px; line-height: 1; }
 .lg-controls .is-off { opacity: .4; }
+
+/* Комп'ютер / планшет боком — кнопки під мишку більші */
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  html.lg .lg-controls button { height: 58px; font-size: 14px; gap: 3px; border-radius: 16px; }
+  html.lg .lg-controls .ico { font-size: 22px; }
+}

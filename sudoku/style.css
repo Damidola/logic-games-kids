@@ -109,3 +109,19 @@ html.lg body.lg-game { position: fixed; inset: 0; margin: 0; height: 100svh; min
 .cell.mine .v { animation: none; }
 .pal { touch-action: none; -webkit-user-select: none; user-select: none; }
 .seg button.confirm, .lg-controls button.confirm { outline: 3px dashed #FF9F1C; outline-offset: 2px; animation: nudge .5s ease; }
+
+/* Комп'ютер / планшет боком: велике поле ліворуч, звірята й кнопки праворуч */
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  .sd {
+    --side: clamp(260px, 26vw, 380px);
+    --cell: min(calc((100svh - var(--lg-bar-h) - 70px) / var(--n)), calc((100vw - var(--side) - 110px) / var(--n)));
+    max-width: none; display: grid; justify-content: center; align-content: center; column-gap: 36px; row-gap: 14px;
+    grid-template-columns: auto var(--side); grid-template-rows: auto auto auto auto 1fr;
+  }
+  .sd > * { grid-column: 2; }
+  .sd > .sd-board-wrap { grid-column: 1; grid-row: 1 / span 5; align-self: center; }
+  .sd-palette { --pcols: 3 !important; }
+  .n9 .pal { font-size: 30px; min-height: 58px; }
+  .pal { min-height: 68px; font-size: 40px; }
+  .sd .lg-controls { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
