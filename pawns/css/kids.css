@@ -19,12 +19,21 @@ html.lg body.lg-game {
     flex: 1 1 0; min-height: 90px; width: 100%; overflow: visible;
     position: relative; display: flex; align-items: center; justify-content: center;
 }
-/* Фон за твариною: її ж картинка, розмита — у кожної тварини свій */
+/* Фон за персонажем: мальована сцена (космос, літо, море…), рівний прямокутник */
 .opponent-wrap::before {
-    content: ''; position: absolute; inset: 0 6px -18px; z-index: 0; border-radius: 24px;
-    background: var(--hero-bg, none) center / cover no-repeat;
-    filter: blur(16px) brightness(.6) saturate(1.4); transform: scale(1.02);
+    content: ''; position: absolute; inset: 0 8px; z-index: 0; border-radius: 22px;
+    background: #6ec6ff center / cover no-repeat;
 }
+.opponent-wrap[data-bg="space"]::before { background-image: url(../img/bg/space.svg); }
+.opponent-wrap[data-bg="summer"]::before { background-image: url(../img/bg/summer.svg); }
+.opponent-wrap[data-bg="winter"]::before { background-image: url(../img/bg/winter.svg); }
+.opponent-wrap[data-bg="sea"]::before { background-image: url(../img/bg/sea.svg); }
+.opponent-wrap[data-bg="jungle"]::before { background-image: url(../img/bg/jungle.svg); }
+.opponent-wrap[data-bg="desert"]::before { background-image: url(../img/bg/desert.svg); }
+.opponent-wrap[data-bg="beach"]::before { background-image: url(../img/bg/beach.svg); }
+.opponent-wrap[data-bg="night"]::before { background-image: url(../img/bg/night.svg); }
+.opponent-wrap[data-bg="rainbow"]::before { background-image: url(../img/bg/rainbow.svg); }
+.opponent-wrap[data-bg="autumn"]::before { background-image: url(../img/bg/autumn.svg); }
 .opponent-wrap { isolation: isolate; }
 .opponent-wrap > * { position: relative; z-index: 1; }
 .opponent-wrap > .hero-arrow { position: absolute; z-index: 2; }
@@ -51,8 +60,8 @@ html.lg body.lg-game {
 .hero-arrow-r { right: 2px; }
 #opponent-hero #ai-avatar {
     /* трохи більша за свій блок: заходить у порожній проміжок над дошкою */
-    position: absolute; top: -2px; left: 0; right: 0; margin: 0 auto;
-    height: calc(100% + 22px); max-height: min(480px, calc(100vw - 84px)); width: auto; max-width: 96%; aspect-ratio: 1; object-fit: cover; border: 0;
+    position: absolute; top: 6px; left: 0; right: 0; margin: 0 auto;
+    height: calc(100% - 12px); max-height: min(480px, calc(100vw - 84px)); width: auto; max-width: 96%; aspect-ratio: 1; object-fit: cover; border: 0;
     border-radius: 28%; background: var(--lg-surface-2);
     box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35);
 }
@@ -72,7 +81,7 @@ html.lg body.lg-game {
 /* ---------- дошка ---------- */
 .board-wrapper {
     position: relative; margin: 0 0 2px; padding: 0; flex: none;
-    width: min(92vw, 520px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 130px - 56px - 30px));
+    width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 120px - 50px - 24px));
     max-width: none; aspect-ratio: 1;
 }
 #chessboard { width: 100%; border: 0; border-radius: 0; box-shadow: none; }

@@ -125,6 +125,25 @@
         arrowSvg.classList.remove('show');
     };
 
+    // ---------- фон за персонажем: космос для роботів, море для риб і т.д. ----------
+    const HERO_BG = {
+        hamster: 'summer', bongo: 'rainbow', monkey: 'jungle', pedro: 'night', 'robot-blob': 'space',
+        capybara: 'summer', owl: 'night', bigeyes: 'rainbow', 'robot-green': 'space', cat: 'autumn',
+        otter: 'sea', pug: 'summer', smudge: 'winter', rocker: 'summer', dog: 'autumn', evilcat: 'night',
+        frogmouth: 'jungle', monster: 'space', penguin: 'winter', 'robot-yellow': 'space', tiger: 'jungle',
+        'robot-iron': 'space', bananita: 'beach', ballerina: 'rainbow', chimpanzini: 'jungle', lirili: 'desert',
+        tralalero: 'beach', burbaloni: 'beach', raccooni: 'summer', blueberini: 'sea', frigo: 'desert',
+        svinino: 'beach', 'tung-tung': 'night', patapim: 'jungle', cocofanto: 'jungle', trippi: 'sea',
+        gorillo: 'jungle', glorbo: 'summer', vaca: 'space', udin: 'autumn', bombardiro: 'summer', rhino: 'desert'
+    };
+    function heroBgFor(o) {
+        const key = o.avatar.split('/').pop().replace(/\.\w+$/, '');
+        return HERO_BG[key] || 'summer';
+    }
+    // Усі сцени завантажуємо одразу — тоді при зміні персонажа фон не блимає
+    ['space', 'summer', 'winter', 'sea', 'jungle', 'desert', 'beach', 'night', 'rainbow', 'autumn']
+        .forEach(n => { new Image().src = 'img/bg/' + n + '.svg'; });
+
     // ---------- великий суперник і вибір ----------
     const heroWrap = document.querySelector('.opponent-wrap');
     const avatarEl = document.getElementById('ai-avatar');
@@ -143,7 +162,7 @@
         const o = opponents[currentOpponentIndex];
         if (!o) return;
         hero.classList.toggle('pixel', !!o.pixel);
-        heroWrap.style.setProperty('--hero-bg', `url("${new URL(o.avatar, location.href).href}")`); // розмитий фон зі своєю твариною
+        heroWrap.dataset.bg = heroBgFor(o); // своя сцена-фон для кожного персонажа
         hero.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
         requestAnimationFrame(positionHeroArrows);
     }
