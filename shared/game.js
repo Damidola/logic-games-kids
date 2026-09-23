@@ -62,7 +62,17 @@ export function startGame(cfg) {
 
   // Вигляд поля: за замовчуванням — дошка Lichess; ігри з іншим полем (хрестики-нулики,
   // чотири в ряд) дають свій view: { render(s, {mine, moves}), hint(m), clearHint() }
-  const board = cfg.view ? null : createBoard($('.lg-board-el'), { onMove: (o, d) => userMove(o, d) });
+  const board = cfg.view ? null : createBoard($('.lg-board-el'), { onMove: (o, d) => userMove(o, d), onSelect: key => tapPassSquare(key) });
+  // Посеред серії стрибків («Кути»): шашка, що стрибає, лишається вибраною з наступними стрибками,
+  // а ще один тап по ній — «досить, хід закінчено» (замість окремої кнопки)
+  let autoSelected = null;
+  function tapPassSquare(key) {
+    if (key === autoSelected) { autoSelected = null; return; } // це вибрали ми самі в render()
+    const s = state(), sq = rules.passSquare && rules.passSquare(s);
+    if (!sq || key !== sq || board.cg.state.selected || over || thinking || !human(rules.turn(s))) return;
+    const m = rules.moves(s).find(x => x.pass);
+    if (m) { commit(m); render(); afterMove(); }
+  }
   const view = cfg.view ? cfg.view($('.lg-board-el'), { pick: m => userPick(m) }) : null;
   if (view) root.classList.add('lg-custom-view');
 
@@ -91,7 +101,9 @@ export function startGame(cfg) {
     }
     // Кнопка «Завершити хід» — коли правила дозволяють зупинитись (наприклад, після стрибка)
     const pass = mine && rules.moves(s).find(m => m.pass);
-    $('.lg-pass').hidden = !pass;
+    $('.lg-pass').hidden = !pass || !!rules.passSquare;
+    const passSq = board && mine && rules.passSquare && rules.passSquare(s);
+    if (passSq && board.cg.state.selected !== passSq) { autoSelected = passSq; board.cg.selectSquare(passSq); }
     const turnEl = $('.lg-turn');
     turnEl.hidden = !friend;
     turnEl.dataset.side = rules.turn(s);
@@ -247,7 +259,9 @@ export function startGame(cfg) {
       hintsLeft--;
       lastHint = { key, m };
     }
-    if (view) view.hint(lastHint.m); else board.hint(lastHint.m.from, lastHint.m.to);
+    if (view) view.hint(lastHint.m);
+    else if (lastHint.m.pass && rules.passSquare) board.shapes([{ orig: rules.passSquare(s), brush: 'hint' }]);
+    else board.hint(lastHint.m.from, lastHint.m.to);
   }
   $('.lg-pass').addEventListener('click', () => {
     const s = state();

@@ -1,16 +1,21 @@
+/* Уся гра — на одному екрані, без прокрутки */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+html.lg body.lg-game { position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0; padding: calc(var(--lg-bar-h) + 8px) 0 8px; }
 .sd {
-  --cell: min(calc((100vw - 60px) / var(--n)), calc((100svh - var(--lg-bar-h) - 330px) / var(--n)), calc(520px / var(--n)));
   --n: 4;
-  max-width: 560px; margin: 0 auto; padding: 0 16px 12px; box-sizing: border-box;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  --cell: min(calc((100vw - 44px) / var(--n)), calc((100svh - var(--lg-bar-h) - 350px) / var(--n)), calc(460px / var(--n)));
+  max-width: 560px; height: 100%; margin: 0 auto; padding: 0 12px; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px;
+  touch-action: none; user-select: none; -webkit-user-select: none;
 }
-.sd-setup { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.sd-setup { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.seg { font-size: 15px; }
 .seg {
   display: inline-flex; padding: 4px; gap: 4px; border-radius: 16px;
   background: var(--lg-surface); border: 2px solid var(--lg-line);
 }
 .seg button {
-  min-width: 48px; min-height: 40px; padding: 4px 10px; border: 0; border-radius: 12px;
+  min-width: 40px; min-height: 36px; padding: 4px 6px; border: 0; border-radius: 12px;
   font: 900 17px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer;
 }
 .seg button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
@@ -65,7 +70,7 @@
   --pcols: 4;
 }
 .pal {
-  position: relative; min-height: 58px; border-radius: 16px;
+  position: relative; min-height: 56px; touch-action: none; border-radius: 16px;
   display: grid; place-items: center; font-size: 34px; line-height: 1;
   background: var(--lg-surface); border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
   cursor: pointer; font-family: var(--lg-font); font-weight: 900; color: var(--lg-ink);
@@ -84,10 +89,16 @@
 
 .sd .lg-controls { width: 100%; padding: 0; }
 
-@media (min-width: 900px) {
-  .sd { --cell: min(calc((100svh - var(--lg-bar-h) - 330px) / var(--n)), calc(520px / var(--n))); }
-}
-@media (max-height: 700px) {
-  .sd { --cell: min(calc((100vw - 60px) / var(--n)), calc((100svh - var(--lg-bar-h) - 300px) / var(--n)), calc(520px / var(--n))); gap: 8px; }
-  .pal { min-height: 48px; font-size: 28px; }
-}
+
+/* взяте звірятко: вільні клітинки ледь світяться; немає звірятка в руці — палітра «кличе» */
+.cell.free { background: color-mix(in srgb, var(--box-bg, #fff) 82%, #B8ACF5); }
+.cell.over { box-shadow: inset 0 0 0 3px var(--lg-primary); background: #E6E0FF; }
+.cell.lifting .v { opacity: .25; }
+.cell.nope { animation: nope .35s ease; background: #FFD1D1; }
+@keyframes nope { 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+.sd-palette.nudge .pal:not(.done) { animation: nudge .5s ease; }
+@keyframes nudge { 40% { transform: translateY(-8px) scale(1.08); } }
+.pal.armed { transform: translateY(-6px); box-shadow: 0 6px 0 var(--lg-primary); }
+#erase.on { background: var(--lg-primary-soft); outline: 3px solid var(--lg-primary); }
+.sd-ghost { position: fixed; z-index: 60; pointer-events: none; font-size: calc(var(--cell, 60px) * .9); line-height: 1; transform: translate(-50%, -70%) scale(1.25); filter: drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
+.digits .sd-ghost, .sd-ghost { font-family: var(--lg-font); font-weight: 900; }

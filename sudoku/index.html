@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Звірячі судоку</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
-  <link rel="stylesheet" href="../shared/kit.css?v=1790177969">
-  <link rel="stylesheet" href="style.css?v=1790177969">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790178318">
+  <link rel="stylesheet" href="style.css?v=1790178318">
 </head>
 <body>
   <main class="sd">
     <section class="sd-setup" aria-label="Налаштування гри">
       <div class="seg" role="radiogroup" aria-label="Розмір поля" id="size">
+        <button type="button" role="radio" data-size="3">3×3</button>
         <button type="button" role="radio" data-size="4">4×4</button>
+        <button type="button" role="radio" data-size="5">5×5</button>
         <button type="button" role="radio" data-size="6">6×6</button>
         <button type="button" role="radio" data-size="9">9×9</button>
       </div>
@@ -38,7 +40,7 @@
     <div id="palette" class="sd-palette" aria-label="Звірята"></div>
 
     <div class="lg-controls">
-      <button type="button" id="erase"><span class="ico">🧽</span><span class="lbl">Стерти</span></button>
+      <button type="button" id="erase"><span class="ico">🧽</span><span class="lbl">Гумка</span></button>
       <button type="button" id="new"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
       <button type="button" id="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
       <button type="button" id="undo"><span class="ico">↩️</span><span class="lbl">Назад</span></button>
@@ -46,8 +48,8 @@
     </div>
   </main>
 
-  <script src="../shared/games.js?v=1790177969"></script>
-  <script src="../shared/kit.js?v=1790177969" data-game="sudoku"></script>
-  <script src="sudoku.js?v=1790177969"></script>
+  <script src="../shared/games.js?v=1790178318"></script>
+  <script src="../shared/kit.js?v=1790178318" data-game="sudoku"></script>
+  <script src="sudoku.js?v=1790178318"></script>
 </body>
 </html>

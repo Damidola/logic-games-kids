@@ -1,12 +1,16 @@
-/* Звірячі судоку: генератор з єдиним розв'язком, підказки, скасування ходу. */
+/* Звірячі судоку: генератор з єдиним розв'язком, підказки, скасування ходу.
+   Спершу береш звірятко внизу (тап) і ставиш тапом у клітинки — або тягнеш звірятко пальцем у клітинку.
+   Туди, де воно вже є в рядку, стовпчику чи блоці, звірятко не ставиться (звук «ой»). */
 (function () {
   'use strict';
 
   const ANIMALS = ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐸', '🐵', '🐷'];
-  const BOX = { 4: [2, 2], 6: [2, 3], 9: [3, 3] }; // [рядків, стовпчиків] у блоці
+  // [рядків, стовпчиків] у блоці; 3×3 і 5×5 — без блоків (лише рядки й стовпчики)
+  const BOX = { 3: null, 4: [2, 2], 5: null, 6: [2, 3], 9: [3, 3] };
   // Скільки клітинок прибрати на рівнях 1–5
-  const HOLES = { 4: [4, 6, 8, 9, 10], 6: [10, 14, 18, 21, 24], 9: [30, 38, 46, 51, 56] };
+  const HOLES = { 3: [2, 3, 4, 5, 5], 4: [4, 6, 8, 9, 10], 5: [6, 9, 12, 14, 16], 6: [10, 14, 18, 21, 24], 9: [30, 38, 46, 51, 56] };
   const LEVEL_NAMES = ['дуже легко', 'легко', 'середньо', 'складно', 'дуже складно'];
+  const ERASE = -1;
   // Спільні для всіх ігор ліміти підказок і ходів назад (за замовчуванням по 3)
   const limit = key => Number(LG.store.get(key, '3'));
 
@@ -21,9 +25,8 @@
     same: LG.store.get('sudoku:same', true)
   };
 
-  let state = null;   // { n, level, solution[], given[], cells[], hints, mistakes, seconds, done }
-  let selected = -1;
-  let armed = 0;      // обране в палітрі звірятко, яке ставиться тапом по клітинці
+  let state = null;   // { n, level, solution[], given[], cells[], hinted[], hints, undos, mistakes, seconds, done }
+  let armed = 0;      // звірятко «в руці» (або ERASE — гумка)
   let history = [];
   let future = [];    // скасовані ходи для «Вперед»
   let timerId = null;
@@ -38,6 +41,7 @@
   }
 
   function boxOf(n, i) {
+    if (!BOX[n]) return -1;
     const [br, bc] = BOX[n];
     const r = (i / n) | 0, c = i % n;
     return ((r / br) | 0) * (n / bc) + ((c / bc) | 0);
@@ -50,13 +54,14 @@
       const r = (i / n) | 0, c = i % n, b = boxOf(n, i);
       for (let j = 0; j < n * n; j++) {
         if (j === i) continue;
-        if (((j / n) | 0) === r || j % n === c || boxOf(n, j) === b) set.add(j);
+        if (((j / n) | 0) === r || j % n === c || (b >= 0 && boxOf(n, j) === b)) set.add(j);
       }
       peers.push([...set]);
     }
     return peers;
   }
-  const PEERS = { 4: peersOf(4), 6: peersOf(6), 9: peersOf(9) };
+  const PEERS = {};
+  for (const n of Object.keys(BOX)) PEERS[n] = peersOf(+n);
 
   function candidates(n, grid, i) {
     const used = new Set();
@@ -103,7 +108,7 @@
 
   // ---------- стан ----------
   function newGame(n, level) {
-    n = n || (state && state.n) || 4;
+    n = n || (state && state.n) || 3;
     level = level === undefined ? (state ? state.level : 0) : level;
     const { solution, puzzle } = generate(n, level);
     state = {
@@ -114,7 +119,6 @@
       hints: 0, undos: 0, mistakes: 0, seconds: 0, done: false
     };
     history = []; future = [];
-    selected = -1;
     armed = 0;
     LG.store.set('sudoku:last', { n, level });
     buildBoard();
@@ -126,7 +130,7 @@
 
   function restore() {
     const s = LG.store.get('sudoku:game', null);
-    if (s && !s.done && BOX[s.n] && Array.isArray(s.cells) && s.cells.length === s.n * s.n) {
+    if (s && !s.done && s.n in BOX && Array.isArray(s.cells) && s.cells.length === s.n * s.n) {
       state = s;
       state.hinted = state.hinted || state.cells.map(() => false);
       state.undos = state.undos || 0;
@@ -163,21 +167,18 @@
     main.classList.toggle('digits', opts.digits);
     paletteEl.style.setProperty('--pcols', n);
     boardEl.innerHTML = '';
-    const [br, bc] = BOX[n];
-    const boxesPerRow = n / bc;
+    const boxesPerRow = BOX[n] ? n / BOX[n][1] : 1;
     for (let i = 0; i < n * n; i++) {
       const b = boxOf(n, i);
-      const alt = (((b / boxesPerRow) | 0) + (b % boxesPerRow)) % 2 === 1;
+      const alt = b >= 0 && (((b / boxesPerRow) | 0) + (b % boxesPerRow)) % 2 === 1;
       const cell = document.createElement('button');
       cell.type = 'button';
       cell.className = 'cell' + (alt ? ' alt' : '');
       cell.dataset.i = i;
       cell.setAttribute('role', 'gridcell');
-      cell.tabIndex = i === 0 ? 0 : -1;
       cell.innerHTML = '<span class="v"></span>';
       boardEl.appendChild(cell);
     }
-    void br;
     paletteEl.innerHTML = '';
     for (let v = 1; v <= n; v++) {
       const b = document.createElement('button');
@@ -204,16 +205,12 @@
   function paint(popIndex) {
     const n = state.n;
     const bad = opts.mistakes ? conflicts() : new Set();
-    const selVal = selected >= 0 ? state.cells[selected] : 0;
-    const focusVal = selVal || armed;
-    const peers = selected >= 0 ? new Set(PEERS[n][selected]) : new Set();
     [...boardEl.children].forEach((cell, i) => {
       const v = state.cells[i];
       cell.querySelector('.v').textContent = sym(v);
       cell.classList.toggle('given', state.given[i]);
-      cell.classList.toggle('sel', i === selected);
-      cell.classList.toggle('peer', peers.has(i));
-      cell.classList.toggle('same', opts.same && !!focusVal && v === focusVal && i !== selected);
+      cell.classList.toggle('same', opts.same && armed > 0 && v === armed);
+      cell.classList.toggle('free', armed > 0 && !v);
       cell.classList.toggle('bad', bad.has(i) && !state.given[i]);
       cell.classList.toggle('hinted', !!state.hinted[i]);
       cell.classList.toggle('pop', i === popIndex);
@@ -231,42 +228,44 @@
       b.classList.toggle('armed', armed === v);
       b.setAttribute('aria-label', (opts.digits ? 'Цифра ' : 'Звірятко ') + v + ', лишилось ' + Math.max(0, left));
     });
+    main.classList.toggle('erasing', armed === ERASE);
+    main.classList.toggle('empty-hand', !armed);
     const filled = state.cells.filter(Boolean).length;
     $('progress').textContent = (opts.digits ? '🔢 ' : '🐾 ') + filled + '/' + n * n;
     const hintsLeft = Math.max(0, limit('hints') - state.hints), undosLeft = Math.max(0, limit('undos') - state.undos);
     $('hintsUsed').textContent = '💡 ' + hintsLeft;
     $('undo').classList.toggle('is-off', !history.length || state.done || !undosLeft);
     $('redo').classList.toggle('is-off', !future.length || state.done);
-    $('erase').classList.toggle('is-off', state.done || selected < 0 || state.given[selected] || !state.cells[selected]);
+    $('erase').classList.toggle('on', armed === ERASE);
+    $('erase').classList.toggle('is-off', state.done);
     $('hint').classList.toggle('is-off', state.done || !hintsLeft);
   }
 
   // ---------- дії ----------
-  function select(i) {
-    selected = i;
-    if (i >= 0) {
-      [...boardEl.children].forEach((c, j) => { c.tabIndex = j === i ? 0 : -1; });
-    }
-    paint();
+  function shake(i) {
+    const c = boardEl.children[i]; if (!c) return;
+    c.classList.remove('nope'); void c.offsetWidth; c.classList.add('nope');
   }
 
+  // Поставити звірятко v у клітинку i (0 — прибрати). Не за правилами — «ой» і нічого не ставимо.
   function setCell(i, v, opts2) {
-    if (state.done || i < 0 || state.given[i]) return;
-    if (state.cells[i] === v) return;
+    if (state.done || i < 0 || state.given[i]) return false;
+    if (state.cells[i] === v) return false;
+    if (v && !(opts2 && opts2.hint) && PEERS[state.n][i].some(p => state.cells[p] === v)) {
+      state.mistakes++; LG.play('error'); shake(i);
+      PEERS[state.n][i].forEach(p => { if (state.cells[p] === v) shake(p); });
+      save();
+      return false;
+    }
     history.push({ i, prev: state.cells[i], prevHint: state.hinted[i], v, hint: !!(opts2 && opts2.hint) });
     if (!(opts2 && opts2.redo)) future = [];
     state.cells[i] = v;
     state.hinted[i] = !!(opts2 && opts2.hint);
-    if (v) {
-      const wrong = PEERS[state.n][i].some(p => state.cells[p] === v);
-      if (wrong) { state.mistakes++; LG.play('error'); }
-      else LG.play('place');
-    } else {
-      LG.play('tap');
-    }
+    LG.play(v ? 'place' : 'tap');
     paint(v ? i : -1);
     save();
     checkWin();
+    return true;
   }
 
   function undo() {
@@ -276,7 +275,6 @@
     state.undos++;
     state.cells[h.i] = h.prev;
     state.hinted[h.i] = h.prevHint;
-    selected = h.i;
     LG.play('tap');
     paint();
     save();
@@ -285,28 +283,22 @@
   function redo() {
     const h = future.pop();
     if (!h || state.done) return;
-    selected = h.i;
     setCell(h.i, h.v, { hint: h.hint, redo: true });
   }
 
   function hint() {
     if (state.done) return;
     if (state.hints >= limit('hints')) return LG.play('error');
-    let i = selected;
-    if (i < 0 || state.given[i] || state.cells[i] === state.solution[i]) {
-      // клітинка з найменшою кількістю варіантів — найзрозуміліша підказка
-      let best = -1, bestLen = 99;
-      state.cells.forEach((v, j) => {
-        if (state.given[j] || v === state.solution[j]) return;
-        const len = v ? 0 : candidates(state.n, state.cells, j).length;
-        if (len < bestLen) { best = j; bestLen = len; }
-      });
-      i = best;
-    }
-    if (i < 0) return;
+    // клітинка з найменшою кількістю варіантів — найзрозуміліша підказка
+    let best = -1, bestLen = 99;
+    state.cells.forEach((v, j) => {
+      if (state.given[j] || v === state.solution[j]) return;
+      const len = v ? 0 : candidates(state.n, state.cells, j).length;
+      if (len < bestLen) { best = j; bestLen = len; }
+    });
+    if (best < 0) return;
     state.hints++;
-    selected = i;
-    setCell(i, state.solution[i], { hint: true });
+    setCell(best, state.solution[best], { hint: true });
   }
 
   function checkWin() {
@@ -314,7 +306,7 @@
     state.done = true;
     clearInterval(timerId);
     save();
-    selected = -1;
+    armed = 0;
     paint();
     [...boardEl.children].forEach((c, i) => {
       c.style.animationDelay = (((i / state.n) | 0) + (i % state.n)) * 40 + 'ms';
@@ -335,38 +327,77 @@
     );
   }
 
-  // ---------- події ----------
-  boardEl.addEventListener('click', e => {
-    const cell = e.target.closest('.cell');
-    if (!cell || state.done) return;
-    const i = +cell.dataset.i;
-    if (armed && !state.given[i]) {
-      selected = i;
-      setCell(i, state.cells[i] === armed ? 0 : armed);
+  // ---------- дотики: тап по звірятку → тап по клітинках; або перетягнути звірятко в клітинку ----------
+  const cellAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest('.cell'); };
+  let drag = null; // { v, from (індекс клітинки або -1), x, y, ghost, moved }
+  function startDrag(e, v, from) {
+    drag = { v, from, x: e.clientX, y: e.clientY, ghost: null, moved: false, target: e.target };
+  }
+  document.addEventListener('pointermove', e => {
+    if (!drag || !drag.v) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) {
+      drag.moved = true;
+      drag.ghost = document.createElement('div');
+      drag.ghost.className = 'sd-ghost';
+      drag.ghost.textContent = sym(drag.v);
+      document.body.appendChild(drag.ghost);
+      if (drag.from >= 0) boardEl.children[drag.from].classList.add('lifting');
+    }
+    if (drag.moved) {
+      drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+      [...boardEl.querySelectorAll('.over')].forEach(c => c.classList.remove('over'));
+      const c = cellAt(e.clientX, e.clientY); if (c) c.classList.add('over');
+    }
+  }, { passive: true });
+  const endDrag = e => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    [...boardEl.querySelectorAll('.over, .lifting')].forEach(c => c.classList.remove('over', 'lifting'));
+    if (!d.moved) return tapped(d, e);
+    d.ghost.remove();
+    if (e.type !== 'pointerup' || state.done) return;
+    const c = cellAt(e.clientX, e.clientY);
+    if (d.from >= 0) { // перетягнули звірятко з поля: в іншу клітинку — перенести, за поле — прибрати
+      if (!c) return setCell(d.from, 0);
+      const to = +c.dataset.i;
+      if (to === d.from || state.given[to]) return;
+      setCell(d.from, 0);
+      if (!setCell(to, d.v)) { history.pop(); state.cells[d.from] = d.v; paint(); save(); }
       return;
     }
-    select(i === selected ? -1 : i);
-    LG.play('tap');
-  });
+    if (c) setCell(+c.dataset.i, d.v);
+  };
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
 
-  paletteEl.addEventListener('click', e => {
+  function tapped(d, e) {
+    if (state.done || e.type !== 'pointerup') return;
+    const pal = d.target.closest('.pal'), cell = d.target.closest('.cell');
+    if (pal) { armed = armed === d.v ? 0 : d.v; LG.play('tap'); return paint(); }
+    if (!cell) return;
+    const i = +cell.dataset.i;
+    if (state.given[i]) return LG.play('tap');
+    if (armed === ERASE) return setCell(i, 0);
+    if (armed) return setCell(i, state.cells[i] === armed ? 0 : armed);
+    // Звірятко ще не взяте: підкажемо, що спершу — звірятко внизу
+    if (!state.cells[i]) { paletteEl.classList.remove('nudge'); void paletteEl.offsetWidth; paletteEl.classList.add('nudge'); LG.play('tap'); }
+  }
+
+  paletteEl.addEventListener('pointerdown', e => {
     const b = e.target.closest('.pal');
-    if (!b || state.done) return;
-    const v = +b.dataset.v;
-    if (selected >= 0 && !state.given[selected]) {
-      armed = 0;
-      setCell(selected, v);
-    } else {
-      // клітинку не обрано: «беремо» звірятко в руку
-      armed = armed === v ? 0 : v;
-      LG.play('tap');
-      paint();
-    }
+    if (b && !state.done) startDrag(e, +b.dataset.v, -1);
+  });
+  boardEl.addEventListener('pointerdown', e => {
+    const c = e.target.closest('.cell');
+    if (!c || state.done) return;
+    const i = +c.dataset.i;
+    const own = state.cells[i] && !state.given[i];
+    startDrag(e, own ? state.cells[i] : 0, own ? i : -2); // підказані з самого початку звірята не рухаються
   });
 
   $('undo').addEventListener('click', undo);
   $('redo').addEventListener('click', redo);
-  $('erase').addEventListener('click', () => setCell(selected, 0));
+  $('erase').addEventListener('click', () => { armed = armed === ERASE ? 0 : ERASE; LG.play('tap'); paint(); });
   $('hint').addEventListener('click', hint);
   $('new').addEventListener('click', () => newGame());
 
@@ -400,26 +431,11 @@
     return w;
   });
 
-  document.addEventListener('keydown', e => {
-    if (!state || state.done || e.target.closest('input, select, .lg-modal')) return;
-    const n = state.n;
-    if (e.key >= '1' && e.key <= String(n)) { if (selected >= 0) setCell(selected, +e.key); return; }
-    if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') { setCell(selected, 0); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { undo(); e.preventDefault(); return; }
-    const moves = { ArrowUp: -n, ArrowDown: n, ArrowLeft: -1, ArrowRight: 1 };
-    if (moves[e.key] !== undefined) {
-      e.preventDefault();
-      let i = selected < 0 ? 0 : selected + moves[e.key];
-      if (e.key === 'ArrowLeft' && selected % n === 0) i = selected;
-      if (e.key === 'ArrowRight' && selected % n === n - 1) i = selected;
-      if (i < 0 || i >= n * n) i = selected;
-      select(i);
-      boardEl.children[i].focus();
-    }
-  });
+  // Сторінка не гортається (крім вікон)
+  document.addEventListener('touchmove', e => { if (!e.target.closest('.lg-modal')) e.preventDefault(); }, { passive: false });
 
   if (!restore()) {
-    const last = LG.store.get('sudoku:last', { n: 4, level: 0 });
-    newGame(BOX[last.n] ? last.n : 4, last.level >= 0 && last.level < 5 ? last.level : 0);
+    const last = LG.store.get('sudoku:last', { n: 3, level: 0 });
+    newGame(last.n in BOX ? last.n : 3, last.level >= 0 && last.level < 5 ? last.level : 0);
   }
 })();
