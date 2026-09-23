@@ -6,36 +6,25 @@ import { Chessground } from './vendor/chessground.js';
 const ROOT = new URL('..', import.meta.url).href; // корінь сайту
 const CHESS_ROLES = { pawn: 'P', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
 
-// Кольори дошки (перший — класична коричнева, як на Lichess)
+// Дошки Lichess (lila/public/images/board, AGPLv3+) і кольори координат до них (lila _boards.scss)
 export const BOARD_THEMES = [
-  { name: 'Дерево', light: '#F0D9B5', dark: '#B58863' },
-  { name: 'Чорно-біла', light: '#F5F5F5', dark: '#3B3B3B' },
-  { name: 'Зелена', light: '#EEEED2', dark: '#769656' },
-  { name: 'Синя', light: '#DEE3E6', dark: '#8CA2AD' },
-  { name: 'Фіолетова', light: '#ECE6FA', dark: '#9C88D6' },
-  { name: 'Рожева', light: '#FCE4EC', dark: '#E07A9C' }
-];
+  ['brown', 'png', '#f0d9b5', '#946f51'], ['wood', 'jpg', '#d8a45b', '#9b4d0f'], ['maple', 'jpg', '#e8ceab', '#bc7944'],
+  ['blue', 'png', '#dee3e6', '#788a94'], ['blue2', 'jpg', '#97b2c7', '#546f82'], ['green', 'png', '#ffd', '#6d8753'],
+  ['green-plastic', 'png', '#f2f9bb', '#59935d'], ['purple', 'png', '#9f90b0', '#7d4a8d'], ['pink-pyramid', 'png', '#e8e9b7', '#ed7272'],
+  ['ic', 'png', '#ececec', '#c1c18e'], ['marble', 'jpg', '#93ab91', '#4f644e'], ['grey', 'jpg', '#b8b8b8', '#7d7d7d']
+].map(([id, ext, white, black]) => ({ id, file: `${id}.${ext}`, white, black }));
+export const boardUrl = f => ROOT + 'shared/boards/' + f;
 
-function boardSvg(light, dark) {
-  let rects = '';
-  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
-    if ((r + c) % 2) rects += `<rect x="${c}" y="${r}" width="1" height="1"/>`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges">` +
-    `<rect width="8" height="8" fill="${light}"/><g fill="${dark}">${rects}</g></svg>`;
-  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
-}
-
-// Кольори дошки й набір фігур застосовуються до всієї сторінки через CSS-змінні
+// Дошка й набір фігур застосовуються до всієї сторінки через CSS-змінні
 let styleEl = null;
 export function applyBoardLook() {
   const LG = window.LG;
-  const theme = BOARD_THEMES[0];
-  const colors = (LG && LG.boardColors && LG.boardColors()) || theme;
+  const theme = BOARD_THEMES.find(t => t.id === (LG && LG.boardTheme && LG.boardTheme())) || BOARD_THEMES[0];
   const set = (LG && LG.pieceSet && LG.pieceSet()) || 'cburnett';
   const root = document.documentElement.style;
-  root.setProperty('--cg-board', boardSvg(colors.light, colors.dark));
-  root.setProperty('--sq-light', colors.light);
-  root.setProperty('--sq-dark', colors.dark);
+  root.setProperty('--cg-board', `url("${boardUrl(theme.file)}")`);
+  root.setProperty('--cg-coord-white', theme.white);
+  root.setProperty('--cg-coord-black', theme.black);
   let css = '';
   for (const [role, letter] of Object.entries(CHESS_ROLES)) for (const [color, c] of [['white', 'w'], ['black', 'b']])
     css += `.cg-wrap piece.${role}.${color},mpiece.${role}.${color}{background-image:url("${ROOT}shared/pieces/${set}/${c}${letter}.svg")}\n`;
@@ -57,7 +46,8 @@ export function createBoard(el, opts = {}) {
     highlight: { lastMove: true, check: true },
     movable: { free: false, color: undefined, showDests: true, events: { after: (o, d) => opts.onMove && opts.onMove(o, d) } },
     premovable: { enabled: false },
-    draggable: { enabled: true, showGhost: true }, // як на Lichess: фігура точно під пальцем
+    // Тап лише вибирає фігуру (вона не зрушує); тягнути — після руху пальця на 5 px
+    draggable: { enabled: true, showGhost: true, distance: 5, autoDistance: false },
     selectable: { enabled: true },
     drawable: { enabled: false, visible: true, brushes: { hint: { key: 'h', color: '#FF9F1C', opacity: 0.95, lineWidth: 13 } } },
     events: { select: key => opts.onSelect && opts.onSelect(key) }

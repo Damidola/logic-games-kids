@@ -2,7 +2,7 @@
    Гра дає лише правила (rules) — див. shared/ai.js і pawns/rules.js як приклад.
    Каркас робить решту: дошку Lichess, робота 1–5, тваринку-суперника,
    «Назад»/«Вперед», підказку, рахунок збитих, налаштування, екран результату. */
-import { createBoard, applyBoardLook, BOARD_THEMES } from './board.js';
+import { createBoard, applyBoardLook, BOARD_THEMES, boardUrl } from './board.js';
 import { aiMove, hintMove } from './ai.js';
 import { mountOpponent, LEVEL_NAMES } from './opponent.js';
 
@@ -234,7 +234,7 @@ export function startGame(cfg) {
       <div class="lg-set-row"><span>Підказок за гру</span>${sel('hints-n', LG.store.get('hints', '3'))}</div>
       <div class="lg-set-row"><span>Ходів назад</span>${sel('undos-n', LG.store.get('undos', '3'))}</div>
       ${board ? `<div class="lg-set-title">Колір дошки</div>
-      <div class="lg-swatches">${BOARD_THEMES.map((t, i) => `<button type="button" data-t="${i}" title="${t.name}" style="background:linear-gradient(135deg, ${t.light} 50%, ${t.dark} 50%)"></button>`).join('')}</div>` : ''}`;
+      <div class="lg-swatches">${BOARD_THEMES.map(t => `<button type="button" data-t="${t.id}" title="${t.id}" style="background-image:url('${boardUrl(t.file)}')"></button>`).join('')}</div>` : ''}`;
     w.querySelectorAll('.lg-levels button').forEach(b => b.addEventListener('click', () => {
       level = +b.dataset.l; hero.setLevel(level);
       w.querySelectorAll('.lg-levels button').forEach(x => x.classList.toggle('on', x === b));
@@ -244,7 +244,7 @@ export function startGame(cfg) {
     w.querySelector('#hints-n').addEventListener('change', e => { LG.store.set('hints', e.target.value); hintsLeft = +e.target.value; });
     w.querySelector('#undos-n').addEventListener('change', e => { LG.store.set('undos', e.target.value); undosLeft = +e.target.value; });
     w.querySelectorAll('.lg-swatches button').forEach(b => b.addEventListener('click', () => {
-      LG.setBoardColors(BOARD_THEMES[+b.dataset.t]); applyBoardLook();
+      LG.setBoardTheme(b.dataset.t); applyBoardLook();
     }));
     return w;
   });

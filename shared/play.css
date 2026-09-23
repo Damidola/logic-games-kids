@@ -88,7 +88,7 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 .lg-levels button { width: 32px; height: 32px; border-radius: 50%; padding: 0; font: 900 13px var(--lg-font); color: var(--lg-muted); background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer; }
 .lg-levels button.on { background: var(--lg-primary); border-color: #5646D6; color: #fff; }
 .lg-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 6px; }
-.lg-swatches button { aspect-ratio: 1; border-radius: 10px; border: 3px solid transparent; cursor: pointer; padding: 0; }
+.lg-swatches button { aspect-ratio: 1; border-radius: 10px; border: 3px solid transparent; cursor: pointer; padding: 0; background-size: 400%; background-position: 0 0; } /* кут дошки — 2×2 клітинки */
 
 /* Кнопка «Завершити хід» (після стрибків) — над дошкою */
 .lg-pass { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 40;

@@ -1,7 +1,7 @@
 /* Вигляд дошки Lichess (2D) — перенесено з lichess-org/lila,
    ui/lib/css/theme/board/_chessground.scss, _coords-in.scss, _coords-colors.scss (AGPLv3+).
-   Колір клітинок і координат береться з теми дошки: --cg-board, --sq-light, --sq-dark. */
-cg-board { background-color: var(--sq-light, #f0d9b5); background-image: var(--cg-board); background-size: cover; }
+   Дошка — картинка Lichess (--cg-board), кольори координат — з lila _boards.scss. */
+cg-board { background-image: var(--cg-board); background-size: cover; }
 
 cg-board square.move-dest { background: radial-gradient(rgb(20 85 30 / 0.5) 19%, rgb(0 0 0 / 0) 20%); pointer-events: auto; }
 cg-board square.premove-dest { background: radial-gradient(rgb(20 30 85 / 0.5) 19%, rgb(0 0 0 / 0) 20%); pointer-events: auto; }
@@ -18,6 +18,9 @@ cg-board square.current-premove { background-color: rgb(20 30 85 / 0.5) !importa
 
 .cg-wrap piece { z-index: 2; will-change: transform; pointer-events: none; }
 .cg-wrap piece.dragging { cursor: move; z-index: 204 !important; }
+/* Як у застосунку Lichess: фігура під пальцем удвічі більша, центр — рівно під пальцем.
+   Саме розмір, а не scale: scale множив би й зсув, який ставить chessground. */
+.cg-wrap piece.dragging { width: 25%; height: 25%; margin: -6.25% 0 0 -6.25%; }
 .cg-wrap piece.anim { z-index: 3; }
 .cg-wrap piece.fading { z-index: 1; opacity: 0.5; }
 .cg-wrap piece.ghost { opacity: 0.3; }
@@ -35,5 +38,5 @@ cg-board square.current-premove { background-color: rgb(20 30 85 / 0.5) !importa
 .cg-wrap coords coord { flex: 1 1 auto; }
 .cg-wrap coords.ranks coord { transform: none; }
 /* Колір підпису — протилежний кольору клітинки */
-.cg-wrap coords .coord-light { color: var(--sq-dark, #946f51); }
-.cg-wrap coords .coord-dark { color: var(--sq-light, #f0d9b5); }
+.cg-wrap coords .coord-light { color: var(--cg-coord-black, #946f51); }
+.cg-wrap coords .coord-dark { color: var(--cg-coord-white, #f0d9b5); }

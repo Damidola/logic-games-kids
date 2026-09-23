@@ -368,10 +368,10 @@
     return el('div', {}, [el('div', { class: 'lg-set-title', text: 'Фігури' }), grid]);
   }
 
-  let boardColors = null;
+  let boardTheme = null; // за замовчуванням щоразу — коричнева дошка Lichess
   const LG = window.LG = {
-    boardColors: () => boardColors,
-    setBoardColors: c => { boardColors = c; },
+    boardTheme: () => boardTheme,
+    setBoardTheme: id => { boardTheme = id; },
     prepReward,
     pieceSet: () => store.get('pieceSet', 'cburnett'),
     pieceSetPicker,

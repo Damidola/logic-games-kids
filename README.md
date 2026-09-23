@@ -79,6 +79,7 @@ python3 -m http.server 8000
 
 - [chessground](https://github.com/lichess-org/chessground) і [chessops](https://github.com/niklasf/chessops) (`shared/vendor/`) — GPL-3.0; тексти ліцензій лежать поруч.
 - Уроки «Як ходять фігури» — код і рівні з Lichess Learn ([lichess-org/lila](https://github.com/lichess-org/lila), `ui/learn`) з українським перекладом Lichess, ліцензія AGPLv3+ (див. `learn/src/lila/README.md`).
+- Дошки в `shared/boards/` і стилі дошки `shared/vendor/lichess-board.css` — з Lichess (lila authors, pirouetti), AGPLv3+.
 - Набори фігур у `shared/pieces/*` — з Lichess; ліцензії кожного набору перелічені в [COPYING.md](https://github.com/lichess-org/lila/blob/master/COPYING.md) (cburnett, merida — GPLv2+; fantasy — MIT; california, cardinal, anarcandy, horsey — CC BY-NC-SA 4.0; pixel — AGPLv3+; xkcd — CC BY-NC 2.5; alpha — лише некомерційне використання).
 - Персонажі-роботи — RoboHash ([e1ven/Robohash](https://github.com/e1ven/Robohash)); ролики-нагороди — з публічних колекцій гіфок на GitHub.
 
