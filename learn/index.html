@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Як ходять фігури</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790158383">
+  <link rel="stylesheet" href="learn.css?v=1790158383">
+</head>
+<body>
+  <main class="learn">
+    <!-- Розділи: по одному на кожну фігуру -->
+    <section id="chapters" class="chapters" aria-label="Розділи"></section>
+
+    <!-- Урок -->
+    <section id="lesson" class="lesson" hidden>
+      <div class="lesson-head">
+        <img id="lesson-piece" alt="">
+        <div class="lesson-dots" id="lesson-dots"></div>
+      </div>
+      <div class="board-wrap">
+        <div id="board" class="board"></div>
+        <div id="done" class="done" hidden><div class="done-stars" id="done-stars"></div></div>
+      </div>
+      <div class="lesson-controls">
+        <button type="button" class="ctl" id="to-chapters"><span class="ico">☰</span><span class="lbl">Розділи</span></button>
+        <button type="button" class="ctl" id="retry"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+        <button type="button" class="ctl" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../shared/games.js?v=1790158383"></script>
+  <script src="../shared/kit.js?v=1790158383" data-game="learn" data-night="on"></script>
+  <script src="levels.js?v=1790158383"></script>
+  <script src="engine.js?v=1790158383"></script>
+  <script src="learn.js?v=1790158383"></script>
+</body>
+</html>
