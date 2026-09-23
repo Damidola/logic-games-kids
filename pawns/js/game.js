@@ -14,53 +14,35 @@ const fallbackCatImage = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
 
 // --- Opponent Definitions (using local images) ---
 const opponents = [
-    {
-        name: 'Хом’ячок',
-        difficulty: 'very_easy',
-        avatar: 'img/avatars/hamster.png' 
-    },
-    {
-        name: 'Мавпочка',
-        difficulty: 'completely_random',
-        avatar: 'img/avatars/monkey.png' 
-    },
-    {
-        name: 'Капібара',
-        difficulty: 'easy',
-        avatar: 'img/avatars/capybara.jpg' 
-    },
-    {
-        name: 'Тралалело',
-        difficulty: 'easy',
-        avatar: 'img/avatars/tralalero.png',
-        pixel: true
-    },
-    {
-        name: 'Кіт',
-        difficulty: 'medium',
-        avatar: 'img/avatars/cat.jpg' 
-    },
-    {
-        name: 'Собака',
-        difficulty: 'advanced',
-        avatar: 'img/avatars/dog.jpg' 
-    },
-    {
-        name: 'Тун-тун-сахур',
-        difficulty: 'advanced',
-        avatar: 'img/avatars/tung-tung.png',
-        pixel: true
-    },
-    {
-        name: 'Пінгвін',
-        difficulty: 'hard',
-        avatar: 'img/avatars/penguin.jpg' 
-    },
-    {
-        name: 'Тигр',
-        difficulty: 'expert',
-        avatar: 'img/avatars/tiger.jpg' 
-    }
+    { name: 'Хом’ячок', difficulty: 'very_easy', avatar: 'img/avatars/hamster.png' },
+    { name: 'Бананіта Дельфініта', difficulty: 'very_easy', avatar: 'img/avatars/bananita.jpg' },
+    { name: 'Балерина Капучина', difficulty: 'very_easy', avatar: 'img/avatars/ballerina.jpg' },
+    { name: 'Мавпочка', difficulty: 'completely_random', avatar: 'img/avatars/monkey.png' },
+    { name: 'Шимпанзіні Бананіні', difficulty: 'completely_random', avatar: 'img/avatars/chimpanzini.jpg' },
+    { name: 'Лірілі Ларіла', difficulty: 'completely_random', avatar: 'img/avatars/lirili.jpg' },
+    { name: 'Капібара', difficulty: 'easy', avatar: 'img/avatars/capybara.jpg' },
+    { name: 'Тралалело Тралала', difficulty: 'easy', avatar: 'img/avatars/tralalero.jpg' },
+    { name: 'Бурбалоні Лулілолі', difficulty: 'easy', avatar: 'img/avatars/burbaloni.jpg' },
+    { name: 'Ракуні Вотермелуні', difficulty: 'easy', avatar: 'img/avatars/raccooni.jpg' },
+    { name: 'Сова', difficulty: 'easy', avatar: 'img/avatars/owl.jpg' },
+    { name: 'Кіт', difficulty: 'medium', avatar: 'img/avatars/cat.jpg' },
+    { name: 'Блуберіні Октопусіні', difficulty: 'medium', avatar: 'img/avatars/blueberini.jpg' },
+    { name: 'Фріго Камело', difficulty: 'medium', avatar: 'img/avatars/frigo.jpg' },
+    { name: 'Свініно Бомбондіно', difficulty: 'medium', avatar: 'img/avatars/svinino.jpg' },
+    { name: 'Видра', difficulty: 'medium', avatar: 'img/avatars/otter.jpg' },
+    { name: 'Собака', difficulty: 'advanced', avatar: 'img/avatars/dog.jpg' },
+    { name: 'Тун-тун-тун-сахур', difficulty: 'advanced', avatar: 'img/avatars/tung-tung.jpg' },
+    { name: 'Брр Брр Патапім', difficulty: 'advanced', avatar: 'img/avatars/patapim.jpg' },
+    { name: 'Кокофанто Елефанто', difficulty: 'advanced', avatar: 'img/avatars/cocofanto.jpg' },
+    { name: 'Тріппі Тропі', difficulty: 'advanced', avatar: 'img/avatars/trippi.jpg' },
+    { name: 'Пінгвін', difficulty: 'hard', avatar: 'img/avatars/penguin.jpg' },
+    { name: 'Горілло Вотермелондрілло', difficulty: 'hard', avatar: 'img/avatars/gorillo.jpg' },
+    { name: 'Глорбо Фруттодрілло', difficulty: 'hard', avatar: 'img/avatars/glorbo.jpg' },
+    { name: 'Ла Вака Сатурно', difficulty: 'hard', avatar: 'img/avatars/vaca.jpg' },
+    { name: 'У Дін Дін Дун', difficulty: 'hard', avatar: 'img/avatars/udin.jpg' },
+    { name: 'Тигр', difficulty: 'expert', avatar: 'img/avatars/tiger.jpg' },
+    { name: 'Бомбардіро Крокоділо', difficulty: 'expert', avatar: 'img/avatars/bombardiro.jpg' },
+    { name: 'Ріно Тостеріно', difficulty: 'expert', avatar: 'img/avatars/rhino.jpg' }
 ];
 
 // --- Minimax AI Constants --- 
@@ -112,7 +94,7 @@ let clickValidMoves = []; // Valid moves for the clicked piece
 // Initializes or restarts the game
 function initGame(keepOpponent = false, mode = 'pvai') {
     console.log(`Initializing game: KeepOpponent=${keepOpponent}`);
-    refillRewardGifPool(); // тримаємо запас гіфок-нагород напоготові
+    refillRewardPool(); // тримаємо наступне відео-нагороду напоготові
     gameOver = false;
     aiThinking = false;
     moveHistory = [];
@@ -283,7 +265,7 @@ function checkGameOver() {
         const again = { onAgain: () => initGame(false, gameMode) };
         if (winnerColor === playerColor) {
             const name = opponents[currentOpponentIndex] ? opponents[currentOpponentIndex].name : 'суперника';
-            LG.win('Ти переміг: ' + name + '! Спробуй наступного, сильнішого суперника ▶', Object.assign({ image: takeRewardGif() }, again));
+            LG.win('Ти переміг: ' + name + '! Спробуй наступного, сильнішого суперника ▶', Object.assign({ image: takeRewardGif(), video: true }, again));
         } else {
             LG.lose('Цього разу виграв суперник. Спробуй підказку 💡 або скасуй хід ↩️.', again);
         }
@@ -669,37 +651,46 @@ function updateOpponentLabel() {
     if (levelEl) levelEl.textContent = 'Рівень ' + (currentOpponentIndex + 1) + ' з ' + opponents.length;
 }
 
-// --- Гіфки з котами за перемогу ---
-// 13 анімованих гіфок лежать у репозиторії (img/rewards), тому показуються
-// завжди, навіть без інтернету. Наступну гіфку вантажимо заздалегідь,
-// щоб у момент перемоги вона з'явилась одразу.
-const REWARD_GIF_COUNT = 13;
+// --- Смішні відео з тваринками за перемогу ---
+// 40 коротких беззвучних відео (img/rewards, ~70 КБ кожне) — виглядають як гіфки,
+// але набагато легші. Наступне завантажуємо в пам'ять заздалегідь, тож у момент
+// перемоги воно відтворюється одразу.
+const REWARD_COUNT = 40;
+// MP4 (H.264) грає на телефонах; якщо браузер його не вміє — беремо WebM
+const REWARD_EXT = (() => {
+    const v = document.createElement('video');
+    return v.canPlayType('video/mp4; codecs="avc1.4D401E"') ? '.mp4' : '.webm';
+})();
 let rewardBag = [];
-let nextRewardUrl = null;
+let nextReward = null; // Promise<string> — адреса відео (blob: або звичайна)
 
 function pickRewardUrl() {
     if (!rewardBag.length) {
-        rewardBag = Array.from({ length: REWARD_GIF_COUNT }, (_, i) => i + 1);
+        rewardBag = Array.from({ length: REWARD_COUNT }, (_, i) => i + 1);
         for (let i = rewardBag.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [rewardBag[i], rewardBag[j]] = [rewardBag[j], rewardBag[i]];
         }
     }
-    return 'img/rewards/cat-' + String(rewardBag.pop()).padStart(2, '0') + '.gif?v=2';
+    return 'img/rewards/fun-' + String(rewardBag.pop()).padStart(2, '0') + REWARD_EXT;
 }
 
-function refillRewardGifPool() {
-    if (nextRewardUrl) return;
-    nextRewardUrl = pickRewardUrl();
-    new Image().src = nextRewardUrl; // завантажуємо заздалегідь у кеш браузера
+function refillRewardPool() {
+    if (nextReward) return;
+    const url = pickRewardUrl();
+    const ready = fetch(url).then(r => r.ok ? r.blob() : Promise.reject())
+        .then(b => URL.createObjectURL(b)).catch(() => url);
+    nextReward = { url, ready, settled: null };
+    ready.then(u => { if (nextReward && nextReward.ready === ready) nextReward.settled = u; });
 }
 
 function takeRewardGif() {
-    refillRewardGifPool();
-    const url = nextRewardUrl;
-    nextRewardUrl = null;
-    refillRewardGifPool(); // одразу готуємо наступну
-    return url;
+    refillRewardPool();
+    const r = nextReward;
+    nextReward = null;
+    refillRewardPool(); // одразу готуємо наступне
+    // Уже в пам'яті — віддаємо рядок одразу, без жодного очікування
+    return r.settled || r.ready;
 }
 
-refillRewardGifPool();
+refillRewardPool();

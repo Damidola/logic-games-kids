@@ -164,7 +164,7 @@ html.lg body.lg-game .lg-hide { display: none !important; }
 .lg-result-btns { display: flex; gap: 14px; justify-content: center; margin-top: 18px; }
 html.lg .lg-modal .lg-btn-big { width: 96px; height: 80px; padding: 0; font-size: 40px; border-radius: 22px; }
 .lg-result-stars { font-size: 28px; margin: 4px 0 0; font-weight: 900; color: #B37A00; }
-.lg-result-img img { display: block; max-width: 100%; max-height: 220px; margin: 8px auto; border-radius: 16px; object-fit: contain; }
+.lg-result-img img, .lg-result-img video { display: block; max-width: 100%; max-height: 220px; margin: 8px auto; border-radius: 16px; object-fit: contain; }
 .lg-result-win h2 { color: #4435BF; }
 @keyframes lg-pop { from { transform: scale(.2) rotate(-20deg); opacity: 0; } to { transform: none; opacity: 1; } }
 
@@ -206,9 +206,9 @@ html.lg .lg-modal .lg-modal-x:hover {
 html.lg .lg-bar .lg-icon-btn { padding: 0; width: 46px; height: 46px; background-image: none; }
 html.lg .lg-bar .lg-icon-btn:hover { background-color: var(--lg-primary-soft); }
 html.lg .lg-bar .lg-help, html.lg .lg-bar .lg-help:hover { background-color: var(--lg-sun); }
-html.lg .lg-bar .lg-icon-btn:active { transform: translateY(3px); }
+html.lg .lg-bar .lg-icon-btn:active { transform: scale(.94); }
 html.lg .lg-modal .lg-btn { padding: 10px 20px; background-image: none; }
-html.lg .lg-modal .lg-btn:active { transform: translateY(4px); }
+html.lg .lg-modal .lg-btn:active { transform: scale(.96); }
 html.lg .lg-modal .lg-modal-x { padding: 0; background-image: none; }
 html.lg .lg-modal .lg-btn:not(.lg-btn-primary) { background-color: var(--lg-surface); color: var(--lg-ink); }
 html.lg .lg-modal .lg-btn-primary { background-color: var(--lg-primary); color: #fff; }
@@ -252,3 +252,23 @@ html.lg.lg-night body.lg-game {
 html.lg-night .lg-bar { background: rgba(20, 19, 26, .92); }
 html.lg-night .lg-modal-x { color: var(--lg-ink); }
 html.lg-night .lg-rules-goal { background: #3A3350; }
+
+/* ---------- налаштування: компактні, гортаються пальцем, великий червоний хрестик ---------- */
+html.lg .lg-modal .lg-modal-settings {
+  max-height: min(56svh, 520px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  padding: 14px 12px 12px; touch-action: pan-y;
+}
+.lg-modal-settings .lg-settings h2 { font-size: 17px; margin: 4px 0 8px; padding-right: 76px; }
+.lg-modal-settings .lg-set-group { padding: 2px 10px; margin-bottom: 6px; border-radius: 12px; }
+.lg-modal-settings .lg-set-row { min-height: 32px; padding: 3px 0; font-size: 13px; gap: 4px 10px; }
+.lg-modal-settings .lg-set-title { font-size: 12px; margin: 4px 0 2px; }
+.lg-modal-settings .swatches { gap: 5px; }
+.lg-modal-settings .swatch { border-radius: 8px; }
+.lg-modal-settings .diff-dots .dot { width: 26px; height: 26px; font-size: 11px; }
+html.lg .lg-modal .lg-modal-settings .lg-modal-x,
+html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
+  position: sticky; float: right; top: 0; margin: -4px -2px 0 0; z-index: 3;
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #E53935; color: #fff; font-size: 34px; font-weight: 900; line-height: 1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .35); border: 3px solid #fff;
+}

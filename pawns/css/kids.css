@@ -138,8 +138,8 @@ html.lg body.lg-game {
     transform: translateY(40px); transition: transform .25s ease; touch-action: pan-y;
 }
 .picker.open .picker-card { transform: none; }
-.picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.pick {
+.picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pick { min-width: 0;
     display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 10px;
     background: var(--lg-surface-2); border: 3px solid transparent; border-radius: 20px;
     color: var(--lg-ink); font-family: var(--lg-font); cursor: pointer;
@@ -147,7 +147,7 @@ html.lg body.lg-game {
 .pick img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; background: #fff; }
 .pick.pixel img { object-fit: contain; image-rendering: pixelated; }
 .pick.current { border-color: var(--lg-sun); }
-.pick-name { font-weight: 900; font-size: 14px; }
+.pick-name { font-weight: 900; font-size: 12px; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
 .pick-level { color: var(--lg-sun); font-size: 13px; letter-spacing: 1px; }
 
 /* ---------- налаштування ---------- */

@@ -270,7 +270,11 @@
     if (opts && opts.image) {
       Promise.resolve(opts.image).then(url => {
         if (!url) return imgSlot.remove();
-        const img = el('img', { alt: 'Нагорода за перемогу', src: url });
+        // Відео (як гіфка): без звуку, по колу, одразу грає
+        const img = opts.video
+          ? el('video', { src: url, autoplay: '', muted: '', loop: '', playsinline: '', 'aria-label': 'Нагорода за перемогу' })
+          : el('img', { alt: 'Нагорода за перемогу', src: url });
+        if (opts.video) { img.muted = true; img.play && img.play().catch(() => {}); }
         img.onerror = () => imgSlot.remove();
         imgSlot.appendChild(img);
       }).catch(() => imgSlot.remove());
