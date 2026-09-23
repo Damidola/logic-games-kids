@@ -38,6 +38,14 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 }
 .lg-hero.switching img { opacity: .35; }
 .lg-hero.thinking img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
+
+/* картинка вже містить свій фон одним цілим — без окремої сцени й квадрата-рамки */
+.lg-hero-combined::before { content: none; }
+.lg-hero-combined .lg-hero-pic img {
+  width: calc(100% - 16px); height: calc(100% - 12px); max-height: none; aspect-ratio: auto;
+  border-radius: 22px; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+.lg-hero-combined.thinking .lg-hero-pic img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
 .lg-hero-arrow {
   position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
   width: 34px; height: 34px; border-radius: 50%; padding: 0; display: grid; place-items: center;

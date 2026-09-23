@@ -5,20 +5,19 @@ const ROOT = new URL('..', import.meta.url).href;
 const A = f => ROOT + 'shared/opponents/' + f;
 
 // Рівень 1 — піддається … 5 — сильний. Італійські «брейнроти» — в кінці списку.
+// У кожного суперника свій фон (shared/bg/*.svg) — жоден не повторюється.
 export const OPPONENTS = [
-  ['Хом’ячок', 1, 'hamster.png'],
-  ['Мавпочка', 2, 'monkey.png'],
-  ['Капібара', 3, 'capybara.jpg'], ['Сова', 3, 'owl.jpg'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg'], ['Зелений робот', 3, 'robot-green.jpg'],
-  ['Кіт', 4, 'cat.jpg'], ['Драматичний мопс', 4, 'pug.jpg'], ['Кіт Смадж', 4, 'smudge.jpg'],
-  ['Собака', 4, 'dog.jpg'], ['Хитрий кіт', 4, 'evilcat.jpg'],
-  ['Жовтий робот', 5, 'robot-yellow.jpg'],
-  ['Балерина Капучина', 2, 'ballerina.jpg'],
-  ['Лірілі Ларіла', 3, 'lirili.jpg'], ['Тралалело Тралала', 3, 'tralalero.jpg'], ['Тун-тун-тун-сахур', 4, 'tung-tung.jpg'],
-  ['Брр Брр Патапім', 4, 'patapim.jpg']
-].map(([name, level, file]) => ({ name, level, avatar: A(file) }));
+  ['Хом’ячок', 1, 'hamster.png', 'wildwest'],
+  ['Мавпочка', 2, 'monkey.jpg', null], // тварина+фон уже об'єднані в одній картинці
+  ['Капібара', 3, 'capybara.jpg', 'summer'], ['Сова', 3, 'owl.jpg', 'nightforest'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg', 'candy'], ['Зелений робот', 3, 'robot-green.jpg', 'space'],
+  ['Кіт', 4, 'cat.jpg', 'room'], ['Драматичний мопс', 4, 'pug.jpg', 'stage'], ['Кіт Смадж', 4, 'smudge.jpg', 'kitchen'],
+  ['Собака', 4, 'dog.jpg', 'beach'], ['Хитрий кіт', 4, 'evilcat.jpg', 'rooftops'],
+  ['Жовтий робот', 5, 'robot-yellow.jpg', 'factory'],
+  ['Балерина Капучина', 2, 'ballerina.jpg', 'rainbow'],
+  ['Лірілі Ларіла', 3, 'lirili.jpg', 'savanna'], ['Тралалело Тралала', 3, 'tralalero.jpg', 'underwater'], ['Тун-тун-тун-сахур', 4, 'tung-tung.jpg', 'lanterns'],
+  ['Брр Брр Патапім', 4, 'patapim.jpg', 'autumn']
+].map(([name, level, file, bg]) => ({ name, level, avatar: A(file), bg }));
 
-// Одна сцена на рівень — при перемиканні сусідніх тварин фон не міняється
-const SCENE = { 1: 'summer', 2: 'rainbow', 3: 'jungle', 4: 'autumn', 5: 'space' };
 const scene = n => ROOT + 'shared/bg/' + n + '.svg';
 
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
@@ -27,7 +26,7 @@ export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Нова�
    el — порожній контейнер над дошкою. */
 export function mountOpponent(el, opts = {}) {
   const LG = window.LG;
-  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.png')); // щоразу при відкритті — мавпочка
+  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.jpg')); // щоразу при відкритті — мавпочка
   let level = OPPONENTS[index].level;
   el.classList.add('lg-hero');
   el.innerHTML = `
@@ -38,7 +37,7 @@ export function mountOpponent(el, opts = {}) {
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
   // Сцени й картинки вантажимо одразу — тоді нічого не блимає
-  Object.values(SCENE).forEach(n => { new Image().src = scene(n); });
+  OPPONENTS.forEach(o => { if (o.bg) new Image().src = scene(o.bg); });
   setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
 
   function placeArrows() {
@@ -54,8 +53,9 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
-    el.dataset.scene = SCENE[o.level];
-    el.style.setProperty('--scene', `url("${scene(SCENE[o.level])}")`);
+    el.classList.toggle('lg-hero-combined', !o.bg); // картинка вже містить фон — без окремої сцени
+    if (o.bg) { el.dataset.scene = o.bg; el.style.setProperty('--scene', `url("${scene(o.bg)}")`); }
+    else { delete el.dataset.scene; el.style.removeProperty('--scene'); }
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
