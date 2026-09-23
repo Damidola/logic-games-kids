@@ -3,13 +3,13 @@
 @import url('vendor/lichess-board.css');
 
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
-html.lg { --lg-bar-h: 44px; }
+html.lg { --lg-bar-h: 30px; }
 html.lg body.lg-game {
   position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0;
-  padding: calc(var(--lg-bar-h) + 6px) 0 10px; touch-action: manipulation;
+  padding: calc(var(--lg-bar-h) + 4px) 0 10px; touch-action: manipulation;
 }
-html.lg .lg-bar .lg-icon-btn { width: 34px; height: 34px; font-size: 16px; border-radius: 11px; }
-html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
+html.lg .lg-bar .lg-icon-btn { width: 26px; height: 26px; font-size: 13px; border-radius: 9px; }
+html.lg .lg-bar .lg-bar-title { font-size: clamp(13px, 3.8vw, 17px); }
 
 .lg-play {
   width: 100%; max-width: 560px; height: 100%; margin: 0 auto;
@@ -32,7 +32,7 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 }
 .lg-hero-pic img {
   pointer-events: auto; cursor: pointer;
-  height: calc(100% - 4px); max-height: min(520px, calc(100vw - 60px)); aspect-ratio: 1; width: auto;
+  height: 100%; max-height: min(560px, calc(100vw - 24px)); aspect-ratio: 1; width: auto;
   object-fit: cover; object-position: var(--pic-pos, center); border-radius: 28%; background: var(--lg-surface-2);
   box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
 }
@@ -56,8 +56,9 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 .lg-material mpiece { display: block; width: 22px; height: 22px; background-size: cover; }
 .lg-material mpiece + mpiece { margin-left: -14px; } /* однакові фігури — стопкою, як на Lichess */
 .lg-material b { margin-left: 2px; }
-.lg-hero-slot + .lg-material { position: relative; z-index: 2; margin-top: -26px; }
-.lg-hero-slot + .lg-material b { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+.lg-material:empty { display: none; } /* нема кого рахувати (хрестики-нулики тощо) — рядок не займає місця */
+.lg-hero-slot + .lg-turn + .lg-material { position: relative; z-index: 2; margin-top: -26px; }
+.lg-hero-slot + .lg-turn + .lg-material b { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
 
 /* ---------- дошка Lichess ---------- */
 .lg-board-wrap {
