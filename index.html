@@ -26,9 +26,8 @@
     /* ---------- шапка ---------- */
     .top { display: flex; align-items: center; gap: 10px; padding: 14px 2px 12px; }
     .top .owl { font-size: 34px; line-height: 1; }
-    .top h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -.3px; }
+    .top h1 { margin: 0; font-size: clamp(20px, 6.2vw, 28px); font-weight: 900; letter-spacing: -.3px; white-space: nowrap; }
     .top h1 span { color: var(--lg-primary); }
-    .top .stars { margin-left: auto; font-weight: 900; font-size: 16px; padding: 6px 12px; border-radius: 999px; background: var(--lg-surface); border: 2px solid var(--lg-line); }
 
     /* ---------- ігри: усі одразу на екрані ---------- */
     .grid { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
@@ -48,11 +47,6 @@
     .card:focus-visible { outline: 4px solid var(--lg-sky); outline-offset: 3px; }
     .card .big { font-size: clamp(38px, 12vw, 64px); line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.15)); }
     .card h2 { margin: 0; font-size: clamp(13px, 3.8vw, 18px); font-weight: 900; line-height: 1.1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
-    .wins {
-      position: absolute; top: 6px; right: 6px;
-      background: rgba(255,255,255,.95); color: var(--lg-ink); font-weight: 900; font-size: 12px;
-      padding: 2px 7px; border-radius: 999px;
-    }
     @media (min-width: 700px) {
       .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
       .card h2 { font-size: 20px; }
@@ -98,7 +92,6 @@
     <header class="top">
       <span class="owl" aria-hidden="true">🦉</span>
       <h1>Логічні <span>ігри</span></h1>
-      <span class="stars" id="stars" hidden></span>
     </header>
 
     <main class="grid" id="grid"></main>
@@ -164,14 +157,11 @@
     const list = ORDER.map(id => games.find(g => g.id === id)).filter(Boolean)
       .concat(games.filter(g => !ORDER.includes(g.id)));
 
-    const totalWins = Object.values(stats).reduce((a, s) => a + (s.wins || 0), 0);
-    if (totalWins) { $('stars').hidden = false; $('stars').textContent = '⭐ ' + totalWins; }
 
     function renderGrid() {
       $('grid').innerHTML = list.map(g => {
         const s = stats[g.id];
         return `<a class="card" href="${g.path}" style="--c:${g.color}">
-          ${s && s.wins ? `<span class="wins">⭐ ${s.wins}</span>` : ''}
           <span class="big" aria-hidden="true">${g.emoji}</span>
           <h2>${esc(g.title)}</h2>
         </a>`;
