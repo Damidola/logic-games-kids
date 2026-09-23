@@ -1,43 +1,30 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сліди</title>
-    <link rel="stylesheet" href="../shared/kit.css?v=1790161243">
-    <link rel="stylesheet" href="styles.css?v=1790161243">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Сліди</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790161692">
+  <link rel="stylesheet" href="../shared/play.css?v=1790161692">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790161692">
 </head>
 <body>
-    <div class="game-container">
-        <div class="game-info">
-            <div id="current-player" aria-live="polite">Твій хід</div>
-            <div id="game-status"></div>
-        </div>
-        <div class="board" id="chessboard"></div>
-        <div class="legend"><span><i class="tr white"></i> твої сліди</span><span><i class="tr black"></i> сліди робота</span></div>
-        <button id="play-again-button">🔄 Нова гра</button>
-        <div class="game-options">
-            <label class="random-position-option">
-                <input type="checkbox" id="random-positions-checkbox">
-                Випадкові початкові позиції
-            </label>
-        </div>
-    </div>
-
-    <div class="victory-window" id="victory-window">
-        <h2>Ти виграв!</h2>
-        <p>Вітаємо з перемогою!</p>
-        <button onclick="currentGame.startNewGame()">Грати знову</button>
-    </div>
-
-    <div class="victory-window defeat" id="defeat-window">
-        <h2>Ти програв!</h2>
-        <p>Спробуй ще раз!</p>
-        <button onclick="currentGame.startNewGame()">Грати знову</button>
-    </div>
-
-    <script src="../shared/games.js?v=1790161243"></script>
-    <script src="../shared/kit.js?v=1790161243" data-game="footprints"></script>
-    <script src="game.js?v=1790161243"></script>
+  <main></main>
+  <script src="../shared/games.js?v=1790161692"></script>
+  <script src="../shared/kit.js?v=1790161692" data-game="footprints" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790161692';
+    import { createRules } from './rules.js?v=1790161692';
+    let game;
+    game = startGame({
+      rules: createRules({ random: () => LG.store.get('footprints:random', false) }),
+      extraSettings: () => {
+        const l = document.createElement('label'); l.className = 'lg-set-row';
+        l.innerHTML = `<span>Випадкові місця тур</span><input type="checkbox" ${LG.store.get('footprints:random', false) ? 'checked' : ''}>`;
+        l.querySelector('input').addEventListener('change', e => { LG.store.set('footprints:random', e.target.checked); game.newGame(); });
+        return l;
+      }
+    });
+  </script>
 </body>
-</html> 
+</html>

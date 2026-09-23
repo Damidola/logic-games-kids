@@ -114,3 +114,13 @@ cg-board square.selected { background-color: rgba(20, 85, 30, .5); }
 .lg-levels button.on { background: var(--lg-primary); border-color: #5646D6; color: #fff; }
 .lg-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 6px; }
 .lg-swatches button { aspect-ratio: 1; border-radius: 10px; border: 3px solid transparent; cursor: pointer; padding: 0; }
+
+/* Кнопка «Завершити хід» (після стрибків) — над дошкою */
+.lg-pass { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 40;
+  padding: 10px 18px; border-radius: 16px; border: 2px solid #22A77C; background: var(--lg-mint); color: #fff;
+  font: 900 16px var(--lg-font); box-shadow: 0 4px 12px rgba(0,0,0,.3); cursor: pointer; }
+.lg-pass[hidden] { display: none; }
+/* Підсвічені клітинки (будиночки, цільові кути) */
+cg-board square.mark-gold { background: rgba(255, 201, 40, .45); }
+cg-board square.mark-blue { background: rgba(77, 163, 255, .32); }
+cg-board square.mark-red { background: rgba(255, 107, 107, .32); }

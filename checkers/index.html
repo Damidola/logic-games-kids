@@ -1,43 +1,24 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Шашки</title>
-    <link rel="stylesheet" href="../shared/kit.css?v=1790161243">
-    <link rel="stylesheet" href="style.css?v=1790161243">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Шашки</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790161692">
+  <link rel="stylesheet" href="../shared/play.css?v=1790161692">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790161692">
 </head>
 <body>
-    <h1 class="lg-hide">Шашки</h1>
-    
-    <div id="checkerboard" class="checkerboard"></div>
-    
-    <div class="game-controls">
-        <button id="new-game-btn">✨ Нова гра</button>
-        <button id="undo-btn" class="icon-btn" title="Скасувати хід" aria-label="Скасувати хід">↩️</button>
-        <div class="theme-selector">
-            <button id="theme-btn" title="Змінити кольори дошки" aria-label="Змінити кольори дошки"></button>
-            <div class="theme-dropdown" id="theme-dropdown">
-                <div class="theme-option" data-theme="default"></div>
-                <div class="theme-option" data-theme="dark"></div>
-                <div class="theme-option" data-theme="neon"></div>
-                <div class="theme-option" data-theme="green"></div>
-                <div class="theme-option" data-theme="yellow"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Add modal window for game result -->
-    <div id="game-result-modal" class="modal">
-        <div class="modal-content">
-            <h2 id="game-result-text"></h2>
-            <button id="modal-new-game-btn">Нова гра</button>
-        </div>
-    </div>
-    <script src="../shared/games.js?v=1790161243"></script>
-    <script src="../shared/kit.js?v=1790161243" data-game="checkers"></script>
-    <script src="script.js?v=1790161243"></script>
+  <main></main>
+  <script src="../shared/games.js?v=1790161692"></script>
+  <script src="../shared/kit.js?v=1790161692" data-game="checkers" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790161692';
+    import { createRules } from './rules.js?v=1790161692';
+    startGame({
+      rules: createRules(),
+      materialIcon: (color, role) => `../shared/pieces/extra/${color}${role}.svg`
+    });
+  </script>
 </body>
-</html> 
+</html>

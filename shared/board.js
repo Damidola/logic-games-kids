@@ -94,6 +94,8 @@ export function createBoard(el, opts = {}) {
     hint: (orig, dest) => cg.setAutoShapes([{ orig, dest, brush: 'hint' }]),
     shapes: s => cg.setAutoShapes(s),
     clearHint: () => cg.setAutoShapes([]),
+    // Підсвітити клітинки: Map(клітинка → css-клас), напр. «будиночок» у «Кутах»
+    marks: m => cg.set({ highlight: { custom: m || new Map() } }),
     redraw: () => cg.redrawAll(),
     destroy: () => cg.destroy()
   };

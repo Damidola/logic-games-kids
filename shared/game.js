@@ -17,7 +17,8 @@ export function startGame(cfg) {
   root.innerHTML = `
     <div class="lg-hero-slot"></div>
     <div class="lg-material" data-side="top"></div>
-    <div class="lg-board-wrap"><div class="lg-board-el"></div></div>
+    <div class="lg-board-wrap"><div class="lg-board-el"></div>
+      <button type="button" class="lg-pass" hidden>✅ Завершити хід</button></div>
     <div class="lg-material" data-side="bottom"></div>
     <div class="lg-controls">
       <button type="button" data-act="flip"><span class="ico lg-side-dot"></span><span class="lbl">Колір</span></button>
@@ -41,9 +42,13 @@ export function startGame(cfg) {
 
   const board = createBoard($('.lg-board-el'), { onMove: (o, d) => userMove(o, d) });
 
+  // Проміжні положення (посеред кількох стрибків) «Назад»/«Вперед» пропускають
+  const stable = s => !rules.midTurn || !rules.midTurn(s);
+
   function dests(s) {
     const map = new Map();
     for (const m of rules.moves(s)) {
+      if (!m.from || !m.to) continue; // «пропустити/завершити хід» — окремою кнопкою
       if (!map.has(m.from)) map.set(m.from, []);
       if (!map.get(m.from).includes(m.to)) map.get(m.from).push(m.to);
     }
@@ -56,12 +61,16 @@ export function startGame(cfg) {
     const mine = rules.turn(s) === player && !over && !thinking;
     board.setMovable(mine ? colorName(player) : null, mine ? dests(s) : new Map());
     board.clearHint();
+    if (rules.marks) board.marks(rules.marks(s));
+    // Кнопка «Завершити хід» — коли правила дозволяють зупинитись (наприклад, після стрибка)
+    const pass = mine && rules.moves(s).find(m => m.pass);
+    $('.lg-pass').hidden = !pass;
     renderMaterial();
     renderButtons();
   }
 
   function renderMaterial() {
-    if (!rules.captured) return;
+    if (!rules.captured || !cfg.materialIcon) return;
     const cap = rules.captured(state()); // { w: [ролі, які збили білі], b: [...] }
     const row = (list, victimColor) => !list.length ? '' :
       list.map(r => `<img src="${cfg.materialIcon(victimColor, r)}" alt="">`).join('') + `<b>+${list.length}</b>`;
@@ -79,7 +88,7 @@ export function startGame(cfg) {
   // ---------- ходи ----------
   function commit(move) {
     const next = rules.play(state(), move);
-    next.lastMove = [move.from, move.to];
+    next.lastMove = move.from && move.to ? [move.from, move.to] : state().lastMove;
     history = history.slice(0, pos + 1); // новий хід — «вперед» більше нікуди
     history.push(next);
     pos++;
@@ -145,7 +154,7 @@ export function startGame(cfg) {
     if (pos === 0 || undosLeft <= 0) return LG.play('error');
     // Повертаємось до свого ходу: через хід робота і свій
     let p = pos - 1;
-    while (p > 0 && rules.turn(history[p]) !== player) p--;
+    while (p > 0 && (rules.turn(history[p]) !== player || !stable(history[p]))) p--;
     if (rules.turn(history[p]) !== player) return LG.play('error');
     pos = p; over = false; undosLeft--; lastHint = null;
     render();
@@ -153,7 +162,7 @@ export function startGame(cfg) {
   function redo() {
     if (pos >= history.length - 1 || thinking) return;
     let p = pos + 1;
-    while (p < history.length - 1 && rules.turn(history[p]) !== player) p++;
+    while (p < history.length - 1 && (rules.turn(history[p]) !== player || !stable(history[p]))) p++;
     pos = p;
     const r = rules.result(state());
     render();
@@ -174,6 +183,12 @@ export function startGame(cfg) {
     }
     board.hint(lastHint.m.from, lastHint.m.to);
   }
+  $('.lg-pass').addEventListener('click', () => {
+    const s = state();
+    const m = !over && !thinking && rules.turn(s) === player && rules.moves(s).find(x => x.pass);
+    if (!m) return;
+    commit(m); render(); afterMove();
+  });
   root.querySelector('.lg-controls').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     ({
@@ -221,5 +236,5 @@ export function startGame(cfg) {
   }, { passive: false });
 
   newGame();
-  return { newGame, state, board };
+  return { newGame, state, board, setPlayer: c => { player = c; newGame(); } };
 }
