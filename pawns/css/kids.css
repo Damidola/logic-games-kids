@@ -1,5 +1,5 @@
 /* «Пішаки»: усе на одному екрані, великий нерухомий суперник, дошка як у Lichess */
-:root { --sq-light: #EEEED2; --sq-dark: #769656; }
+:root { --sq-light: #F0D9B5; --sq-dark: #B58863; }
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 html.lg body.lg-game {
     position: fixed; inset: 0; margin: 0;

@@ -16,15 +16,16 @@
     const DIFF_TIERS = opponents.reduce((a, o) => (a.includes(o.difficulty) ? a : a.concat(o.difficulty)), []);
 
     // ---------- кольори дошки ----------
+    // Перша — класична коричнева (дерево), вона й за замовчуванням.
     const PRESETS = [
-        { name: 'Зелена', light: '#EEEED2', dark: '#769656' },
         { name: 'Дерево', light: '#F0D9B5', dark: '#B58863' },
+        { name: 'Чорно-біла', light: '#F5F5F5', dark: '#3B3B3B' },
+        { name: 'Зелена', light: '#EEEED2', dark: '#769656' },
         { name: 'Синя', light: '#DEE3E6', dark: '#8CA2AD' },
         { name: 'Фіолетова', light: '#ECE6FA', dark: '#9C88D6' },
-        { name: 'Рожева', light: '#FCE4EC', dark: '#E07A9C' },
-        { name: 'Сіра', light: '#E6E6E6', dark: '#8A8A8A' }
+        { name: 'Рожева', light: '#FCE4EC', dark: '#E07A9C' }
     ];
-    // Палітра дошки НЕ зберігається між заходами: щоразу при відкритті — лайхесівська зелена.
+    // Палітра дошки НЕ зберігається між заходами: щоразу при відкритті — класична коричнева.
     let boardColors = { light: PRESETS[0].light, dark: PRESETS[0].dark };
 
     function hexToRgb(hex) {
