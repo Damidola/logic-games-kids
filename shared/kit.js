@@ -62,7 +62,16 @@
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
   };
-  const unlock = () => { if (audioCtx && audioCtx.state === 'running') return; try { const c = ctx(), b = c.createBufferSource(); b.buffer = c.createBuffer(1, 1, 22050); b.connect(c.destination); b.start(0); } catch (e) { /* без звуку */ } };
+  // iPhone: Web Audio вимикається перемикачем «беззвучно», навіть коли звук сайту увімкнено.
+  // Просимо режим «відтворення» (Safari 16.4+), а для старших — один раз граємо тиху <audio> по першому дотику.
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* немає */ }
+  let silentDone = false;
+  const SILENT = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
+  const unlock = () => {
+    if (!silentDone) { silentDone = true; try { const a = new Audio(SILENT); a.play().catch(() => {}); } catch (e) { /* немає */ } }
+    if (audioCtx && audioCtx.state === 'running') return;
+    try { const c = ctx(), b = c.createBufferSource(); b.buffer = c.createBuffer(1, 1, 22050); b.connect(c.destination); b.start(0); } catch (e) { /* без звуку */ }
+  };
   ['pointerdown', 'touchend', 'keydown'].forEach(t => window.addEventListener(t, unlock, { capture: true, passive: true }));
   // Розкодовані звуки: буфер + скільки тиші на початку (MP3 додає ~50 мс тиші — її пропускаємо, щоб звук був одразу)
   const buffers = {}, ready = {};
@@ -77,18 +86,18 @@
       })
       .catch(() => { delete buffers[url]; return null; }));
   };
-  function start({ buf, lead }) {
+  function start({ buf, lead }, k = 1) {
     const c = ctx(), src = c.createBufferSource(), gain = c.createGain();
-    gain.gain.value = LG.volume; src.buffer = buf; src.connect(gain).connect(c.destination); src.start(0, lead);
+    gain.gain.value = LG.volume * k; src.buffer = buf; src.connect(gain).connect(c.destination); src.start(0, lead);
   }
-  function playFile(u) {
+  function playFile(u, k = 1) {
     if (LG.muted || LG.volume <= 0) return;
     try {
       const url = new URL(u, location.href).href;
-      if (ready[url]) return start(ready[url]); // уже розкодовано — граємо одразу, без очікування
+      if (ready[url]) return start(ready[url], k); // уже розкодовано — граємо одразу, без очікування
       load(url).then(x => {
-        if (x) return start(x);
-        const a = new Audio(url); a.volume = LG.volume; a.play().catch(() => {});
+        if (x) return start(x, k);
+        const a = new Audio(url); a.volume = Math.min(1, LG.volume * k); a.play().catch(() => {});
       });
     } catch (e) { /* без звуку */ }
   }

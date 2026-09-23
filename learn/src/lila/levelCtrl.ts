@@ -178,10 +178,10 @@ export class LevelCtrl {
         vm.failed = vm.failed || captured || detectFailure();
       }
       if (this.isAppleLevel()) this.setShapes();
+      moveSound(); // звук ходу Lichess — на кожен хід (зірочка й кінець рівня — ще й свій звук)
       if (!vm.failed && detectSuccess()) this.complete();
       if (vm.willComplete) return;
       if ((!vm.failed && took) || inScenario) take();
-      else moveSound();
       if (vm.failed) {
         if (blueprint.showFailureFollowUp && !captured)
           timeouts.setTimeout(() => {
