@@ -1,22 +1,34 @@
-/* Практика після уроків: фігура проти пішаків (гра «Фігури й пішаки»).
-   Мапа уроків малюється застосунком Lichess Learn — додаємо свій розділ одразу після «Шахових фігур». */
-const ITEMS = [
-  ['r_p5', 'R', 'Тура проти 5 пішаків', 'Тура з кута — збий усіх!'],
-  ['b_p3', 'B', 'Слон проти 3 пішаків', 'Чорний слон — не пропусти пішаків'],
-  ['q_p8', 'Q', 'Ферзь проти 8 пішаків', 'Ферзь сильний — збий усю армію'],
-  ['n_p3', 'N', 'Кінь проти 3 пішаків', 'Стрибай літерою «Г»'],
-  ['bb_p8', 'B', 'Два слони проти 8 пішаків', 'Слони разом — сила'],
-  ['nn_p6', 'N', 'Два коні проти 6 пішаків', 'Коні разом']
+/* Наші розділи на мапі уроків Lichess Learn (мапу малює застосунок — додаємо свої розділи
+   одразу після «Шахових фігур»): урок «Цінність фігур» і практика проти робота. */
+const P = './assets/images/learn/pieces/';
+const SECTIONS = [
+  ['Скільки коштують фігури', [
+    ['value.html', P + 'Q.svg', 'Цінність фігур', 'Пішак — 1, кінь і слон — 3, тура — 5, ферзь — 9']]],
+  ['Практика: постав мат', [
+    ['../mate/index.html#kqk', P + 'Q.svg', 'Ферзь і король проти короля', 'Постав мат — ходів скільки завгодно'],
+    ['../mate/index.html#krk', P + 'R.svg', 'Тура і король проти короля', 'Заганяй короля до краю дошки'],
+    ['../mate/index.html#kbbk', P + 'B.svg', 'Два слони і король', 'Слони разом — і король у куті'],
+    ['../mate/index.html#kpk', P + 'P.svg', 'Король і пішак проти короля', 'Проведи пішака у ферзі й постав мат']]],
+  ['Практика: фігури проти пішаків', [
+    ['../wolfs/index.html#r_p5', P + 'R.svg', 'Тура проти 5 пішаків', 'Тура з кута — збий усіх!'],
+    ['../wolfs/index.html#b_p3', P + 'B.svg', 'Слон проти 3 пішаків', 'Чорний слон — не пропусти пішаків'],
+    ['../wolfs/index.html#q_p8', P + 'Q.svg', 'Ферзь проти 8 пішаків', 'Ферзь сильний — збий усю армію'],
+    ['../wolfs/index.html#n_p3', P + 'N.svg', 'Кінь проти 3 пішаків', 'Стрибай літерою «Г»'],
+    ['../wolfs/index.html#bb_p8', P + 'B.svg', 'Два слони проти 8 пішаків', 'Слони разом — сила'],
+    ['../wolfs/index.html#nn_p6', P + 'N.svg', 'Два коні проти 6 пішаків', 'Коні разом']]]
 ];
 function add() {
   const stages = document.querySelector('.learn-stages');
   if (!stages || stages.querySelector('.lg-practice')) return;
-  const el = document.createElement('div');
-  el.className = 'categ lg-practice';
-  el.innerHTML = `<h2>Практика: фігури проти пішаків</h2><div class="categ_stages">${ITEMS.map(([k, p, t, s]) =>
-    `<a class="stage" href="../wolfs/index.html#${k}"><img src="./assets/images/learn/pieces/${p}.svg" alt=""><div class="text"><h3>${t}</h3><p class="subtitle">${s}</p></div></a>`).join('')}</div>`;
-  const first = stages.querySelector('.categ');
-  stages.insertBefore(el, first ? first.nextSibling : null);
+  let after = stages.querySelector('.categ');
+  for (const [title, items] of SECTIONS) {
+    const el = document.createElement('div');
+    el.className = 'categ lg-practice';
+    el.innerHTML = `<h2>${title}</h2><div class="categ_stages">${items.map(([href, img, t, s]) =>
+      `<a class="stage" href="${href}"><img src="${img}" alt=""><div class="text"><h3>${t}</h3><p class="subtitle">${s}</p></div></a>`).join('')}</div>`;
+    stages.insertBefore(el, after ? after.nextSibling : null);
+    after = el;
+  }
 }
 new MutationObserver(add).observe(document.getElementById('learn-app'), { childList: true, subtree: true });
 add();

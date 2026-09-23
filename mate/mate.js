@@ -31,11 +31,6 @@ const GROUPS = [
     ['attraction', '🧲', 'Заманювання', 'Заманюй фігуру суперника на погану клітинку'],
     ['hanging', '🎁', 'Незахищена фігура', 'Забери фігуру, яку ніхто не захищає'],
     ['promotion', '👑', 'Пішак у ферзі', 'Проведи пішака до останнього ряду']]],
-  ['Практика', [
-    ['kqk', 'queen', 'Ферзь і король проти короля', 'Постав мат — ходів скільки завгодно'],
-    ['krk', 'rook', 'Тура і король проти короля', 'Заганяй короля до краю дошки'],
-    ['kbbk', 'bishop', 'Два слони і король проти короля', 'Слони разом — і король у куті'],
-    ['kpk', 'pawn', 'Король і пішак проти короля', 'Проведи пішака у ферзі й постав мат']]]
 ];
 // Завдання під дошкою — щоб завжди було зрозуміло, що робити
 const TASK = {
@@ -50,7 +45,14 @@ const TASK = {
   kbbk: 'Постав мат двома слонами: заганяй короля в кут.', kpk: 'Проведи пішака в ферзі — і постав мат.'
 };
 const MATE_SEC = k => k.startsWith('m1') || k === 'mate2';
-const INFO = Object.fromEntries(GROUPS.flatMap(([, list]) => list.map(([k, ic, title, sub]) => [k, { ic, title, sub }])));
+// Практика закінчень відкривається з уроків («Як ходять фігури»), у меню задач її немає
+const PRACTICE_ITEMS = [
+  ['kqk', 'queen', 'Ферзь і король проти короля', 'Постав мат — ходів скільки завгодно'],
+  ['krk', 'rook', 'Тура і король проти короля', 'Заганяй короля до краю дошки'],
+  ['kbbk', 'bishop', 'Два слони і король проти короля', 'Слони разом — і король у куті'],
+  ['kpk', 'pawn', 'Король і пішак проти короля', 'Проведи пішака у ферзі й постав мат']
+];
+const INFO = Object.fromEntries([...GROUPS.flatMap(([, list]) => list), ...PRACTICE_ITEMS].map(([k, ic, title, sub]) => [k, { ic, title, sub }]));
 const PRACTICE = ['kqk', 'krk', 'kbbk', 'kpk'];
 const icon = ic => /^[a-z]+$/.test(ic) ? `<mpiece class="${ic} white"></mpiece>` : ic;
 
@@ -127,7 +129,7 @@ function route() {
   token++;
   if (!INFO[k]) { mode = 'menu'; main.dataset.mode = 'menu'; board.setMovable(null); renderMenu(); return; }
   sec = k;
-  if (PRACTICE.includes(k)) { mode = 'practice'; main.dataset.mode = 'practice'; setButtons([['📋', 'Розділи'], ['💡', 'Підказка'], ['↩️', 'Назад'], ['🔄', 'Заново']]); startPractice(); }
+  if (PRACTICE.includes(k)) { mode = 'practice'; main.dataset.mode = 'practice'; setButtons([['🎓', 'Уроки'], ['💡', 'Підказка'], ['↩️', 'Назад'], ['🔄', 'Заново']]); startPractice(); }
   else {
     mode = 'puzzle'; main.dataset.mode = 'puzzle'; setButtons([['📋', 'Розділи'], ['💡', 'Підказка'], ['👀', 'Розв’язок'], ['▶️', 'Далі']]);
     const list = DATA[k], solved = solvedOf(k);
@@ -136,7 +138,7 @@ function route() {
   }
 }
 window.addEventListener('hashchange', route);
-$('list').addEventListener('click', () => { location.hash = ''; });
+$('list').addEventListener('click', () => { if (mode === 'practice') location.href = '../learn/index.html'; else location.hash = ''; });
 
 // ---------- задачі Lichess ----------
 function loadPuzzle() {
