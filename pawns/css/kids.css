@@ -94,10 +94,9 @@ html.lg body.lg-game {
 .game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: 0 4px 0 var(--lg-line); }
 .game-controls button.ctl:active { transform: translateY(4px); box-shadow: none; top: 0; }
 .game-controls button.ctl:disabled { opacity: 1; cursor: pointer !important; }
-.game-controls .ico { font-size: 26px; line-height: 1; }
-.game-controls .lbl { font-size: 13px; }
+.game-controls .ico { font-size: 32px; line-height: 1; }
 .game-controls .counter { display: none !important; }
-.side-dot { display: block; width: 26px; height: 26px; border-radius: 50%; background: #1d1b30; border: 3px solid #fff; box-shadow: 0 0 0 2px #8b88a8; box-sizing: border-box; }
+.side-dot { display: block; width: 32px; height: 32px; border-radius: 50%; background: #1d1b30; border: 3px solid #fff; box-shadow: 0 0 0 2px #8b88a8; box-sizing: border-box; }
 #flip-board-button[data-side="b"] .side-dot { background: #fff; border-color: #1d1b30; }
 
 /* ---------- вибір суперника ---------- */
