@@ -1,0 +1,116 @@
+/* Спільна розкладка ігор на дошці 8×8: усе на одному екрані, без прокрутки. */
+@import url('vendor/chessground.base.css');
+
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+html.lg { --lg-bar-h: 50px; }
+html.lg body.lg-game {
+  position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0;
+  padding: calc(var(--lg-bar-h) + 6px) 0 10px; touch-action: manipulation;
+}
+html.lg .lg-bar .lg-icon-btn { width: 38px; height: 38px; font-size: 18px; border-radius: 12px; }
+html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
+
+.lg-play {
+  width: 100%; max-width: 560px; height: 100%; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+
+/* ---------- тваринка-суперник з фоном-сценою ---------- */
+.lg-hero-slot { flex: 1 1 0; min-height: 90px; width: 100%; }
+.lg-hero { position: relative; isolation: isolate; }
+.lg-hero[hidden] { display: none; }
+.lg-play:has(.lg-hero[hidden]) { justify-content: center; }
+.lg-hero::before {
+  content: ''; position: absolute; inset: 0 8px; z-index: 0; border-radius: 22px;
+  background: #6ec6ff var(--scene) center / cover no-repeat; transition: background-image .35s ease;
+}
+.lg-hero-pic {
+  position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
+}
+.lg-hero-pic img {
+  height: calc(100% - 12px); max-height: min(480px, calc(100vw - 84px)); aspect-ratio: 1; width: auto;
+  object-fit: cover; border-radius: 28%; background: var(--lg-surface-2);
+  box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
+}
+.lg-hero.switching img { opacity: .35; }
+.lg-hero.thinking img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
+.lg-hero-arrow {
+  position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
+  width: 34px; height: 34px; border-radius: 50%; padding: 0; display: grid; place-items: center;
+  font: 900 18px/1 var(--lg-font); color: var(--lg-ink); background: var(--lg-surface);
+  border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow); cursor: pointer; opacity: .55;
+}
+.lg-hero-arrow:active { transform: translateY(-50%) scale(.88); opacity: .95; }
+.lg-hero-arrow.l { left: 2px; } .lg-hero-arrow.r { right: 2px; }
+
+/* ---------- рахунок збитих ---------- */
+.lg-material {
+  width: min(100vw, 560px); height: 22px; flex: none; padding: 0 12px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: flex-end; font-weight: 900; color: var(--lg-ink); font-size: 15px;
+}
+.lg-material img { width: 20px; height: 20px; margin-left: -6px; }
+.lg-material img:first-child { margin-left: 0; }
+.lg-material b { margin-left: 6px; }
+.lg-hero-slot + .lg-material { position: relative; z-index: 2; margin-top: -26px; }
+.lg-hero-slot + .lg-material b { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+
+/* ---------- дошка Lichess ---------- */
+.lg-board-wrap {
+  flex: none; position: relative;
+  width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 44px - 120px - 50px - 24px)); aspect-ratio: 1;
+}
+.lg-board-el { width: 100%; height: 100%; }
+.cg-wrap cg-board { background-color: var(--sq-light, #F0D9B5); background-image: var(--cg-board); }
+.cg-wrap { overflow: hidden; } /* фігура не виноситься за межі дошки */
+cg-board square.move-dest { background: radial-gradient(var(--move-dot) 19%, transparent 20%); }
+cg-board square.oc.move-dest { background: radial-gradient(transparent 0%, transparent 79%, rgba(230, 74, 25, .75) 80%); }
+cg-board square.last-move { background-color: rgba(155, 199, 0, .41); }
+cg-board square.selected { background-color: rgba(20, 85, 30, .5); }
+/* Фігура під пальцем більша і трохи вище, щоб її було видно */
+.cg-wrap piece.dragging { scale: 1.5; translate: 0 -28%; z-index: 20; filter: drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
+.cg-wrap coords { font: 800 clamp(9px, 2.6vw, 13px)/1 var(--lg-font); opacity: 1; }
+/* Цифри — угорі зліва клітинки, літери — унизу справа (як на Lichess у телефоні) */
+.cg-wrap coords.ranks { left: 3px; top: 3px; width: 12px; height: 100%; }
+.cg-wrap coords.ranks coord { flex: 1 1 0; transform: none; }
+.cg-wrap coords.files { left: 0; bottom: 2px; width: 100%; height: auto; text-transform: none; text-align: right; }
+.cg-wrap coords.files coord { flex: 1 1 0; padding-right: 3px; }
+.cg-wrap coords coord { color: var(--sq-light); }
+.cg-wrap coords.ranks coord:nth-child(2n), .cg-wrap coords.files coord:nth-child(2n) { color: var(--sq-dark); }
+
+/* ---------- кнопки внизу ---------- */
+.lg-controls {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; flex: none;
+  width: min(100vw, 560px); padding: 0 10px; box-sizing: border-box;
+}
+.lg-controls button {
+  height: 38px; min-width: 0; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  font: 800 9px var(--lg-font); color: var(--lg-ink); background: var(--lg-surface);
+  border: 2px solid var(--lg-line); border-radius: 14px; box-shadow: var(--lg-btn-shadow); cursor: pointer;
+}
+.lg-controls button:active { transform: scale(.93); }
+.lg-controls .ico { font-size: 14px; line-height: 1; }
+.lg-controls .is-off { opacity: .4; }
+.lg-side-dot { display: block; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 2px solid #1d1b30; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
+[data-side="b"] .lg-side-dot { background: #1d1b30; border-color: #fff; }
+
+/* ---------- вибір суперника на весь екран ---------- */
+.lg-picker { position: fixed; inset: 0; z-index: 1800; background: var(--lg-bg); display: flex; opacity: 0; transition: opacity .15s; }
+.lg-picker[hidden] { display: none; }
+.lg-picker.open { opacity: 1; }
+.lg-picker-card { width: 100%; max-width: 640px; height: 100%; margin: 0 auto; overflow-y: auto; padding: max(10px, env(safe-area-inset-top)) 8px 16px; box-sizing: border-box; touch-action: pan-y; }
+.lg-picker-head { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 8px; color: var(--lg-ink); font: 900 20px var(--lg-font); }
+.lg-picker-x { width: 52px; height: 52px; border-radius: 50%; border: 3px solid #fff; padding: 0; background: #E53935; color: #fff; font: 900 26px/1 var(--lg-font); cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,.35); }
+.lg-picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 560px) { .lg-picker-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.lg-pick { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 5px; background: var(--lg-surface-2); border: 3px solid transparent; border-radius: 14px; color: var(--lg-ink); font-family: var(--lg-font); cursor: pointer; }
+.lg-pick img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #fff; }
+.lg-pick.current { border-color: var(--lg-sun); }
+.lg-pick span { font-weight: 800; font-size: 12px; line-height: 1.15; text-align: center; height: 2.3em; width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- налаштування ---------- */
+.lg-levels { display: flex; gap: 6px; margin: 4px 0 8px; }
+.lg-levels button { width: 32px; height: 32px; border-radius: 50%; padding: 0; font: 900 13px var(--lg-font); color: var(--lg-muted); background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer; }
+.lg-levels button.on { background: var(--lg-primary); border-color: #5646D6; color: #fff; }
+.lg-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 6px; }
+.lg-swatches button { aspect-ratio: 1; border-radius: 10px; border: 3px solid transparent; cursor: pointer; padding: 0; }

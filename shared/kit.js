@@ -235,6 +235,18 @@
   const pick = a => a[(Math.random() * a.length) | 0];
   let lastResultAt = 0;
 
+  // ---------- нагорода: смішні відео з тваринками (наступне вантажимо заздалегідь) ----------
+  const REWARD_EXT = document.createElement('video').canPlayType('video/mp4; codecs="avc1.4D401E"') ? '.mp4' : '.webm';
+  let rewardBag = [], nextReward = null;
+  function prepReward() {
+    if (!rewardBag.length) rewardBag = Array.from({ length: 40 }, (_, i) => i + 1).sort(() => Math.random() - .5);
+    const url = root + 'shared/rewards/fun-' + String(rewardBag.pop()).padStart(2, '0') + REWARD_EXT;
+    const ready = fetch(url).then(r => r.ok ? r.blob() : Promise.reject()).then(b => URL.createObjectURL(b)).catch(() => url);
+    nextReward = { ready, done: null };
+    ready.then(u => { if (nextReward && nextReward.ready === ready) nextReward.done = u; });
+  }
+  function takeReward() { if (!nextReward) prepReward(); const r = nextReward; prepReward(); return r.done || r.ready; }
+
   function result(kind, message, opts) {
     // деякі ігри викликають перевірку кінця гри кілька разів поспіль за одну подію —
     // відсікаємо лише миттєві дублікати, а не наступну реальну партію (може початись
@@ -255,6 +267,7 @@
     const children = [el('h2', { text: cfg.title, title: message || '' })];
     if (cfg.emoji) children.unshift(el('div', { class: 'lg-result-emoji', text: cfg.emoji }));
     const imgSlot = el('div', { class: 'lg-result-img' });
+    if (opts && opts.reward && !opts.image) { opts = { ...opts, image: takeReward(), video: true }; }
     if (opts && opts.image) children.push(imgSlot);
     const buttons = el('div', { class: 'lg-result-btns' });
     const again = opts && opts.onAgain;
@@ -265,7 +278,11 @@
       onclick: () => { closeModal(); if (again) again(); }
     }));
     children.push(buttons);
-    setTimeout(() => openModal(el('div', { class: 'lg-result lg-result-' + kind }, children)), Math.max((opts && opts.delay) || 0, 700));
+    setTimeout(() => {
+      openModal(el('div', { class: 'lg-result lg-result-' + kind }, children));
+      // Швидкі ігри: вікно саме зникає і починається нова партія
+      if (opts && opts.autoClose) setTimeout(() => { closeModal(); if (again) again(); }, opts.autoClose);
+    }, Math.max((opts && opts.delay) || 0, (opts && opts.autoClose) ? 300 : 700));
     // Картинка-нагорода (наприклад, котик) з'являється, коли завантажиться
     if (opts && opts.image) {
       Promise.resolve(opts.image).then(url => {
@@ -319,18 +336,16 @@
   // ---------- верхня панель ----------
   function buildBar() {
     const gearBtn = el('button', { class: 'lg-icon-btn lg-gear', type: 'button', title: 'Налаштування', 'aria-label': 'Налаштування', text: '⚙️', onclick: showSettings });
+    // У всіх іграх однаково: ⚙️ · ❓ · назва · 🏠
     const bar = el('header', { class: 'lg-bar' }, [
-      // Зліва: домик і знак питання; справа: шестерня
       el('div', { class: 'lg-bar-actions' }, [
-        el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [
-          el('span', { text: '🏠' })
-        ]),
+        gearBtn,
         el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules })
       ]),
-      el('div', { class: 'lg-bar-title' }, [
-        el('span', { text: game.title })
-      ]),
-      el('div', { class: 'lg-bar-actions lg-bar-right' }, [gearBtn])
+      el('div', { class: 'lg-bar-title' }, [el('span', { text: game.title })]),
+      el('div', { class: 'lg-bar-actions lg-bar-right' }, [
+        el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [el('span', { text: '🏠' })])
+      ])
     ]);
     document.body.insertBefore(bar, document.body.firstChild);
   }
@@ -355,7 +370,11 @@
     return el('div', {}, [el('div', { class: 'lg-set-title', text: 'Фігури' }), grid]);
   }
 
+  let boardColors = null;
   const LG = window.LG = {
+    boardColors: () => boardColors,
+    setBoardColors: c => { boardColors = c; },
+    prepReward,
     pieceSet: () => store.get('pieceSet', 'cburnett'),
     pieceSetPicker,
     game,

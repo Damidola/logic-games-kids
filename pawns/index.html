@@ -1,76 +1,33 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Пішаки</title>
-    <link rel="stylesheet" href="css/styles.css?v=1790159420">
-    <link rel="stylesheet" href="css/board.css?v=1790159420">
-    <link rel="stylesheet" href="css/ui.css?v=1790159420">
-    <link rel="stylesheet" href="../shared/kit.css?v=1790159420">
-    <link rel="stylesheet" href="css/kids.css?v=1790159420">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Пішаки</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790160782">
+  <link rel="stylesheet" href="../shared/play.css?v=1790160782">
 </head>
 <body>
-    <div class="game-container">
-        <!-- Великий суперник: натисни, щоб обрати іншого, або гортай стрілочками -->
-        <div class="opponent-wrap">
-            <button type="button" id="opponent-hero" class="opponent-hero" aria-label="Обрати суперника">
-                <img id="ai-avatar" src="" alt="Суперник">
-            </button>
-            <button type="button" id="opponent-prev" class="hero-arrow hero-arrow-l" aria-label="Попередній суперник">‹</button>
-            <button type="button" id="opponent-next" class="hero-arrow hero-arrow-r" aria-label="Наступний суперник">›</button>
-        </div>
+  <main></main>
+  <script src="../shared/games.js?v=1790160782"></script>
+  <script src="../shared/kit.js?v=1790160782" data-game="pawns" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790160782';
+    import { createRules } from './rules.js?v=1790160782';
 
-        <div class="material" id="material-top" aria-label="Що збив суперник"></div>
-        <div class="board-wrapper">
-            <div id="chessboard"></div>
-            <svg id="hint-arrow" class="hint-arrow" viewBox="0 0 8 8" aria-hidden="true"></svg>
-        </div>
-        <div class="material" id="material-bottom" aria-label="Що збив ти"></div>
-
-        <!-- Кнопки -->
-        <div class="game-controls">
-            <button id="flip-board-button" class="ctl" title="Твій колір (натисни, щоб змінити)"><span class="ico side-dot"></span><span class="lbl">Колір</span></button>
-            <button id="restart-button" class="ctl" title="Почати заново"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
-            <button id="hint-button" class="ctl" title="Підказка"><span class="ico">💡</span><span class="lbl">Підказка</span><span id="hint-count" class="counter"></span></button>
-            <button id="undo-button" class="ctl" title="Скасувати хід"><span class="ico">↩️</span><span class="lbl">Назад</span><span id="undo-count" class="counter"></span></button>
-            <button id="redo-button" class="ctl" title="Хід вперед"><span class="ico">↪️</span><span class="lbl">Вперед</span></button>
-        </div>
-    </div>
-
-    <!-- Вибір суперника -->
-    <div id="opponent-picker" class="picker" hidden>
-        <div class="picker-card">
-            <div class="picker-head"><b>Обери суперника</b><button type="button" class="picker-x" id="picker-x" aria-label="Закрити">✕</button></div>
-            <div class="picker-grid" id="picker-grid"></div>
-        </div>
-    </div>
-
-    <!-- Старі елементи, на які ще посилається код гри (приховані) -->
-    <div hidden>
-        <div class="status-area"><div id="opponent-selector">
-            <button id="prev-opponent"></button><button id="next-opponent"></button>
-            <b id="ai-name"></b><span id="ai-level"></span>
-        </div></div>
-        <button id="theme-toggle-button"></button>
-        <button id="en-passant-toggle" class="toggle-button"><span class="icon"></span></button>
-        <div id="captured-pawns-counter"><span class="pawn-icon"></span><span class="count">0</span></div>
-        <div id="win-modal" class="modal"><div class="modal-content">
-            <span class="close-button"></span><h2 id="win-message"></h2><img id="cat-photo" alt="">
-            <button id="play-again-button"></button><button id="ok-button"></button>
-        </div></div>
-    </div>
-
-    <audio id="move-sound" src="../shared/sounds/move.mp3" preload="auto"></audio>
-    <audio id="capture-sound" src="../shared/sounds/capture.mp3" preload="auto"></audio>
-    <audio id="win-sound" src="../shared/sounds/win.mp3" preload="auto"></audio>
-
-    <script src="../shared/games.js?v=1790159420"></script>
-    <script src="../shared/kit.js?v=1790159420" data-game="pawns" data-night="on"></script>
-    <script src="js/game.js?v=1790159420"></script>
-    <script src="js/ai.js?v=1790159420"></script>
-    <script src="js/ui.js?v=1790159420"></script>
-    <script src="js/interaction.js?v=1790159420"></script>
-    <script src="js/kids.js?v=1790159420"></script>
+    // Взяття на проході — за бажанням, у налаштуваннях
+    const rules = createRules({ enPassant: () => LG.store.get('pawns:ep', false) });
+    startGame({
+      rules,
+      materialIcon: (color, role) => `../shared/pieces/${LG.pieceSet()}/${color}${role}.svg`,
+      extraSettings: () => {
+        const l = document.createElement('label');
+        l.className = 'lg-set-row';
+        l.innerHTML = `<span>Взяття на проході</span><input type="checkbox" ${LG.store.get('pawns:ep', false) ? 'checked' : ''}>`;
+        l.querySelector('input').addEventListener('change', e => LG.store.set('pawns:ep', e.target.checked));
+        return l;
+      }
+    });
+  </script>
 </body>
 </html>

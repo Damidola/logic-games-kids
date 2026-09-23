@@ -157,21 +157,9 @@
 
   function chapterDone(ch) {
     doneEl.hidden = true;
-    LG.win('Розділ «' + ch.name + '» пройдено!', { image: takeReward(), video: true, onAgain: showChapters });
+    LG.win('Розділ «' + ch.name + '» пройдено!', { reward: true, onAgain: showChapters });
     showChapters();
   }
-
-  // ---------- нагорода: смішне відео з тваринками (ті самі, що в «Пішаках») ----------
-  const EXT = document.createElement('video').canPlayType('video/mp4; codecs="avc1.4D401E"') ? '.mp4' : '.webm';
-  let nextReward = null;
-  function prepReward() {
-    const url = '../pawns/img/rewards/fun-' + String(1 + Math.floor(Math.random() * 40)).padStart(2, '0') + EXT;
-    const ready = fetch(url).then(r => r.ok ? r.blob() : Promise.reject()).then(b => URL.createObjectURL(b)).catch(() => url);
-    nextReward = { ready, done: null };
-    ready.then(u => { if (nextReward && nextReward.ready === ready) nextReward.done = u; });
-  }
-  function takeReward() { const r = nextReward; prepReward(); return r.done || r.ready; }
-  prepReward();
 
   // ---------- керування: тап по клітинці або перетягування фігури ----------
   const drag = { on: false, moved: false, x0: 0, y0: 0, from: null, el: null };
