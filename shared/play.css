@@ -27,12 +27,12 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 }
 .lg-hero-pic {
   position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; background: none; cursor: default;
-  display: flex; align-items: flex-end; justify-content: center; -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
   pointer-events: none; /* тап по фону нічого не робить — лише по самій тваринці */
 }
 .lg-hero-pic img {
   pointer-events: auto; cursor: pointer;
-  height: calc(100% - 4px); max-height: min(520px, calc(100vw - 60px)); aspect-ratio: 1; width: auto;
+  height: calc(100% - 20px); max-height: min(520px, calc(100vw - 60px)); aspect-ratio: 1; width: auto;
   object-fit: cover; object-position: var(--pic-pos, center); border-radius: 28%; background: var(--lg-surface-2);
   box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
 }
@@ -56,8 +56,8 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 .lg-material mpiece { display: block; width: 22px; height: 22px; background-size: cover; }
 .lg-material mpiece + mpiece { margin-left: -14px; } /* однакові фігури — стопкою, як на Lichess */
 .lg-material b { margin-left: 2px; }
-.lg-hero-slot + .lg-material { position: relative; z-index: 2; margin-top: -26px; }
-.lg-hero-slot + .lg-material b { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+.lg-hero-slot + .lg-turn + .lg-material { position: relative; z-index: 2; margin-top: -26px; }
+.lg-hero-slot + .lg-turn + .lg-material b { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
 
 /* ---------- дошка Lichess ---------- */
 .lg-board-wrap {
