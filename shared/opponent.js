@@ -6,15 +6,15 @@ const A = f => ROOT + 'shared/opponents/' + f;
 
 // Рівень 1 — піддається … 5 — сильний. Італійські «брейнроти» — в кінці списку.
 export const OPPONENTS = [
-  ['Хом’ячок', 1, 'hamster.png'], ['Бонго-кіт', 1, 'bongo.jpg'],
+  [‘Хом’ячок’, 1, ‘hamster.png’],
   ['Мавпочка', 2, 'monkey.png'],
   ['Капібара', 3, 'capybara.jpg'], ['Сова', 3, 'owl.jpg'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg'], ['Зелений робот', 3, 'robot-green.jpg'],
   ['Кіт', 4, 'cat.jpg'], ['Драматичний мопс', 4, 'pug.jpg'], ['Кіт Смадж', 4, 'smudge.jpg'],
-  ['Собака', 4, 'dog.jpg'], ['Хитрий кіт', 4, 'evilcat.jpg'], ['Монстрик', 4, 'monster.jpg'],
-  ['Пінгвін', 5, 'penguin.jpg'], ['Жовтий робот', 5, 'robot-yellow.jpg'], ['Тигр', 5, 'tiger.jpg'],
-  ['Бананіта Дельфініта', 1, 'bananita.jpg'], ['Балерина Капучина', 2, 'ballerina.jpg'],
+  ['Собака', 4, 'dog.jpg'], ['Хитрий кіт', 4, 'evilcat.jpg'],
+  ['Жовтий робот', 5, 'robot-yellow.jpg'],
+  ['Балерина Капучина', 2, 'ballerina.jpg'],
   ['Лірілі Ларіла', 3, 'lirili.jpg'], ['Тралалело Тралала', 3, 'tralalero.jpg'], ['Тун-тун-тун-сахур', 4, 'tung-tung.jpg'],
-  ['Брр Брр Патапім', 4, 'patapim.jpg'], ['Тріппі Тропі', 4, 'trippi.jpg'], ['Бомбардіро Крокоділо', 5, 'bombardiro.jpg']
+  ['Брр Брр Патапім', 4, 'patapim.jpg']
 ].map(([name, level, file]) => ({ name, level, avatar: A(file) }));
 
 // Одна сцена на рівень — при перемиканні сусідніх тварин фон не міняється
