@@ -42,7 +42,7 @@
     }
     history.push(pegs.map(p => p.slice()));
     pegs[from].pop(); pegs[to].push(d); held = null;
-    LG.play('place');
+    LG.play('move');
     render();
     if (pegs[TARGET].length === n) {
       won = true;

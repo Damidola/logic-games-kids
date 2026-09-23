@@ -47,7 +47,7 @@ function onChange() {
   }
   if (qs.length === snapshot.length && qs.every(q => snapshot.includes(q))) return;
   history.push(snapshot.slice());
-  after(qs.length > snapshot.length ? 'place' : 'tap');
+  after('move');
 }
 // Клітинку б'ють: коротко підсвічуємо, хто саме
 function refuse(k, skip) {
@@ -122,7 +122,7 @@ window.addEventListener('pointerup', e => {
     } else if (!has && !d.sel) { // нова клітинка — ставимо ферзя, якщо її ніхто не б'є
       if (queens().length >= N) return;
       if (!safe(k)) return refuse(k);
-      history.push(snapshot.slice()); set([...queens(), k]); after('place');
+      history.push(snapshot.slice()); set([...queens(), k]); after('move');
     }
   }, 20);
 }, true);

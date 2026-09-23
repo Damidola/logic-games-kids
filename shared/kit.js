@@ -54,10 +54,30 @@
   // Звук перемоги: довгий (зі старої версії гри) — лише в довгих іграх (шахи, шашки, пішаки…),
   // у швидких (хрестики-нулики, сірники, задачки) — короткий звук перемоги Lichess
   const FILES = { win: game && game.long ? 'shared/sounds/win.mp3' : 'shared/sounds/victory.mp3' };
+  FILES.move = 'shared/sounds/move.mp3'; FILES.capture = 'shared/sounds/capture.mp3';
+  // Файли граємо через Web Audio: на iPhone new Audio() поза самим тапом (після перетягування,
+  // хід робота) браузер мовчки блокує, а розблокований AudioContext грає будь-коли.
+  const ctx = () => {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  };
+  const unlock = () => { if (audioCtx && audioCtx.state === 'running') return; try { const c = ctx(), b = c.createBufferSource(); b.buffer = c.createBuffer(1, 1, 22050); b.connect(c.destination); b.start(0); } catch (e) { /* без звуку */ } };
+  ['pointerdown', 'touchend', 'keydown'].forEach(t => window.addEventListener(t, unlock, { capture: true, passive: true }));
+  const buffers = {};
+  const load = u => { const url = new URL(u, location.href).href; return buffers[url] || (buffers[url] = fetch(url).then(r => r.arrayBuffer())
+    .then(d => new Promise((ok, no) => ctx().decodeAudioData(d, ok, no))).catch(() => { delete buffers[url]; return null; })); };
   function playFile(url) {
     if (LG.muted || LG.volume <= 0) return;
-    try { const a = new Audio(url); a.volume = LG.volume; a.play().catch(() => {}); } catch (e) { /* без звуку */ }
+    try {
+      load(url).then(buf => {
+        if (!buf) { const a = new Audio(url); a.volume = LG.volume; return a.play().catch(() => {}); }
+        const c = ctx(), src = c.createBufferSource(), gain = c.createGain();
+        gain.gain.value = LG.volume; src.buffer = buf; src.connect(gain).connect(c.destination); src.start(0);
+      });
+    } catch (e) { /* без звуку */ }
   }
+  setTimeout(() => ['move', 'capture'].forEach(n => load(root + FILES[n])), 0); // щоб перший хід не чекав завантаження
   function play(name) {
     if (FILES[name]) return playFile(root + FILES[name]);
     if (LG.muted || !SOUNDS[name]) return;
