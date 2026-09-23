@@ -1,10 +1,12 @@
-// Змінено для logic-games-kids: звуки уроків через спільний набір сайту (LG).
-const lg = () => (window as any).LG;
-const file = (name: string) => () => lg()?.playFile(new URL(`../../shared/sounds/${name}.mp3`, document.baseURI).href);
-export const move = file('move');
-export const take = file('capture');
-export const levelStart = () => {};
-export const levelEnd = () => lg()?.play('place');
-export const stageStart = () => {};
-export const stageEnd = () => {};
-export const failure = () => lg()?.play('error');
+const make = (name: string, volume?: number) => {
+  site.sound.load(name, site.sound.url(`${name}.mp3`));
+  return () => site.sound.play(name, volume);
+};
+
+export const move = () => site.sound.play('move');
+export const take = make('sfx/Tournament3rd', 0.4);
+export const levelStart = make('other/ping');
+export const levelEnd = make('other/energy3');
+export const stageStart = make('other/guitar');
+export const stageEnd = make('other/gewonnen');
+export const failure = make('other/no-go');

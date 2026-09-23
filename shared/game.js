@@ -7,15 +7,25 @@ import { aiMove, hintMove } from './ai.js';
 import { mountOpponent, LEVEL_NAMES } from './opponent.js';
 
 const LG = window.LG;
+
+/* Рядок налаштувань з вибором: choice('Поле', 'ttt:size', '3', [['3', '3×3'], ...], () => game.newGame()) */
+export const choice = (label, key, def, options, onChange) => () => {
+  const row = document.createElement('div'); row.className = 'lg-set-row';
+  const cur = String(LG.store.get(key, def));
+  row.innerHTML = `<span>${label}</span><select>${options.map(([v, t]) => `<option value="${v}" ${String(v) === cur ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+  row.querySelector('select').addEventListener('change', e => { LG.store.set(key, e.target.value); onChange(e.target.value); });
+  return row;
+};
 const colorName = s => (s === 'w' ? 'white' : 'black');
 
-/* startGame({ rules, root, options, view, autoClose, extraSettings() }) */
+/* startGame({ rules, root, options, view, autoClose, extraSettings(), sideNames }) */
 export function startGame(cfg) {
   const { rules } = cfg;
   const root = cfg.root || document.querySelector('main');
   root.classList.add('lg-play');
   root.innerHTML = `
     <div class="lg-hero-slot"></div>
+    <div class="lg-turn" hidden><span class="lg-side-dot"></span><b></b></div>
     <div class="lg-material" data-side="top"></div>
     <div class="lg-board-wrap"><div class="lg-board-el"></div>
       <button type="button" class="lg-pass" hidden>✅ Завершити хід</button></div>
@@ -36,9 +46,19 @@ export function startGame(cfg) {
   let hintsLeft, undosLeft, lastHint = null, thinking = false, over = false, aiTimer = null;
   let level = 1;
   const state = () => history[pos];
+  // «Грати з другом»: обидві сторони — люди на одному телефоні, робота немає
+  const gameId = LG.game ? LG.game.id : 'game';
+  let friend = LG.store.get('friend:' + gameId, false);
+  const human = side => friend || side === player;
+  const names = cfg.sideNames || { w: 'Білі', b: 'Чорні' };
 
   const hero = mountOpponent($('.lg-hero-slot'), { onLevel: l => { level = l; } });
   level = hero.level();
+  // Після зміни розкладки дошка переміщується — chessground має заново виміряти її положення
+  const applyHero = () => {
+    hero.applyVisible(); if (friend) $('.lg-hero-slot').hidden = true;
+    requestAnimationFrame(() => board && board.redraw());
+  };
 
   // Вигляд поля: за замовчуванням — дошка Lichess; ігри з іншим полем (хрестики-нулики,
   // чотири в ряд) дають свій view: { render(s, {mine, moves}), hint(m), clearHint() }
@@ -61,17 +81,21 @@ export function startGame(cfg) {
 
   function render(animate = true) {
     const s = state();
-    const mine = rules.turn(s) === player && !over && !thinking;
-    if (view) view.render(s, { mine, moves: mine ? rules.moves(s) : [], player });
+    const mine = human(rules.turn(s)) && !over && !thinking;
+    if (view) view.render(s, { mine, moves: mine ? rules.moves(s) : [], player: friend ? rules.turn(s) : player, friend });
     else {
       board.setPosition(rules.pieces(s), { lastMove: s.lastMove, animate, check: rules.check ? rules.check(s) : false });
-      board.setMovable(mine ? colorName(player) : null, mine ? dests(s) : new Map());
+      board.setMovable(mine ? colorName(rules.turn(s)) : null, mine ? dests(s) : new Map());
       board.clearHint();
       if (rules.marks) board.marks(rules.marks(s));
     }
     // Кнопка «Завершити хід» — коли правила дозволяють зупинитись (наприклад, після стрибка)
     const pass = mine && rules.moves(s).find(m => m.pass);
     $('.lg-pass').hidden = !pass;
+    const turnEl = $('.lg-turn');
+    turnEl.hidden = !friend;
+    turnEl.dataset.side = rules.turn(s);
+    turnEl.querySelector('b').textContent = 'Хід: ' + names[rules.turn(s)];
     renderMaterial();
     renderButtons();
   }
@@ -79,6 +103,13 @@ export function startGame(cfg) {
   // Збиті фігури — як на Lichess: згруповані за видом, тим самим набором фігур, що й на дошці
   const ROLE = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen', K: 'king' };
   function renderMaterial() {
+    const top = player === 'w' ? 'b' : 'w';
+    if (rules.score) { // рахунок гри (фішки, квадратики, стінки) — замість збитих фігур
+      const sc = rules.score(state());
+      $('[data-side="top"]').innerHTML = sc[top];
+      $('[data-side="bottom"]').innerHTML = sc[player];
+      return;
+    }
     if (!rules.captured) return;
     const cap = rules.captured(state()); // { w: [ролі, які збили білі], b: [...] }
     const row = (list, victimColor) => {
@@ -95,8 +126,12 @@ export function startGame(cfg) {
 
   function renderButtons() {
     const b = a => root.querySelector(`[data-act="${a}"]`);
-    b('redo').classList.toggle('is-off', pos >= history.length - 1);
     b('flip').dataset.side = player;
+    // З другом: без підказок, ходів назад і зміни кольору — щоб не натиснути випадково
+    for (const a of ['flip', 'hint', 'undo', 'redo']) {
+      b(a).disabled = friend;
+      b(a).classList.toggle('is-off', friend || (a === 'redo' && pos >= history.length - 1));
+    }
   }
 
   // ---------- ходи ----------
@@ -113,7 +148,7 @@ export function startGame(cfg) {
 
   function userMove(from, to) {
     const s = state();
-    if (over || thinking || rules.turn(s) !== player) return render();
+    if (over || thinking || !human(rules.turn(s))) return render();
     const move = rules.moves(s).find(m => m.from === from && m.to === to);
     if (!move) return render();
     commit(move);
@@ -124,7 +159,7 @@ export function startGame(cfg) {
   // Хід зі свого поля (не шахова дошка): гра передає готовий хід
   function userPick(id) {
     const s = state();
-    if (over || thinking || rules.turn(s) !== player) return;
+    if (over || thinking || !human(rules.turn(s))) return;
     const move = rules.moves(s).find(m => m.id === id); // у таких ігор кожен хід має id
     if (!move) return LG.play('error');
     commit(move); render(); afterMove();
@@ -134,7 +169,7 @@ export function startGame(cfg) {
     const s = state();
     const r = rules.result(s);
     if (r) return finish(r);
-    if (rules.turn(s) !== player) robotMove();
+    if (!human(rules.turn(s))) robotMove();
     else render();
   }
 
@@ -155,7 +190,9 @@ export function startGame(cfg) {
   function finish(r) {
     over = true; render();
     const again = { onAgain: newGame };
-    if (cfg.autoClose) again.autoClose = cfg.autoClose; // швидкі ігри: вікно саме зникає
+    const autoClose = typeof cfg.autoClose === 'function' ? cfg.autoClose() : cfg.autoClose;
+    if (autoClose) again.autoClose = autoClose; // швидкі ігри: вікно саме зникає
+    if (friend && r.winner !== 'draw') return LG.win('Переможець: ' + names[r.winner] + '!', { ...again, reward: true });
     if (r.winner === 'draw') LG.draw(r.text || 'Нічия!', again);
     else if (r.winner === player) LG.win(r.text || 'Перемога!', { ...again, reward: true });
     else LG.lose(r.text || 'Цього разу виграв суперник.', again);
@@ -165,15 +202,17 @@ export function startGame(cfg) {
     clearTimeout(aiTimer); thinking = false; over = false; hero.setThinking(false);
     history = [rules.initial(cfg.options ? cfg.options() : {})];
     pos = 0; lastHint = null;
+    if (friend) player = 'w';
     hintsLeft = Number(LG.store.get('hints', '3'));
     undosLeft = Number(LG.store.get('undos', '3'));
     if (board) board.setOrientation(colorName(player));
     render(false);
-    if (rules.turn(state()) !== player) robotMove();
+    if (!human(rules.turn(state()))) robotMove();
   }
 
   // ---------- кнопки ----------
   function undo() {
+    if (friend) return;
     if (thinking) { clearTimeout(aiTimer); thinking = false; hero.setThinking(false); }
     if (pos === 0 || undosLeft <= 0) return LG.play('error');
     // Повертаємось до свого ходу: через хід робота і свій
@@ -184,6 +223,7 @@ export function startGame(cfg) {
     render();
   }
   function redo() {
+    if (friend) return;
     if (pos >= history.length - 1 || thinking) return;
     let p = pos + 1;
     while (p < history.length - 1 && (rules.turn(history[p]) !== player || !stable(history[p]))) p++;
@@ -195,7 +235,7 @@ export function startGame(cfg) {
   }
   function hint() {
     const s = state();
-    if (over || thinking || rules.turn(s) !== player) return;
+    if (friend || over || thinking || rules.turn(s) !== player) return;
     if (board) board.cg.selectSquare(null);
     const key = rules.key(s);
     if (!lastHint || lastHint.key !== key) {          // та сама позиція — та сама підказка
@@ -209,12 +249,12 @@ export function startGame(cfg) {
   }
   $('.lg-pass').addEventListener('click', () => {
     const s = state();
-    const m = !over && !thinking && rules.turn(s) === player && rules.moves(s).find(x => x.pass);
+    const m = !over && !thinking && human(rules.turn(s)) && rules.moves(s).find(x => x.pass);
     if (!m) return;
     commit(m); render(); afterMove();
   });
   root.querySelector('.lg-controls').addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
     ({
       flip: () => { player = player === 'w' ? 'b' : 'w'; newGame(); },
       new: newGame, hint, undo, redo
@@ -229,6 +269,7 @@ export function startGame(cfg) {
     w.innerHTML = `
       <div class="lg-set-title">Сила робота</div>
       <div class="lg-levels">${LEVEL_NAMES.map((n, i) => `<button type="button" data-l="${i + 1}" title="${n}" class="${i + 1 === level ? 'on' : ''}">${i + 1}</button>`).join('')}</div>
+      <label class="lg-set-row"><span>👫 Грати з другом (на одному телефоні)</span><input type="checkbox" id="friend" ${friend ? 'checked' : ''}></label>
       <label class="lg-set-row"><span>Тваринка-суперник і фон</span><input type="checkbox" id="show-opp" ${LG.store.get('showOpponent', true) ? 'checked' : ''}></label>
       ${board ? `<label class="lg-set-row"><span>Показувати, куди можна піти</span><input type="checkbox" id="show-dests" ${LG.store.get('showDests', true) ? 'checked' : ''}></label>` : ''}
       <div class="lg-set-row"><span>Підказок за гру</span>${sel('hints-n', LG.store.get('hints', '3'))}</div>
@@ -239,7 +280,11 @@ export function startGame(cfg) {
       level = +b.dataset.l; hero.setLevel(level);
       w.querySelectorAll('.lg-levels button').forEach(x => x.classList.toggle('on', x === b));
     }));
-    w.querySelector('#show-opp').addEventListener('change', e => { LG.store.set('showOpponent', e.target.checked); hero.applyVisible(); });
+    w.querySelector('#friend').addEventListener('change', e => {
+      friend = e.target.checked; LG.store.set('friend:' + gameId, friend);
+      applyHero(); newGame();
+    });
+    w.querySelector('#show-opp').addEventListener('change', e => { LG.store.set('showOpponent', e.target.checked); applyHero(); });
     w.querySelector('#show-dests')?.addEventListener('change', e => { LG.store.set('showDests', e.target.checked); applyDests(); });
     w.querySelector('#hints-n').addEventListener('change', e => { LG.store.set('hints', e.target.value); hintsLeft = +e.target.value; });
     w.querySelector('#undos-n').addEventListener('change', e => { LG.store.set('undos', e.target.value); undosLeft = +e.target.value; });
@@ -259,6 +304,7 @@ export function startGame(cfg) {
     if (!e.target.closest('.lg-modal, .lg-picker-card')) e.preventDefault();
   }, { passive: false });
 
+  applyHero();
   newGame();
   return { newGame, state, board, setPlayer: c => { player = c; newGame(); } };
 }

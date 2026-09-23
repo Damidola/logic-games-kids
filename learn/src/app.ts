@@ -1,14 +1,14 @@
 /* «Як ходять фігури» — Lichess Learn (lila/ui/learn) повністю: і рівні, і екрани.
    Тут лише під'єднання до сайту: дошка й фігури з налаштувань, тема, прогрес, автоповтор. */
 import './i18n';
+import './site'; // до коду Lichess: його sound.ts одразу звертається до site.sound
 import { applyBoardLook } from '../../shared/board.js';
 import { initModule } from './lila/learn';
 import { Coords } from './shims/lib-misc';
 
 (globalThis as any).$html = (s: TemplateStringsArray, ...v: unknown[]) => s.reduce((a, x, i) => a + x + (i < v.length ? v[i] : ''), '');
-(globalThis as any).site = { blindMode: false, reload: () => location.reload() };
-
 const LG = (window as any).LG;
+
 
 // Прогрес зі старої версії сторінки (lg:learn:lichess) → формат Lichess (learn.progress)
 try {

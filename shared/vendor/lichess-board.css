@@ -19,8 +19,11 @@ cg-board square.current-premove { background-color: rgb(20 30 85 / 0.5) !importa
 .cg-wrap piece { z-index: 2; will-change: transform; pointer-events: none; }
 .cg-wrap piece.dragging { cursor: move; z-index: 204 !important; }
 /* Як у застосунку Lichess: фігура під пальцем удвічі більша, центр — рівно під пальцем.
+   Лише коли фігуру справді тягнуть (клас lg-lifted ставить lichessTouch у shared/board.js):
+   chessground позначає фігуру «dragging» уже від дотику, тож від простого тапу вона не росте.
    Саме розмір, а не scale: scale множив би й зсув, який ставить chessground. */
-.cg-wrap piece.dragging { width: 25%; height: 25%; margin: -6.25% 0 0 -6.25%; }
+.cg-wrap.lg-lifted piece.dragging { width: 25%; height: 25%; margin: -6.25% 0 0 -6.25%; }
+.cg-wrap:not(.lg-lifted) piece.ghost { visibility: hidden; }
 .cg-wrap piece.anim { z-index: 3; }
 .cg-wrap piece.fading { z-index: 1; opacity: 0.5; }
 .cg-wrap piece.ghost { opacity: 0.3; }

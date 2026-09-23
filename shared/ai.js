@@ -21,7 +21,7 @@ function search(rules, state, depth, alpha, beta, side, deadline) {
   const r = rules.result(state);
   if (r) return r.winner === side ? WIN + depth : r.winner === 'draw' ? 0 : -WIN - depth;
   if (depth <= 0 || (deadline && performance.now() > deadline)) return rules.evaluate(state, side);
-  const moves = order(rules, state, rules.moves(state));
+  const moves = order(rules, state, gen(rules, state));
   if (!moves.length) return rules.evaluate(state, side);
   const maximizing = rules.turn(state) === side;
   let best = maximizing ? -Infinity : Infinity;
@@ -34,13 +34,15 @@ function search(rules, state, depth, alpha, beta, side, deadline) {
   return best;
 }
 // Спершу перевіряємо взяття й сильні ходи — відсікання працює краще
+// Для пошуку гра може дати менший набір ходів (наприклад, лише стінки поруч із фішками в «Коридорі»)
+const gen = (rules, state) => (rules.searchMoves ? rules.searchMoves(state) : rules.moves(state));
 const order = (rules, state, moves) => rules.moveOrder ? moves.slice().sort((a, b) => rules.moveOrder(state, b) - rules.moveOrder(state, a)) : moves;
 
 // Оцінки всіх ходів на глибину depth (з погляду того, хто ходить)
 function rank(rules, state, depth, timeMs) {
   const side = rules.turn(state);
   const deadline = timeMs ? performance.now() + timeMs : 0;
-  return order(rules, state, rules.moves(state)).map(m => ({
+  return order(rules, state, gen(rules, state)).map(m => ({
     m, v: search(rules, rules.play(state, m), depth - 1, -Infinity, Infinity, side, deadline)
   }));
 }

@@ -1,21 +1,27 @@
-/* «Як ходять фігури»: сторінка Lichess Learn (lila-learn.css) усередині сайту — фон, прокрутка, дошка, кнопки. */
-html.lg body.lg-game.lg-game-learn { background: var(--c-bg-page); color: var(--c-font); }
-#main-wrap { height: 100%; overflow-y: auto; touch-action: pan-y; padding: 0 0 16px; box-sizing: border-box; }
-#learn-app > .learn { max-width: 1100px; margin: 0 auto; padding: 0 8px; gap: 1rem; }
-.learn--run { max-width: 560px !important; }
+/* «Як ходять фігури»: сторінка Lichess Learn (lila-learn.css) під верхньою панеллю сайту.
+   Тут — лише те, що на lichess.org дають спільні стилі сторінки (lila ui/lib/css/base/_elements.scss) і розкладка дошки. */
+html.lg body.lg-game.lg-game-learn {
+  background: var(--c-bg-page) linear-gradient(to bottom, var(--c-body-gradient), var(--c-bg-page) 116px) no-repeat;
+  color: var(--c-font);
+}
+/* змінні розкладки сторінки lila (ui/lib/css/layout/_base.scss) */
+body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px + 40 * ((100vw - 320px) / 880)), 50px); }
+@media (min-width: 500px) { body.lg-game-learn { ---block-gap: 15px; } }
+#main-wrap { height: 100%; overflow-y: auto; touch-action: pan-y; padding-bottom: 16px; box-sizing: border-box; font-family: 'Noto Sans', sans-serif; }
 
-/* дошка: квадрат на всю ширину, chessground усередині */
+/* скидання елементів, як у lila (з нульовою вагою, щоб стилі Lichess Learn мали перевагу) */
+:where(#main-wrap) *, :where(#main-wrap) *::before, :where(#main-wrap) *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:where(#main-wrap) a { color: var(--c-link); text-decoration: none; }
+:where(#main-wrap) button { appearance: none; background: none; border: none; color: var(--c-font); text-align: inherit; font: inherit; }
+:where(#main-wrap) p { margin-bottom: 1em; }
+:where(#main-wrap) li { list-style: none; }
+:where(#main-wrap) .button { color: var(--c-over); font-family: 'Noto Sans', sans-serif; }
+
+/* мобільна розкладка lichess.org/learn: дошка й таблиця на всю ширину */
+#learn-app > .learn { max-width: 1100px; margin: 0 auto; }
+#learn-app > .learn--run { max-width: 600px; }
 .learn__main.main-board { position: relative; width: 100%; aspect-ratio: 1; }
 .learn__main.main-board > .cg-wrap { position: absolute; inset: 0; }
-
-/* кнопки й іконки Lichess (у lila — спільні стилі сайту й шрифт іконок) */
-.learn .button, .learn__screen .button, .learn__table button {
-  border: 0; border-radius: 7px; padding: .7em 1.4em; cursor: pointer;
-  background: var(--c-primary); color: #fff; font: 700 16px var(--lg-font);
-}
-.learn .button-empty, .learn__screen .button-empty { background: none; color: var(--c-font); }
-[data-icon]::before { content: attr(data-icon); }
-.learn a { color: inherit; text-decoration: none; }
 
 /* фігура-картинка на екрані «Етап N» (у lila — .no-square зі спільних стилів) */
 .no-square { width: 110px; height: 110px; margin: 0 auto 12px; }
@@ -24,6 +30,6 @@ html.lg body.lg-game.lg-game-learn { background: var(--c-bg-page); color: var(--
 /* вибір фігури при перетворенні пішака (у lila розмір клітинок і фігур — зі спільних стилів дошки) */
 #promotion-choice square { position: absolute; width: 12.5%; height: 12.5%; }
 #promotion-choice piece { display: block; background-size: cover; }
-.learn__main #promotion-choice .explanation { width: 50%; box-sizing: border-box; padding: 10px 12px; border-radius: 7px; }
+.learn__main #promotion-choice .explanation { width: 50%; padding: 10px 12px; border-radius: 7px; }
 .learn__main #promotion-choice .explanation h2 { margin: 0 0 6px; font-size: 17px; }
 .learn__main #promotion-choice .explanation p { margin: 4px 0; font-size: 13px; line-height: 1.3; }

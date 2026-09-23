@@ -23,7 +23,9 @@ export default function (ctrl: RunCtrl): VNode {
     hook: {
       ...onInsert(el => {
         el.addEventListener('contextmenu', e => e.preventDefault());
-        ctrl.setChessground(makeChessground(el, makeConfig(ctrl)));
+        const ground = makeChessground(el, makeConfig(ctrl));
+        (globalThis as any).lgTouch?.(ground); // logic-games-kids: дотики як у застосунку Lichess (shared/board.js)
+        ctrl.setChessground(ground);
       }),
       destroy: () => ctrl.chessground?.destroy(),
     },

@@ -312,13 +312,9 @@
       document.dispatchEvent(new CustomEvent('lg:volume', { detail: LG.volume }));
     });
     vol.addEventListener('change', () => play('tap'));
-    const body = el('div', { class: 'lg-settings' }, [
-      el('h2', { text: 'Налаштування' }),
-      el('div', { class: 'lg-set-group' }, [
-        switchRow('🔊 Звук', !LG.muted, on => { LG.muted = !on; store.set('muted', LG.muted); document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted })); if (on) play('tap'); }),
-        el('div', { class: 'lg-set-row' }, [el('span', { text: 'Гучність' }), vol])
-      ])
-    ]);
+    // Спершу — налаштування гри (сила робота, режими), унизу — тема і звук
+    const body = el('div', { class: 'lg-settings' }, [el('h2', { text: 'Налаштування' })]);
+    settingsBuilders.forEach(fn => { const part = fn(); if (part) body.appendChild(el('div', { class: 'lg-set-group' }, [part])); });
     if (nightSupported) {
       body.appendChild(el('div', { class: 'lg-set-group' }, [
         switchRow('🌙 Нічна тема', document.documentElement.classList.contains('lg-night'), on => {
@@ -326,7 +322,10 @@
         })
       ]));
     }
-    settingsBuilders.forEach(fn => { const part = fn(); if (part) body.appendChild(el('div', { class: 'lg-set-group' }, [part])); });
+    body.appendChild(el('div', { class: 'lg-set-group' }, [
+      switchRow('🔊 Звук', !LG.muted, on => { LG.muted = !on; store.set('muted', LG.muted); document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted })); if (on) play('tap'); }),
+      el('div', { class: 'lg-set-row' }, [el('span', { text: 'Гучність' }), vol])
+    ]));
     body.appendChild(el('button', { class: 'lg-btn lg-btn-primary lg-btn-wide', text: 'Готово', onclick: closeModal }));
     openModal(body, { cls: 'lg-modal-settings' });
   }

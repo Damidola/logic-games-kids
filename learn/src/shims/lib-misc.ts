@@ -1,5 +1,6 @@
 // Замінники дрібних модулів lila: licon, i18n, algo, storage, xhr, pubsub, prefs, device, userLink.
-export const licon = { Star: '★', GreaterThan: '›', LessThan: '‹' };
+// Символи шрифту іконок Lichess (learn/assets/font/lichess.woff2), як у lila ui/lib/src/licon.ts
+export const licon = { Star: '\ue052', GreaterThan: '\ue026', LessThan: '\ue027' };
 
 export const numberSpread = (el: HTMLElement, nbSteps: number, duration: number, previous: number) => (n: number) => {
   let i = 0;

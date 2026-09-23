@@ -32,6 +32,37 @@ export function applyBoardLook() {
   styleEl.textContent = css;
 }
 
+/* Дотики як у застосунку Lichess (для будь-якої дошки chessground):
+   — фігура збільшується лише тоді, коли її справді тягнуть, а не від дотику;
+   — тап по клітинці, куди може піти лише одна фігура, одразу робить цей хід (фігуру вибирати не треба). */
+export function lichessTouch(cg) {
+  const wrap = cg.state.dom.elements.wrap;
+  let start = null, wasSelected;
+  wrap.addEventListener('pointerdown', e => { start = [e.clientX, e.clientY]; wasSelected = cg.state.selected; }, { capture: true, passive: true });
+  wrap.addEventListener('pointermove', e => {
+    if (start && !wrap.classList.contains('lg-lifted') && cg.state.draggable.current && Math.hypot(e.clientX - start[0], e.clientY - start[1]) >= 5)
+      wrap.classList.add('lg-lifted');
+  }, { passive: true });
+  const up = e => {
+    const tap = start && e.type === 'pointerup' && Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 5;
+    const pos = start && [e.clientX, e.clientY];
+    start = null;
+    wrap.classList.remove('lg-lifted');
+    if (!tap || wasSelected) return;
+    setTimeout(() => { // після того, як chessground обробив тап
+      if (cg.state.selected) return; // тапнули свою фігуру — звичайний вибір
+      const key = cg.getKeyAtDomPos(pos), color = cg.state.movable.color, dests = cg.state.movable.dests;
+      if (!key || !color || !dests) return;
+      const from = [...dests].filter(([o, ds]) => ds.includes(key) && cg.state.pieces.get(o)?.color === color).map(([o]) => o);
+      if (from.length !== 1) return;
+      cg.selectSquare(from[0]);
+      cg.selectSquare(key);
+    });
+  };
+  window.addEventListener('pointerup', up, true);
+  window.addEventListener('pointercancel', up, true);
+}
+
 /* createBoard(el, { orientation, onMove(orig, dest) })
    → { setPosition(pieces, {lastMove, animate}), setMovable(color, dests), setOrientation,
        hint(orig, dest), clearHint(), cg } */
@@ -52,6 +83,7 @@ export function createBoard(el, opts = {}) {
     drawable: { enabled: false, visible: true, brushes: { hint: { key: 'h', color: '#FF9F1C', opacity: 0.95, lineWidth: 13 } } },
     events: { select: key => opts.onSelect && opts.onSelect(key) }
   });
+  lichessTouch(cg);
 
   function setPosition(pieces, o = {}) {
     // pieces: Map(key → {role, color}); chessground сам анімує різницю

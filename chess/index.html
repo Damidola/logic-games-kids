@@ -4,18 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Шахи</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790175830">
-  <link rel="stylesheet" href="../shared/play.css?v=1790175830">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790177037">
+  <link rel="stylesheet" href="../shared/play.css?v=1790177037">
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790175830"></script>
-  <script src="../shared/kit.js?v=1790175830" data-game="chess" data-night="on"></script>
+  <script src="../shared/games.js?v=1790177037"></script>
+  <script src="../shared/kit.js?v=1790177037" data-game="chess" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790175830';
-    import { createRules } from './rules.js?v=1790175830';
-    startGame({
-      rules: createRules(),
+    import { startGame } from '../shared/game.js?v=1790177037';
+    import { createRules } from './rules.js?v=1790177037';
+    let game;
+    game = startGame({
+      rules: createRules({ variant: () => LG.store.get('chess:variant', 'standard') }),
+      extraSettings: () => {
+        const row = document.createElement('div'); row.className = 'lg-set-row';
+        const v = LG.store.get('chess:variant', 'standard');
+        row.innerHTML = `<span>Режим</span><select><option value="standard" ${v === 'standard' ? 'selected' : ''}>♔ Звичайні шахи</option><option value="antichess" ${v === 'antichess' ? 'selected' : ''}>🎁 Піддавки</option></select>`;
+        row.querySelector('select').addEventListener('change', e => { LG.store.set('chess:variant', e.target.value); game.newGame(); });
+        return row;
+      }
     });
   </script>
 </body>

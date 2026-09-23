@@ -4,35 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Хрестики-нулики</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790175830">
-  <link rel="stylesheet" href="../shared/play.css?v=1790175830">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790177037">
+  <link rel="stylesheet" href="../shared/play.css?v=1790177037">
   <style>
-    .ttt-board { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3%; padding: 3%; box-sizing: border-box; background: var(--lg-ink); border-radius: 26px; }
+    .ttt-board { --n: 3; --gap: calc(9% / var(--n)); position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr); gap: var(--gap); padding: var(--gap); box-sizing: border-box; background: var(--lg-ink); border-radius: calc(78px / var(--n)); aspect-ratio: 1; }
     html.lg-night .ttt-board { background: #3a3850; }
-    .ttt-cell { border: 0; border-radius: 18px; background: #fff; font: 900 clamp(48px, 18vw, 96px)/1 var(--lg-font); cursor: pointer; padding: 0; }
+    .ttt-cell { border: 0; border-radius: calc(54px / var(--n)); background: #fff; font: 900 calc(min(92vw, 520px) / var(--n) * .62)/1 var(--lg-font); cursor: pointer; padding: 0; min-width: 0; min-height: 0; }
     .ttt-cell.w { color: #4DA3FF; animation: pop .25s cubic-bezier(.2, 1.8, .4, 1); }
     .ttt-cell.b { color: #FF6B6B; animation: pop .25s cubic-bezier(.2, 1.8, .4, 1); }
     .ttt-cell.free:active { transform: scale(.95); }
     .ttt-cell.hinted { box-shadow: inset 0 0 0 6px #FF9F1C; animation: glow 1s ease-in-out 3; }
     @keyframes pop { from { transform: scale(.3); } }
     @keyframes glow { 50% { background: #FFE9C7; } }
-    .ttt-line { position: absolute; inset: 3%; width: 94%; height: 94%; pointer-events: none; display: none; }
+    .ttt-line { position: absolute; inset: var(--gap); width: calc(100% - 2 * var(--gap)); height: calc(100% - 2 * var(--gap)); pointer-events: none; display: none; }
     .ttt-line.on { display: block; }
     .ttt-line line { stroke-width: .16; stroke-linecap: round; stroke: #1E6FD9; }
+    .ttt-board[data-n="8"] .ttt-line line, .ttt-board[data-n="10"] .ttt-line line { stroke-width: .22; }
     .ttt-line[data-who="b"] line { stroke: #D63031; }
     .lg-custom-view .lg-board-wrap { width: min(92vw, 420px, calc(100svh - var(--lg-bar-h) - 16px - 170px - 60px)); }
+    .lg-custom-view .lg-board-wrap:has([data-n="8"], [data-n="10"]) { width: min(96vw, 520px, calc(100svh - var(--lg-bar-h) - 16px - 120px - 60px)); }
   </style>
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790175830"></script>
-  <script src="../shared/kit.js?v=1790175830" data-game="ttt" data-night="on"></script>
+  <script src="../shared/games.js?v=1790177037"></script>
+  <script src="../shared/kit.js?v=1790177037" data-game="ttt" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790175830';
-    import { createRules } from './rules.js?v=1790175830';
-    import { tttView } from './view.js?v=1790175830';
-    // Гра швидка: вікно результату зникає через 2 с, і одразу нова партія
-    startGame({ rules: createRules(), view: tttView, autoClose: 2000 });
+    import { startGame, choice } from '../shared/game.js?v=1790177037';
+    import { createRules } from './rules.js?v=1790177037';
+    import { tttView } from './view.js?v=1790177037';
+    const size = () => LG.store.get('ttt:size', '3');
+    let game;
+    game = startGame({
+      rules: createRules({ size }), view: tttView,
+      sideNames: { w: '✕ Хрестики', b: '◯ Нулики' },
+      // 3×3 — гра швидка: вікно результату зникає через 2 с, і одразу нова партія
+      autoClose: () => (size() === '3' ? 2000 : 0),
+      extraSettings: choice('Поле', 'ttt:size', '3', [['3', '3×3 · три в ряд'], ['4', '4×4 · чотири'], ['5', '5×5 · чотири'], ['8', '8×8 · п’ять'], ['10', '10×10 · п’ять']], () => game.newGame())
+    });
   </script>
 </body>
 </html>

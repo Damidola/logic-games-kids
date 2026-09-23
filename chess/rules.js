@@ -1,6 +1,8 @@
 /* Шахи за правилами Lichess (chessops): шах, мат, пат, рокіровка, взяття на проході.
-   Пішак, що дійшов до кінця, одразу стає ферзем. */
-import { Chess, makeSquare, fen } from 'https://cdn.jsdelivr.net/npm/chessops@0.15.1/+esm';
+   Пішак, що дійшов до кінця, одразу стає ферзем.
+   Режим «Піддавки» (antichess Lichess): бити обов'язково, король — звичайна фігура,
+   виграє той, хто віддав усі фігури або не має ходу. */
+import { Chess, makeSquare, fen, variant } from 'https://cdn.jsdelivr.net/npm/chessops@0.15.1/+esm';
 const { makeFen } = fen;
 
 const VALUE = { pawn: 100, knight: 300, bishop: 320, rook: 500, queen: 900, king: 0 };
@@ -10,7 +12,8 @@ const side = c => (c === 'white' ? 'w' : 'b');
 // Бонус за клітинку: у центрі фігури сильніші, пішаки — чим далі, тим краще
 const center = sq => { const f = sq & 7, r = sq >> 3; return 3.5 - Math.max(Math.abs(f - 3.5), Math.abs(r - 3.5)); };
 
-export function createRules() {
+export function createRules(opts = {}) {
+  const anti = () => (opts.variant ? opts.variant() : 'standard') === 'antichess';
   function moves(pos) {
     const out = [];
     for (const [from, dests] of pos.allDests()) {
@@ -34,6 +37,7 @@ export function createRules() {
     const o = pos.outcome();
     if (!o) return null;
     if (!o.winner) return { winner: 'draw', text: pos.isStalemate() ? 'Пат: ходів немає, але й шаху немає.' : 'Нічия!' };
+    if (pos.rules === 'antichess') return { winner: side(o.winner), text: 'Віддав усі фігури — переміг!' };
     return { winner: side(o.winner), text: 'Мат!' };
   }
   function evaluate(pos, s) {
@@ -44,6 +48,7 @@ export function createRules() {
       else if (p.role !== 'king') x += 8 * center(sq);
       v += side(p.color) === s ? x : -x;
     }
+    if (pos.rules === 'antichess') return -v; // у піддавках що менше фігур, то краще
     if (pos.isCheck()) v += side(pos.turn) === s ? -15 : 15;
     return v;
   }
@@ -54,7 +59,7 @@ export function createRules() {
     return { w: lost('black'), b: lost('white') }; // що збили білі — це втрати чорних
   }
   return {
-    initial: () => Chess.default(),
+    initial: () => (anti() ? variant.Antichess.default() : Chess.default()),
     moves, play, result, evaluate, captured,
     turn: pos => side(pos.turn),
     key: pos => makeFen(pos.toSetup()),
