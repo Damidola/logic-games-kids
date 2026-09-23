@@ -7,9 +7,9 @@ import { squareName as N } from '../shared/board.js';
 // Від найпростішого для фігур до найважчого. [ключ, фігури, скільки пішаків]
 export const MODES = [
   ['q_p8', 'Q', 8], ['r_p5', 'R', 5], ['b_p3', 'B', 3], ['n_p3', 'N', 3],
-  ['bb_p8', 'BB', 8], ['nn_p6', 'NN', 6], ['p_vs_p1', 'PPPP', 4], ['p_vs_p2', 'PPPPPP', 6]
+  ['bb_p8', 'BB', 8], ['nn_p6', 'NN', 6], ['p_vs_p1', 'PPPP', 4]
 ];
-const NAMES = { Q: 'ферзь', R: 'тура', B: 'слон', N: 'кінь', BB: '2 слони', NN: '2 коні', PPPP: '4 пішаки', PPPPPP: '6 пішаків' };
+const NAMES = { Q: 'ферзь', R: 'тура', B: 'слон', N: 'кінь', BB: '2 слони', NN: '2 коні', PPPP: '4 пішаки' };
 export const modeLabel = ([, f, n]) => `${NAMES[f]} проти ${n} пішаків`;
 // Кнопка режиму: картинки фігур «проти» кількості пішаків
 export const modeButton = ([, f, n]) => {
