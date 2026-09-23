@@ -156,3 +156,12 @@ body.hide-move-hints #chessboard .square.valid-move::before,
 body.hide-move-hints #chessboard .square.touch-drag-target-valid::before {
     display: none;
 }
+
+/* Пішак під пальцем: картинка без повороту, завжди видно */
+.piece-touch-clone,
+#chessboard.flipped ~ .piece-touch-clone,
+#chessboard:not(.flipped) ~ .piece-touch-clone {
+    transform: var(--translate-transform, translate(0, 0)) !important;
+    background-size: 92%; opacity: 1; transition: none;
+}
+#chessboard .square.touch-drag-target-valid { box-shadow: inset 0 0 0 4px var(--move-dot, rgba(76, 175, 80, .85)); }

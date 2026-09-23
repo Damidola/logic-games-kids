@@ -91,54 +91,35 @@ function handleTouchStart(event) {
     // console.log(`TouchStart on ${row},${col}. Potential drag. Valid moves:`, touchState.validMoves);
 }
 
+// Розмір клітинки й «підйом» фігури над пальцем, щоб дитина бачила пішака
+const DRAG_SCALE = 1.5;
+function dragSquareSize() {
+    return touchState.boardRect ? touchState.boardRect.width / BOARD_SIZE : 50;
+}
+
+function placeClone() {
+    const clone = touchState.cloneElement;
+    if (!clone) return null;
+    const size = dragSquareSize() * DRAG_SCALE;
+    const lift = dragSquareSize() * 0.45;
+    // Центр фігури трохи вище пальця
+    const cx = latestTouchX - touchState.boardRect.left;
+    const cy = latestTouchY - touchState.boardRect.top - lift;
+    clone.style.setProperty('--translate-transform', `translate(${cx - size / 2}px, ${cy - size / 2}px)`);
+    return { x: latestTouchX, y: latestTouchY - lift };
+}
+
 function updateClonePosition() {
     if (!touchState.isDragging || !touchState.cloneElement) {
         dragAnimationId = null;
         return;
     }
 
-    const touchX = latestTouchX;
-    const touchY = latestTouchY;
+    const point = placeClone();
 
-    const pieceRect = touchState.pieceElement.getBoundingClientRect();
-    const enlargeScale = 1.6;
-    const originalWidth = pieceRect.width;
-    const originalHeight = pieceRect.height;
-    const enlargedWidth = originalWidth * enlargeScale;
-    const enlargedHeight = originalHeight * enlargeScale;
-    
-    // Позиционируем клон чуть выше пальца
-    const cloneX = touchX - touchState.boardRect.left - (enlargedWidth / 2);
-    const cloneY = touchY - touchState.boardRect.top - (enlargedHeight / 2) - 20; // Поднимаем на 20px
-    
-    // Проверяем, перевернута ли доска
-    const isBoardFlipped = chessboardEl.classList.contains('flipped');
-    
-    // Проверяем, черная ли это пешка
-    const isBlackPawn = touchState.pieceElement.classList.contains('black') && 
-                      touchState.pieceElement.textContent === '♟';
-                      
-    // Специальная обработка для черной пешки
-    if (isBlackPawn) {
-        if (isBoardFlipped) {
-            touchState.cloneElement.style.transform = `translate(${cloneX}px, ${cloneY}px)`;
-        } else {
-            touchState.cloneElement.style.transform = `translate(${cloneX}px, ${cloneY}px) rotate(180deg)`;
-        }
-    } else {
-        if (isBoardFlipped) {
-            touchState.cloneElement.style.setProperty('--translate-transform', `translate(${cloneX}px, ${cloneY}px)`);
-        } else {
-            touchState.cloneElement.style.setProperty('--translate-transform', `translate(${cloneX}px, ${cloneY}px)`);
-        }
-    }
-    
-    // Обновляем определение квадрата под курсором
-    let elementBelow = null;
-    if (touchState.cloneElement) touchState.cloneElement.style.display = 'none';
-    elementBelow = document.elementFromPoint(touchX, touchY);
-    if (touchState.cloneElement) touchState.cloneElement.style.display = ''; 
-    const squareEl = elementBelow?.closest('.square');
+    // Клітинка під фігурою (клон не ловить подій — pointer-events: none)
+    const elementBelow = document.elementFromPoint(point.x, point.y);
+    const squareEl = elementBelow?.closest('#chessboard .square') || null;
 
     if (squareEl !== touchState.currentSquareEl) {
         if (touchState.currentSquareEl) {
@@ -243,77 +224,31 @@ function startDragging() {
     if (!touchState.pieceElement || touchState.isDragging) return false;
 
     touchState.isDragging = true;
-    console.log("Dragging started");
     const originalPiece = touchState.pieceElement;
+    const color = boardState[touchState.startSquare.row]?.[touchState.startSquare.col];
 
-    // Создаем клон
-    const clone = originalPiece.cloneNode(true);
-    clone.classList.remove('piece', 'touch-hidden-original');
-    
-    // Сохраняем классы цвета
-    const isWhite = originalPiece.classList.contains('white');
-    const isBlack = originalPiece.classList.contains('black');
-    const isPawn = originalPiece.textContent === '♟' || originalPiece.textContent === '♙';
-    const isBlackPawn = isBlack && originalPiece.textContent === '♟';
-    
-    // Добавляем классы для клона
-    if (isWhite) {
-        clone.classList.add('piece-touch-clone', 'white');
-    } else if (isBlack) {
-        clone.classList.add('piece-touch-clone', 'black');
-        if (isBlackPawn) {
-            clone.classList.add('black-pawn');
-        }
-    } else {
-        clone.classList.add('piece-touch-clone');
-    }
-    
+    // Клон — просто картинка пішака потрібного кольору, у 1,5 раза більша за клітинку
+    const clone = document.createElement('div');
+    clone.className = 'piece-touch-clone ' + (color === 'b' ? 'black' : 'white');
+    const size = dragSquareSize() * DRAG_SCALE;
+    clone.style.setProperty('--clone-width', `${size}px`);
+    clone.style.setProperty('--clone-height', `${size}px`);
     touchState.cloneElement = clone;
-
-    // Копируем стили
-    const computedStyle = window.getComputedStyle(originalPiece);
-    clone.style.color = computedStyle.color;
-    clone.style.textShadow = computedStyle.textShadow;
-
-    // Добавляем клон в DOM
-    clone.style.opacity = '0';
     boardWrapper.appendChild(clone);
+    touchState.currentSquareEl = null;
+    placeClone();
 
-    // Полностью скрываем оригинальную пешку
-    originalPiece.style.display = 'none';
+    // Оригінал ховаємо, але місце на дошці лишається
     originalPiece.style.visibility = 'hidden';
-    originalPiece.style.opacity = '0';
     originalPiece.classList.add('touch-hidden-original');
-
-    // Откладываем расчет позиции
-    requestAnimationFrame(() => {
-        if (!touchState.cloneElement) return; 
-
-        const pieceRect = originalPiece.getBoundingClientRect();
-        const enlargeScale = 1.6;
-        const originalWidth = pieceRect.width;
-        const originalHeight = pieceRect.height;
-        const enlargedWidth = originalWidth * enlargeScale;
-        const enlargedHeight = originalHeight * enlargeScale;
-        
-        clone.style.setProperty('--clone-width', `${enlargedWidth}px`);
-        clone.style.setProperty('--clone-height', `${enlargedHeight}px`);
-
-        // Позиционируем клон точно под пальцем
-        const cloneX = latestTouchX - touchState.boardRect.left - (enlargedWidth / 2);
-        const cloneY = latestTouchY - touchState.boardRect.top - (enlargedHeight / 2);
-        
-        clone.style.setProperty('--translate-transform', `translate(${cloneX}px, ${cloneY}px)`);
-        clone.style.opacity = '';
-
-        if (!dragAnimationId) {
-            dragAnimationId = requestAnimationFrame(updateClonePosition);
-        }
-    });
 
     clearVisualState();
     applyHighlights();
+    getSquareElement(touchState.startSquare.row, touchState.startSquare.col)?.classList.add('selected-piece-origin');
 
+    if (!dragAnimationId) {
+        dragAnimationId = requestAnimationFrame(updateClonePosition);
+    }
     return true;
 }
 

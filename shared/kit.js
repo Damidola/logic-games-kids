@@ -245,18 +245,15 @@
     if (opts && opts.silent) return;
     // Малюк ще не читає: велика картинка, одне слово і дві кнопки-іконки
     const cfg = {
-      win: { emoji: pick(['🏆', '🌟', '🥳', '🎉']), title: 'Перемога!' },
+      win: { emoji: '', title: 'Перемога!' },
       lose: { emoji: pick(['🙈', '🐢', '💪']), title: 'Ой!' },
       draw: { emoji: '🤝', title: 'Нічия!' }
     }[kind];
-    const s = stats()[gameId] || { wins: 0 };
-    const children = [
-      el('div', { class: 'lg-result-emoji', text: cfg.emoji, title: message || '' }),
-      el('h2', { text: cfg.title })
-    ];
+    // Після перемоги — без емодзі: лише слово й котик
+    const children = [el('h2', { text: cfg.title, title: message || '' })];
+    if (cfg.emoji) children.unshift(el('div', { class: 'lg-result-emoji', text: cfg.emoji }));
     const imgSlot = el('div', { class: 'lg-result-img' });
     if (opts && opts.image) children.push(imgSlot);
-    if (kind === 'win' && s.wins) children.push(el('p', { class: 'lg-result-stars', text: '⭐ ' + s.wins }));
     const buttons = el('div', { class: 'lg-result-btns' });
     const again = opts && opts.onAgain;
     buttons.appendChild(el('button', {
