@@ -237,7 +237,7 @@
   const REWARD_EXT = document.createElement('video').canPlayType('video/mp4; codecs="avc1.4D401E"') ? '.mp4' : '.webm';
   let rewardBag = [], nextReward = null;
   function prepReward() {
-    if (!rewardBag.length) rewardBag = Array.from({ length: 40 }, (_, i) => i + 1).sort(() => Math.random() - .5);
+    if (!rewardBag.length) rewardBag = Array.from({ length: 90 }, (_, i) => i + 1).sort(() => Math.random() - .5);
     const url = root + 'shared/rewards/fun-' + String(rewardBag.pop()).padStart(2, '0') + REWARD_EXT;
     const ready = fetch(url).then(r => r.ok ? r.blob() : Promise.reject()).then(b => URL.createObjectURL(b)).catch(() => url);
     nextReward = { ready, done: null };
