@@ -334,15 +334,15 @@
   // ---------- верхня панель ----------
   function buildBar() {
     const gearBtn = el('button', { class: 'lg-icon-btn lg-gear', type: 'button', title: 'Налаштування', 'aria-label': 'Налаштування', text: '⚙️', onclick: showSettings });
-    // У всіх іграх однаково: ⚙️ · ❓ · назва · 🏠
+    // У всіх іграх однаково: 🏠 · назва · ❓ ⚙️
     const bar = el('header', { class: 'lg-bar' }, [
       el('div', { class: 'lg-bar-actions' }, [
-        gearBtn,
-        el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules })
+        el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [el('span', { text: '🏠' })])
       ]),
       el('div', { class: 'lg-bar-title' }, [el('span', { text: game.title })]),
       el('div', { class: 'lg-bar-actions lg-bar-right' }, [
-        el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [el('span', { text: '🏠' })])
+        el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules }),
+        gearBtn
       ])
     ]);
     document.body.insertBefore(bar, document.body.firstChild);

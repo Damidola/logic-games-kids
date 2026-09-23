@@ -91,7 +91,7 @@ export function mountOpponent(el, opts = {}) {
     if (b) { closePicker(); if (+b.dataset.i !== index) show(+b.dataset.i); return; }
     if (e.target === picker || e.target.closest('.lg-picker-x')) closePicker();
   });
-  pic.addEventListener('click', openPicker);
+  img.addEventListener('click', openPicker);
   prev.addEventListener('click', () => show(index - 1));
   next.addEventListener('click', () => show(index + 1));
 

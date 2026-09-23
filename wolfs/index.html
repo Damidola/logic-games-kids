@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Фігури й пішаки</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790162929">
-  <link rel="stylesheet" href="../shared/play.css?v=1790162929">
-  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790162929">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790163047">
+  <link rel="stylesheet" href="../shared/play.css?v=1790163047">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790163047">
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790162929"></script>
-  <script src="../shared/kit.js?v=1790162929" data-game="wolfs" data-night="on"></script>
+  <script src="../shared/games.js?v=1790163047"></script>
+  <script src="../shared/kit.js?v=1790163047" data-game="wolfs" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790162929';
-    import { createRules, MODES } from './rules.js?v=1790162929';
+    import { startGame } from '../shared/game.js?v=1790163047';
+    import { createRules, MODES } from './rules.js?v=1790163047';
     const choice = (label, key, def, options, onChange) => () => {
       const row = document.createElement('div'); row.className = 'lg-set-row';
       row.innerHTML = `<span>${label}</span><select>${options.map(([v, t]) => `<option value="${v}" ${v === LG.store.get(key, def) ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
@@ -24,7 +24,6 @@
     let game;
     game = startGame({
       rules: createRules({ mode: () => LG.store.get('wolfs:mode', 'p_vs_p1') }),
-      materialIcon: (color, role) => `../shared/pieces/${LG.pieceSet()}/${color}${role}.svg`,
       extraSettings: choice('Режим', 'wolfs:mode', 'p_vs_p1', MODES, () => game.newGame())
     });
   </script>

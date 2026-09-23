@@ -112,14 +112,13 @@ export function createRules() {
     put(3, 7, 'black', 'square'); put(2, 6, 'black', 'square'); put(1, 5, 'black', 'square'); put(0, 4, 'black', 'square');
     return { b, t: 'white', ply: 0, cap: { white: [], black: [] } };
   }
-  const LETTER = { circle: 'Circle', triangle: 'Triangle', square: 'Square' };
   return {
     initial, moves, play, result, evaluate,
     turn: s => (s.t === 'white' ? 'w' : 'b'),
     check: s => (inCheck(s.b, s.t) ? s.t : false),
     key: s => s.b.map(p => (p ? p.c[0] + p.t[0] : '..')).join('') + s.t + (s.ply < 2 ? s.ply : ''),
     pieces: s => { const m = new Map(); s.b.forEach((p, i) => p && m.set(N(i), { role: p.t, color: p.c })); return m; },
-    captured: s => ({ w: s.cap.white.map(t => LETTER[t]), b: s.cap.black.map(t => LETTER[t]) }),
+    captured: s => ({ w: s.cap.white, b: s.cap.black }),
     marks: () => new Map([[N(TARGET.white), 'mark-gold'], [N(TARGET.black), 'mark-red']]),
     moveOrder: (s, m) => m.gain,
     aiDepth: [2, 3, 4]

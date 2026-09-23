@@ -236,20 +236,21 @@ html.lg .lg-modal .lg-btn-primary { background-color: var(--lg-primary); color: 
 
 /* ---------- нічна тема (вмикається грою, що її підтримує) ---------- */
 html.lg-night {
-  --lg-bg: #19181F;
-  --lg-surface: #242330;
-  --lg-surface-2: #2B2A38;
-  --lg-ink: #F2F0FF;
-  --lg-muted: #A9A5B8;
-  --lg-line: #383644;
-  --lg-primary-soft: #322F44;
+  /* Не зовсім темний: чорні фігури на ньому добре видно */
+  --lg-bg: #52505F;
+  --lg-surface: #5E5C6D;
+  --lg-surface-2: #666477;
+  --lg-ink: #F6F4FF;
+  --lg-muted: #CFCBE0;
+  --lg-line: #737184;
+  --lg-primary-soft: #6A6284;
   --lg-btn-shadow: 0 2px 8px rgba(0, 0, 0, .45);
 }
 html.lg.lg-night body.lg-game {
   background-color: var(--lg-bg);
-  background-image: radial-gradient(circle at 18% 8%, rgba(108, 92, 231, .12) 0 180px, transparent 181px);
+  background-image: none;
 }
-html.lg-night .lg-bar { background: rgba(20, 19, 26, .92); }
+html.lg-night .lg-bar { background: rgba(70, 68, 84, .95); }
 html.lg-night .lg-modal-x { color: var(--lg-ink); }
 html.lg-night .lg-rules-goal { background: #3A3350; }
 

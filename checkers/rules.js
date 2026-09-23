@@ -97,7 +97,7 @@ export function createRules() {
     midTurn: s => s.chain !== null,
     key: s => s.b.map(p => (p ? p.c + (p.k ? 'K' : 'm') : '.')).join('') + s.t + (s.chain ?? ''),
     pieces: s => { const m = new Map(); s.b.forEach((p, i) => p && m.set(N(i), { role: p.k ? 'dame' : 'man', color: p.c === 'w' ? 'white' : 'black' })); return m; },
-    captured: s => ({ w: Array(s.cap.w).fill('Man'), b: Array(s.cap.b).fill('Man') }),
+    captured: s => ({ w: Array(s.cap.w).fill('man'), b: Array(s.cap.b).fill('man') }),
     moveOrder: (s, m) => (m.capture ? 10 : 0),
     aiDepth: [3, 5, 6]
   };

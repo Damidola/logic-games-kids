@@ -38,7 +38,7 @@ export function applyBoardLook() {
   root.setProperty('--sq-dark', colors.dark);
   let css = '';
   for (const [role, letter] of Object.entries(CHESS_ROLES)) for (const [color, c] of [['white', 'w'], ['black', 'b']])
-    css += `.cg-wrap piece.${role}.${color}{background-image:url("${ROOT}shared/pieces/${set}/${c}${letter}.svg")}\n`;
+    css += `.cg-wrap piece.${role}.${color},mpiece.${role}.${color}{background-image:url("${ROOT}shared/pieces/${set}/${c}${letter}.svg")}\n`;
   if (!styleEl) { styleEl = document.createElement('style'); document.head.appendChild(styleEl); }
   styleEl.textContent = css;
 }

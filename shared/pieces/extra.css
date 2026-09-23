@@ -1,18 +1,18 @@
 /* Фігури нешахових ігор на дошці Lichess (chessground): свої «ролі» */
-.cg-wrap piece.man.white { background-image: url(extra/wMan.svg); }
-.cg-wrap piece.man.black { background-image: url(extra/bMan.svg); }
-.cg-wrap piece.dame.white { background-image: url(extra/wDame.svg); }
-.cg-wrap piece.dame.black { background-image: url(extra/bDame.svg); }
-.cg-wrap piece.disc.white { background-image: url(extra/wDisc.svg); }
-.cg-wrap piece.disc.black { background-image: url(extra/bDisc.svg); }
-.cg-wrap piece.circle.white { background-image: url(extra/wCircle.svg); }
-.cg-wrap piece.circle.black { background-image: url(extra/bCircle.svg); }
-.cg-wrap piece.triangle.white { background-image: url(extra/wTriangle.svg); }
-.cg-wrap piece.triangle.black { background-image: url(extra/bTriangle.svg); }
-.cg-wrap piece.square.white { background-image: url(extra/wSquare.svg); }
-.cg-wrap piece.square.black { background-image: url(extra/bSquare.svg); }
-.cg-wrap piece.trace.white { background-image: url(extra/wTrace.svg); }
-.cg-wrap piece.trace.black { background-image: url(extra/bTrace.svg); }
-.cg-wrap piece.salamander { background-image: url(extra/salamander.svg); }
-.cg-wrap piece.fish { background-image: url(extra/fish.svg); }
-.cg-wrap piece.trace { pointer-events: none; }
+.cg-wrap piece.man.white, mpiece.man.white { background-image: url(extra/wMan.svg); }
+.cg-wrap piece.man.black, mpiece.man.black { background-image: url(extra/bMan.svg); }
+.cg-wrap piece.dame.white, mpiece.dame.white { background-image: url(extra/wDame.svg); }
+.cg-wrap piece.dame.black, mpiece.dame.black { background-image: url(extra/bDame.svg); }
+.cg-wrap piece.disc.white, mpiece.disc.white { background-image: url(extra/wDisc.svg); }
+.cg-wrap piece.disc.black, mpiece.disc.black { background-image: url(extra/bDisc.svg); }
+.cg-wrap piece.circle.white, mpiece.circle.white { background-image: url(extra/wCircle.svg); }
+.cg-wrap piece.circle.black, mpiece.circle.black { background-image: url(extra/bCircle.svg); }
+.cg-wrap piece.triangle.white, mpiece.triangle.white { background-image: url(extra/wTriangle.svg); }
+.cg-wrap piece.triangle.black, mpiece.triangle.black { background-image: url(extra/bTriangle.svg); }
+.cg-wrap piece.square.white, mpiece.square.white { background-image: url(extra/wSquare.svg); }
+.cg-wrap piece.square.black, mpiece.square.black { background-image: url(extra/bSquare.svg); }
+.cg-wrap piece.trace.white, mpiece.trace.white { background-image: url(extra/wTrace.svg); }
+.cg-wrap piece.trace.black, mpiece.trace.black { background-image: url(extra/bTrace.svg); }
+.cg-wrap piece.salamander, mpiece.salamander { background-image: url(extra/salamander.svg); }
+.cg-wrap piece.fish, mpiece.fish { background-image: url(extra/fish.svg); }
+.cg-wrap piece.trace, mpiece.trace { pointer-events: none; }

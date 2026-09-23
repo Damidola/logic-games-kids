@@ -9,7 +9,7 @@ import { mountOpponent, LEVEL_NAMES } from './opponent.js';
 const LG = window.LG;
 const colorName = s => (s === 'w' ? 'white' : 'black');
 
-/* startGame({ rules, root, options, materialIcon(color, role), extraSettings() }) */
+/* startGame({ rules, root, options, view, autoClose, extraSettings() }) */
 export function startGame(cfg) {
   const { rules } = cfg;
   const root = cfg.root || document.querySelector('main');
@@ -76,11 +76,18 @@ export function startGame(cfg) {
     renderButtons();
   }
 
+  // Збиті фігури — як на Lichess: згруповані за видом, тим самим набором фігур, що й на дошці
+  const ROLE = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen', K: 'king' };
   function renderMaterial() {
-    if (!rules.captured || !cfg.materialIcon) return;
+    if (!rules.captured) return;
     const cap = rules.captured(state()); // { w: [ролі, які збили білі], b: [...] }
-    const row = (list, victimColor) => !list.length ? '' :
-      list.map(r => `<img src="${cfg.materialIcon(victimColor, r)}" alt="">`).join('') + `<b>+${list.length}</b>`;
+    const row = (list, victimColor) => {
+      if (!list.length) return '';
+      const groups = new Map();
+      for (const r of list) { const role = ROLE[r] || r.toLowerCase(); groups.set(role, (groups.get(role) || 0) + 1); }
+      return [...groups].map(([role, n]) => `<div>${`<mpiece class="${role} ${colorName(victimColor)}"></mpiece>`.repeat(n)}</div>`).join('') +
+        `<b>+${list.length}</b>`;
+    };
     const ai = player === 'w' ? 'b' : 'w';
     $('[data-side="top"]').innerHTML = row(cap[ai], player);
     $('[data-side="bottom"]').innerHTML = row(cap[player], ai);
