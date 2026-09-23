@@ -5,6 +5,8 @@
     'use strict';
 
     const hero = document.getElementById('opponent-hero');
+    const heroPrev = document.getElementById('opponent-prev');
+    const heroNext = document.getElementById('opponent-next');
     const picker = document.getElementById('opponent-picker');
     const pickerGrid = document.getElementById('picker-grid');
     const arrowSvg = document.getElementById('hint-arrow');
@@ -145,18 +147,29 @@
         picker.classList.remove('open');
         setTimeout(() => { picker.hidden = true; }, 200);
     }
-    hero.addEventListener('click', openPicker);
-    picker.addEventListener('click', e => {
-        const b = e.target.closest('.pick');
-        if (!b) { if (e.target === picker) closePicker(); return; }
-        const i = +b.dataset.i;
-        closePicker();
+    function selectOpponent(i) {
         if (i === currentOpponentIndex) return;
         currentOpponentIndex = i;
         LG.store.set('pawns:aiDifficultyOverride', null); // обрана тварина сама визначає складність
         cleanupInteractionState(true);
         playerColor = 'w';
         initGame(false, 'pvai');
+    }
+    hero.addEventListener('click', openPicker);
+    picker.addEventListener('click', e => {
+        const b = e.target.closest('.pick');
+        if (!b) { if (e.target === picker) closePicker(); return; }
+        closePicker();
+        selectOpponent(+b.dataset.i);
+    });
+    // Маленькі стрілочки: перемкнути тваринку вручну, без відкриття списку
+    heroPrev.addEventListener('click', e => {
+        e.stopPropagation();
+        selectOpponent((currentOpponentIndex - 1 + opponents.length) % opponents.length);
+    });
+    heroNext.addEventListener('click', e => {
+        e.stopPropagation();
+        selectOpponent((currentOpponentIndex + 1) % opponents.length);
     });
 
     // Суперник «думає», поки ходить робот

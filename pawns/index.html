@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Пішаки</title>
-    <link rel="stylesheet" href="css/styles.css?v=1790143292">
-    <link rel="stylesheet" href="css/board.css?v=1790143292">
-    <link rel="stylesheet" href="css/ui.css?v=1790143292">
-    <link rel="stylesheet" href="../shared/kit.css?v=1790143292">
-    <link rel="stylesheet" href="css/kids.css?v=1790143292">
+    <link rel="stylesheet" href="css/styles.css?v=1790143455">
+    <link rel="stylesheet" href="css/board.css?v=1790143455">
+    <link rel="stylesheet" href="css/ui.css?v=1790143455">
+    <link rel="stylesheet" href="../shared/kit.css?v=1790143455">
+    <link rel="stylesheet" href="css/kids.css?v=1790143455">
 </head>
 <body>
     <div class="game-container">
-        <!-- Великий суперник: натисни, щоб обрати іншого -->
-        <button type="button" id="opponent-hero" class="opponent-hero" aria-label="Обрати суперника">
-            <img id="ai-avatar" src="" alt="Суперник">
-        </button>
+        <!-- Великий суперник: натисни, щоб обрати іншого, або гортай стрілочками -->
+        <div class="opponent-wrap">
+            <button type="button" id="opponent-hero" class="opponent-hero" aria-label="Обрати суперника">
+                <img id="ai-avatar" src="" alt="Суперник">
+            </button>
+            <button type="button" id="opponent-prev" class="hero-arrow hero-arrow-l" aria-label="Попередній суперник">‹</button>
+            <button type="button" id="opponent-next" class="hero-arrow hero-arrow-r" aria-label="Наступний суперник">›</button>
+        </div>
 
         <div class="material" id="material-top" aria-label="Що збив суперник"></div>
         <div class="board-wrapper">
@@ -59,12 +63,12 @@
     <audio id="capture-sound" src="../shared/sounds/capture.mp3" preload="auto"></audio>
     <audio id="win-sound" src="../shared/sounds/win.mp3" preload="auto"></audio>
 
-    <script src="../shared/games.js?v=1790143292"></script>
-    <script src="../shared/kit.js?v=1790143292" data-game="pawns" data-night="on"></script>
-    <script src="js/game.js?v=1790143292"></script>
-    <script src="js/ai.js?v=1790143292"></script>
-    <script src="js/ui.js?v=1790143292"></script>
-    <script src="js/interaction.js?v=1790143292"></script>
-    <script src="js/kids.js?v=1790143292"></script>
+    <script src="../shared/games.js?v=1790143455"></script>
+    <script src="../shared/kit.js?v=1790143455" data-game="pawns" data-night="on"></script>
+    <script src="js/game.js?v=1790143455"></script>
+    <script src="js/ai.js?v=1790143455"></script>
+    <script src="js/ui.js?v=1790143455"></script>
+    <script src="js/interaction.js?v=1790143455"></script>
+    <script src="js/kids.js?v=1790143455"></script>
 </body>
 </html>
