@@ -128,7 +128,8 @@ function drawBike() {
   ctx.save(); ctx.translate(sx, sy); ctx.rotate(bike.a);
   ctx.strokeStyle = '#fff'; ctx.fillStyle = '#000'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.shadowColor = '#fff'; ctx.shadowBlur = 8;
-  const wr = 9 * k, wy = (R - 9) * k, wx = 19 * k;
+  ctx.translate(0, -5 * k); // колеса — на лінії між їхніми центрами (фізика: WB = 38, радіус 9)
+  const wr = 9 * k, wy = 5 * k, wx = 19 * k;
   for (const x of [-wx, wx]) { ctx.beginPath(); ctx.arc(x, wy, wr, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
   // рама
   ctx.beginPath(); ctx.moveTo(-wx, wy); ctx.lineTo(-4 * k, -6 * k); ctx.lineTo(12 * k, -6 * k); ctx.lineTo(wx, wy);
