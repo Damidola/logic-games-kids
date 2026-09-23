@@ -1,8 +1,9 @@
 /* 8 ферзів: постав 8 ферзів так, щоб жоден не бив іншого (ні по рядку, ні по стовпчику, ні по діагоналі).
-   Ферзі лежать під дошкою: тап по ферзю, потім по клітинці — або просто перетягни на дошку.
-   Поставленого ферзя можна перетягнути в іншу клітинку, а щоб прибрати — перетягни за дошку або тапни по ньому двічі. */
+   Ферзя можна поставити лише на клітинку, яку ніхто не б'є: тап по вільній клітинці або перетягни з лотка.
+   Тап по ферзю — взяти його (далі тап по клітинці — переставити), ще один тап — зняти в лоток.
+   Ферзя можна й перетягнути: на іншу безпечну клітинку або за дошку — тоді він повертається в лоток. */
 import { Chessground } from 'https://cdn.jsdelivr.net/npm/@lichess-org/chessground@10.2.0/dist/chessground.min.js';
-import { applyBoardLook, lichessTouch } from '../shared/board.js';
+import { applyBoardLook } from '../shared/board.js';
 
 const LG = window.LG, $ = id => document.getElementById(id);
 const N = 8, FILES = 'abcdefgh';
@@ -10,89 +11,121 @@ const QUEEN = { role: 'queen', color: 'white' };
 const key = (r, c) => FILES[c] + (r + 1);
 const rc = k => [Number(k[1]) - 1, FILES.indexOf(k[0])];
 const attacks = (a, b) => { const [r1, c1] = rc(a), [r2, c2] = rc(b); return r1 === r2 || c1 === c2 || Math.abs(r1 - r2) === Math.abs(c1 - c2); };
+const ALL = Array.from({ length: N * N }, (_, i) => key(i >> 3, i & 7));
 
 applyBoardLook();
-let history = [], won = false, armed = false, lastTap = { k: null, t: 0 };
+let history = [], won = false, snapshot = [], flashTimer = 0;
 const cg = Chessground($('board'), {
   fen: '8/8/8/8/8/8/8/8',
   coordinates: true,
   animation: { enabled: true, duration: 150 },
-  movable: { free: true, color: 'white', showDests: false },
+  movable: { free: false, color: 'white', showDests: true, dests: new Map() },
   premovable: { enabled: false },
   draggable: { enabled: true, showGhost: true, distance: 5, autoDistance: false, deleteOnDropOff: true },
   highlight: { lastMove: false },
   drawable: { enabled: false, visible: true },
-  events: {
-    change: () => { if (!syncing) { history.push(snapshot.slice()); after(); } },
-    select: k => onSelect(k)
-  }
+  events: { change: onChange }
 });
-lichessTouch(cg);
-let snapshot = [], syncing = false;
-const queens = () => [...cg.state.pieces.keys()];
+const queens = () => [...cg.state.pieces.keys()].filter(k => k !== 'a0');
+const attackers = (k, skip) => queens().filter(q => q !== k && q !== skip && attacks(q, k));
+const safe = (k, skip) => !cg.state.pieces.has(k) && !attackers(k, skip).length;
 
 function set(keys) {
-  syncing = true;
   const diff = new Map();
   for (const k of cg.state.pieces.keys()) if (!keys.includes(k)) diff.set(k, undefined);
   for (const k of keys) if (!cg.state.pieces.has(k)) diff.set(k, { ...QUEEN });
   cg.setPieces(diff);
-  syncing = false;
 }
-function after() {
+// Будь-яка зміна на дошці від chessground (хід, ферзь з лотка, ферзь за дошку)
+function onChange() {
+  cg.set({ turnColor: 'white' }); // chessground після кожного ходу передає хід «чорним» — тоді ферзі застигають
+  const qs = queens(), bad = qs.find(q => attackers(q).length);
+  if (bad) { // так ставити не можна — повертаємо як було
+    const k = qs.find(q => !snapshot.includes(q)) || bad;
+    set(snapshot); refuse(k);
+    return;
+  }
+  if (qs.length === snapshot.length && qs.every(q => snapshot.includes(q))) return;
+  history.push(snapshot.slice());
+  after(qs.length > snapshot.length ? 'place' : 'tap');
+}
+// Клітинку б'ють: коротко підсвічуємо, хто саме
+function refuse(k, skip) {
+  LG.play('error');
+  const custom = highlights();
+  if (k) custom.set(k, 'q-bad');
+  attackers(k, skip).forEach(q => custom.set(q, 'q-bad'));
+  cg.set({ highlight: { custom } });
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => cg.set({ highlight: { custom: highlights() } }), 800);
+}
+function highlights() {
+  const custom = new Map(), qs = queens();
+  if (LG.store.get('queens:att', true)) for (const k of ALL) if (!qs.includes(k) && qs.some(q => attacks(q, k))) custom.set(k, 'q-att');
+  return custom;
+}
+function after(sound) {
   const qs = queens();
   snapshot = qs;
-  const bad = new Set(), att = new Set(), show = LG.store.get('queens:att', true);
-  for (const a of qs) for (const b of qs) if (a !== b && attacks(a, b)) { bad.add(a); bad.add(b); }
-  if (show) for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) { const k = key(r, c); if (!qs.includes(k) && qs.some(q => attacks(q, k))) att.add(k); }
-  const custom = new Map();
-  att.forEach(k => custom.set(k, 'q-att'));
-  bad.forEach(k => custom.set(k, 'q-bad'));
-  cg.set({ highlight: { custom } });
+  cg.set({ highlight: { custom: highlights() }, movable: { dests: new Map(qs.map(q => [q, ALL.filter(k => safe(k, q))])) } });
   $('left').textContent = `Ферзів: ${qs.length} / ${N}`;
-  $('left').classList.toggle('bad', bad.size > 0);
   renderTray();
-  if (qs.length === N && !bad.size && !won) {
-    won = true; cg.set({ movable: { color: undefined } });
+  if (qs.length === N && !won) {
+    won = true; cg.set({ movable: { color: undefined } }); cg.selectSquare(null);
+    $('tray').classList.add('done');
     LG.win('Вісім ферзів — і жоден не б’є іншого!', { reward: true, onAgain: start });
-  } else if (qs.length) LG.play('place');
+  } else if (sound) LG.play(sound);
 }
 function renderTray() {
-  const left = Math.max(0, N - queens().length);
-  $('tray').innerHTML = Array.from({ length: left }, (_, i) => `<mpiece class="queen white${armed && i === left - 1 ? ' armed' : ''}"></mpiece>`).join('');
+  $('tray').innerHTML = '<mpiece class="queen white"></mpiece>'.repeat(Math.max(0, N - queens().length));
 }
 
-// Тап по ферзю в лотку — «взяти» його; тап по порожній клітинці — поставити
+// Перетягнути ферзя з лотка на дошку
 $('tray').addEventListener('pointerdown', e => {
-  const q = e.target.closest('mpiece');
-  if (!q || won) return;
+  if (!e.target.closest('mpiece') || won) return;
   const start = [e.clientX, e.clientY];
   const move = ev => {
     if (Math.hypot(ev.clientX - start[0], ev.clientY - start[1]) < 6) return;
-    cleanup(); armed = false; renderTray();
-    cg.dragNewPiece({ ...QUEEN }, ev); // далі тягне сам chessground
+    cleanup(); cg.selectSquare(null);
+    cg.dragNewPiece({ ...QUEEN }, ev); // далі тягне сам chessground, перевірка — в onChange
   };
-  const upHandler = () => { cleanup(); armed = !armed; LG.play('tap'); renderTray(); };
-  const cleanup = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', upHandler); };
+  const up = () => { cleanup(); LG.play('tap'); LG.toast('Тапни вільну клітинку на дошці або перетягни ферзя 👆'); };
+  const cleanup = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
   window.addEventListener('pointermove', move);
-  window.addEventListener('pointerup', upHandler);
+  window.addEventListener('pointerup', up);
 });
-function onSelect(k) {
-  if (won) return;
-  if (armed && !cg.state.pieces.has(k)) {
-    armed = false; history.push(snapshot.slice());
-    set([...queens(), k]); cg.selectSquare(null); after();
-    return;
-  }
-  // Два тапи по ферзю — прибрати його в лоток
-  if (cg.state.pieces.has(k)) {
-    const now = Date.now();
-    if (lastTap.k === k && now - lastTap.t < 600) {
-      history.push(snapshot.slice()); set(queens().filter(q => q !== k)); cg.selectSquare(null); lastTap = { k: null, t: 0 }; after(); return;
+
+$('tray').addEventListener('dragstart', e => e.preventDefault()); // інакше браузер тягне картинку сам і дошка не бачить, куди кинули
+
+// Тапи по дошці
+const wrap = cg.state.dom.elements.wrap;
+let down = null;
+wrap.addEventListener('pointerdown', e => {
+  down = { x: e.clientX, y: e.clientY, sel: cg.state.selected, k: cg.getKeyAtDomPos([e.clientX, e.clientY]) };
+}, { capture: true, passive: true });
+window.addEventListener('pointerup', e => {
+  const d = down; down = null;
+  if (!d || won) return;
+  const k = cg.getKeyAtDomPos([e.clientX, e.clientY]);
+  const tap = Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6;
+  setTimeout(() => { // після того, як chessground обробив дотик
+    if (!tap) { // перетягнули ферзя на клітинку, яку б'ють — він повернувся, показуємо чому
+      if (d.k && k && k !== d.k && cg.state.pieces.has(d.k) && !cg.state.pieces.has(k)) refuse(k, d.k);
+      return;
     }
-    lastTap = { k, t: now };
-  }
-}
+    if (!k) return;
+    const has = cg.state.pieces.has(k);
+    if (has && d.sel === k) { // тап по взятому ферзю — знімаємо в лоток
+      history.push(snapshot.slice()); cg.selectSquare(null); set(queens().filter(q => q !== k)); after('tap');
+    } else if (!has && d.sel && cg.state.pieces.has(d.sel)) { // ферзь узятий, а клітинку б'ють
+      cg.selectSquare(null); refuse(k, d.sel);
+    } else if (!has && !d.sel) { // нова клітинка — ставимо ферзя, якщо її ніхто не б'є
+      if (queens().length >= N) return;
+      if (!safe(k)) return refuse(k);
+      history.push(snapshot.slice()); set([...queens(), k]); after('place');
+    }
+  }, 20);
+}, true);
 
 // Підказка: клітинка з розв'язку, у якому вже поставлені ферзі лишаються на місцях
 function solveWith(fixed) {
@@ -121,8 +154,8 @@ $('hint').addEventListener('click', () => {
   const custom = new Map(cg.state.highlight.custom || []); custom.set(target, 'q-hint');
   cg.set({ highlight: { custom } });
 });
-$('undo').addEventListener('click', () => { if (!history.length || won) return LG.play('error'); set(history.pop()); after(); });
-function start() { won = false; armed = false; history = []; set([]); cg.set({ movable: { color: 'white' } }); after(); }
+$('undo').addEventListener('click', () => { if (!history.length || won) return LG.play('error'); cg.selectSquare(null); set(history.pop()); after(); });
+function start() { won = false; history = []; $('tray').classList.remove('done'); cg.selectSquare(null); set([]); cg.set({ movable: { color: 'white' } }); after(); }
 $('new').addEventListener('click', start);
 
 LG.addSettings(() => {
