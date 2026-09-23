@@ -236,8 +236,10 @@
   let lastResultAt = 0;
 
   function result(kind, message, opts) {
-    // деякі ігри викликають перевірку кінця гри кілька разів поспіль
-    if (Date.now() - lastResultAt < 1500) return;
+    // деякі ігри викликають перевірку кінця гри кілька разів поспіль за одну подію —
+    // відсікаємо лише миттєві дублікати, а не наступну реальну партію (може початись
+    // і закінчитись швидко, якщо гравець одразу тисне «Заново»)
+    if (Date.now() - lastResultAt < 250) return;
     lastResultAt = Date.now();
     record(kind);
     play(kind);
@@ -262,7 +264,7 @@
     }));
     buttons.appendChild(el('a', { class: 'lg-btn lg-btn-big', href: root + 'index.html', 'aria-label': 'Усі ігри', title: 'Усі ігри', text: '🏠' }));
     children.push(buttons);
-    setTimeout(() => openModal(el('div', { class: 'lg-result lg-result-' + kind }, children)), Math.max((opts && opts.delay) || 0, 1800));
+    setTimeout(() => openModal(el('div', { class: 'lg-result lg-result-' + kind }, children)), Math.max((opts && opts.delay) || 0, 700));
     // Картинка-нагорода (наприклад, котик) з'являється, коли завантажиться
     if (opts && opts.image) {
       Promise.resolve(opts.image).then(url => {

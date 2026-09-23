@@ -90,8 +90,9 @@
         const top = document.getElementById('material-top');
         const bottom = document.getElementById('material-bottom');
         if (!top || !bottom) return;
-        const byAi = capturedCounts[aiColor] || 0;       // скільки моїх пішаків збив суперник
-        const byMe = capturedCounts[playerColor] || 0;   // скільки пішаків суперника збив я
+        // capturedCounts[X] — скільки пішаків КОЛЬОРУ X було збито (це втрати X).
+        const byAi = capturedCounts[playerColor] || 0;   // скільки моїх пішаків збив суперник
+        const byMe = capturedCounts[aiColor] || 0;       // скільки пішаків суперника збив я
         const row = (count, pieceColor, diff) => {
             let html = '';
             for (let i = 0; i < count; i++) html += `<img src="${PIECES}${pieceColor}P.svg" alt="">`;
@@ -122,11 +123,25 @@
     };
 
     // ---------- великий суперник і вибір ----------
+    const heroWrap = document.querySelector('.opponent-wrap');
+    const avatarEl = document.getElementById('ai-avatar');
+    function positionHeroArrows() {
+        const wrapRect = heroWrap.getBoundingClientRect();
+        const avRect = avatarEl.getBoundingClientRect();
+        if (!wrapRect.width || !avRect.width) return;
+        const gap = 4;
+        const l = Math.max(2, avRect.left - wrapRect.left - 34 - gap);
+        const r = Math.max(2, wrapRect.right - avRect.right - 34 - gap);
+        heroPrev.style.left = l + 'px';
+        heroNext.style.right = r + 'px';
+    }
+    window.addEventListener('resize', positionHeroArrows);
     function paintHero() {
         const o = opponents[currentOpponentIndex];
         if (!o) return;
         hero.classList.toggle('pixel', !!o.pixel);
         hero.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
+        requestAnimationFrame(positionHeroArrows);
     }
     const origLabel = window.updateOpponentLabel;
     window.updateOpponentLabel = function () { if (origLabel) origLabel(); paintHero(); };
