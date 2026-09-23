@@ -275,7 +275,39 @@ function checkGameOver() {
     return false; // Game is not over
 }
 
+// Найкращий хід для підказки: одразу виграти, інакше мінімакс з поглибленням
+// (скільки встигне за ~0.5 с), при рівності — бити пішака, потім іти вперед.
+function bestHintMove(moves, board, color, ep) {
+    const win = moves.find(m => m.reachesEnd);
+    if (win) return win;
+    const adv = m => color === 'w' ? m.from.row - m.to.row : m.to.row - m.from.row;
+    const tie = m => (m.isCapture ? 100 : 0) + adv(m) * 10 + (color === 'w' ? 6 - m.to.row : m.to.row - 1);
+    let best = moves.slice().sort((a, b) => tie(b) - tie(a))[0];
+    const start = performance.now();
+    let lastDepthMs = 0;
+    for (let depth = 2; depth <= 7; depth++) {
+        // Наступна глибина рахується в кілька разів довше — не починаємо, якщо не встигнемо
+        if (depth > 2 && performance.now() - start + lastDepthMs * 5 > 350) break;
+        const depthStart = performance.now();
+        let bestScore = -Infinity, bestAtDepth = null;
+        for (const m of moves) {
+            const { nextBoard, nextEpTarget } = simulateMove(board, m, color);
+            const sc = minimax(nextBoard, depth - 1, -Infinity, Infinity, false, nextEpTarget, color, depth) + tie(m) / 1000;
+            if (sc > bestScore) { bestScore = sc; bestAtDepth = m; }
+        }
+        if (bestAtDepth) best = bestAtDepth;
+        lastDepthMs = performance.now() - depthStart;
+    }
+    return best;
+}
+
 function requestHint() {
+    // Підказка працює завжди у твій хід — навіть якщо пішака вже вибрана чи затиснута
+    if (selectedSquare || touchState.isDragging || touchState.identifier !== null) {
+        if (dragAnimationId) { cancelAnimationFrame(dragAnimationId); dragAnimationId = null; }
+        cleanupInteractionState(true);
+        renderBoard();
+    }
     if (!canRequestHint()) return;
     // Clear any existing hint before showing a new one
     if (hintHighlightedSquares) {
@@ -310,8 +342,8 @@ function requestHint() {
     const playerMoves = getAllMovesForAI(currentPlayer, boardCopy, epCopy);
 
     if (playerMoves.length > 0) {
-        // Используем более быструю AI для подсказки (advanced вместо expert)
-        let bestMove = advancedAI(playerMoves, boardCopy, currentPlayer, epCopy);
+        // Підказка — найкращий хід, який вдається знайти (без випадковості)
+        let bestMove = bestHintMove(playerMoves, boardCopy, currentPlayer, epCopy);
 
         if (bestMove) {
             clearVisualState(); renderBoard(); // Clean slate before showing hint

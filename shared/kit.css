@@ -63,8 +63,8 @@ html.lg body.lg-game .lg-hide { display: none !important; }
 .lg-bar-title {
   flex: 1; min-width: 0;
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-weight: 900; font-size: clamp(20px, 5.6vw, 28px);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-weight: 900; font-size: clamp(18px, 5.4vw, 26px);
+  white-space: nowrap; overflow: hidden; text-overflow: clip;
 }
 .lg-bar-title > span:last-child { overflow: hidden; text-overflow: ellipsis; }
 .lg-bar-emoji { font-size: 1.2em; }

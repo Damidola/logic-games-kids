@@ -328,7 +328,6 @@
         el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules })
       ]),
       el('div', { class: 'lg-bar-title' }, [
-        el('span', { class: 'lg-bar-emoji', text: game.emoji }),
         el('span', { text: game.title })
       ]),
       el('div', { class: 'lg-bar-actions lg-bar-right' }, [gearBtn])

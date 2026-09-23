@@ -15,7 +15,9 @@
 
     // Рівні складності — у тому порядку, в якому вони вперше зустрічаються серед
     // тварин-суперників, незалежно від того, яку тварину зараз показано.
-    const DIFF_TIERS = opponents.reduce((a, o) => (a.includes(o.difficulty) ? a : a.concat(o.difficulty)), []);
+    // 5 рівнів складності в налаштуваннях
+    const DIFF_TIERS = ['very_easy', 'easy', 'medium', 'hard', 'expert'];
+    const TIER_OF = { completely_random: 0, very_easy: 0, easy: 1, medium: 2, advanced: 3, hard: 3, expert: 4 };
 
     // ---------- кольори дошки ----------
     // Перша — класична коричнева (дерево), вона й за замовчуванням.
@@ -141,6 +143,7 @@
         const o = opponents[currentOpponentIndex];
         if (!o) return;
         hero.classList.toggle('pixel', !!o.pixel);
+        heroWrap.style.setProperty('--hero-bg', `url("${new URL(o.avatar, location.href).href}")`); // розмитий фон зі своєю твариною
         hero.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
         requestAnimationFrame(positionHeroArrows);
     }
@@ -152,7 +155,6 @@
             <button type="button" class="pick ${i === currentOpponentIndex ? 'current' : ''} ${o.pixel ? 'pixel' : ''}" data-i="${i}">
                 <img src="${o.avatar}" alt="">
                 <span class="pick-name">${o.name}</span>
-                <span class="pick-level">${'★'.repeat(Math.ceil((i + 1) / opponents.length * 5))}</span>
             </button>`).join('');
         picker.hidden = false;
         requestAnimationFrame(() => picker.classList.add('open'));
@@ -163,18 +165,21 @@
         picker.classList.remove('open');
         setTimeout(() => { picker.hidden = true; }, 200);
     }
+    // Інша тварина — гра продовжується з тієї ж позиції, міняється лише суперник
     function selectOpponent(i) {
         if (i === currentOpponentIndex) return;
         currentOpponentIndex = i;
         LG.store.set('pawns:aiDifficultyOverride', null); // обрана тварина сама визначає складність
-        cleanupInteractionState(true);
-        playerColor = 'w';
-        initGame(false, 'pvai');
+        const o = opponents[i];
+        aiDifficulty = o.difficulty;
+        avatarEl.src = o.avatar;
+        avatarEl.alt = o.name;
+        updateOpponentLabel();
     }
     hero.addEventListener('click', openPicker);
     picker.addEventListener('click', e => {
         const b = e.target.closest('.pick');
-        if (!b) { if (e.target === picker) closePicker(); return; }
+        if (!b) { if (e.target === picker || e.target.closest('#picker-x')) closePicker(); return; }
         closePicker();
         selectOpponent(+b.dataset.i);
     });
@@ -219,8 +224,9 @@
                 <select id="undo-cap">${HINT_OPTIONS.map(o => `<option value="${o.v}" ${o.v === undoCap ? 'selected' : ''}>${o.t}</option>`).join('')}</select>
             </div>`;
         const dots = [...wrap.querySelectorAll('.diff-dots .dot')];
-        const paintDots = idx => dots.forEach((d, i) => d.classList.toggle('filled', i <= idx));
-        paintDots(Math.max(0, DIFF_TIERS.indexOf(aiDifficulty)));
+        // Підсвічується лише обраний рівень
+        const paintDots = idx => dots.forEach((d, i) => d.classList.toggle('filled', i === idx));
+        paintDots(TIER_OF[aiDifficulty] ?? 0);
         dots.forEach((d, i) => d.addEventListener('click', () => {
             aiDifficulty = DIFF_TIERS[i];
             LG.store.set('pawns:aiDifficultyOverride', aiDifficulty);

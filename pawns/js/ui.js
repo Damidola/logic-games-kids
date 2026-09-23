@@ -251,9 +251,9 @@ function canUndo() {
 }
 
 function canRequestHint() {
-    const interactionActive = touchState.isDragging || selectedSquare !== null;
     // Hint only during player's turn, hints available, not game over/AI thinking
-    if (gameOver || interactionActive || aiThinking || currentPlayer !== playerColor) return false;
+    // (вибрана чи затиснута пішака не заважає — requestHint сам її відпустить)
+    if (gameOver || aiThinking || currentPlayer !== playerColor) return false;
     
     const hasHintsLeft = hintsRemaining === Infinity || hintsRemaining > 0;
     return hasHintsLeft;

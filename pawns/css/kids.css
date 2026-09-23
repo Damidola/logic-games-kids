@@ -19,6 +19,15 @@ html.lg body.lg-game {
     flex: 1 1 0; min-height: 90px; width: 100%; overflow: visible;
     position: relative; display: flex; align-items: center; justify-content: center;
 }
+/* Фон за твариною: її ж картинка, розмита — у кожної тварини свій */
+.opponent-wrap::before {
+    content: ''; position: absolute; inset: 0 6px -18px; z-index: 0; border-radius: 24px;
+    background: var(--hero-bg, none) center / cover no-repeat;
+    filter: blur(16px) brightness(.6) saturate(1.4); transform: scale(1.02);
+}
+.opponent-wrap { isolation: isolate; }
+.opponent-wrap > * { position: relative; z-index: 1; }
+.opponent-wrap > .hero-arrow { position: absolute; z-index: 2; }
 .opponent-hero {
     width: 100%; height: 100%; overflow: visible;
     display: flex; align-items: center; justify-content: center;
@@ -63,7 +72,7 @@ html.lg body.lg-game {
 /* ---------- дошка ---------- */
 .board-wrapper {
     position: relative; margin: 0 0 6px; padding: 0; flex: none;
-    width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 66px - 78px - 30px));
+    width: min(92vw, 520px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 110px - 66px - 30px));
     max-width: none; aspect-ratio: 1;
 }
 #chessboard { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
@@ -108,7 +117,7 @@ html.lg body.lg-game {
     width: min(100vw, 560px); padding: 0 10px; box-sizing: border-box; margin: 0; flex: none;
 }
 .game-controls button.ctl {
-    height: 50px; min-width: 0; padding: 3px 2px; margin: 0; position: static; top: 0;
+    height: 42px; min-width: 0; padding: 2px; margin: 0; position: static; top: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
     font: 800 10px var(--lg-font); color: var(--lg-ink); text-shadow: none;
     background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 14px;
@@ -117,38 +126,40 @@ html.lg body.lg-game {
 .game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: var(--lg-btn-shadow); }
 .game-controls button.ctl:active { transform: scale(.93); box-shadow: var(--lg-btn-shadow); top: 0; }
 .game-controls button.ctl:disabled { opacity: 1; cursor: pointer !important; }
-.game-controls .ico { font-size: 19px; line-height: 1; }
-.game-controls .lbl { font-size: 10px; font-weight: 800; line-height: 1; }
+.game-controls .ico { font-size: 16px; line-height: 1; }
+.game-controls .lbl { font-size: 9px; font-weight: 800; line-height: 1; }
 .game-controls .counter { display: none !important; }
 /* Кружечок показує, яким кольором граєш ти: білий — за білих, чорний — за чорних */
-.side-dot { display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #1d1b30; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
+.side-dot { display: block; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 2px solid #1d1b30; box-shadow: 0 0 0 1.5px #8b88a8; box-sizing: border-box; }
 #flip-board-button[data-side="b"] .side-dot { background: #1d1b30; border-color: #fff; }
 
-/* ---------- вибір суперника ---------- */
+/* ---------- вибір суперника: на весь екран, усі тварини одразу ---------- */
 .picker {
-    position: fixed; inset: 0; z-index: 1800; background: rgba(10, 8, 30, .6);
-    display: flex; align-items: flex-end; justify-content: center;
-    opacity: 0; transition: opacity .2s;
+    position: fixed; inset: 0; z-index: 1800; background: var(--lg-bg);
+    display: flex; opacity: 0; transition: opacity .15s;
 }
 .picker[hidden] { display: none; }
 .picker.open { opacity: 1; }
 .picker-card {
-    width: min(560px, 100%); max-height: 78svh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    background: var(--lg-surface); border-radius: 26px 26px 0 0; padding: 16px 12px 24px; box-sizing: border-box;
-    transform: translateY(40px); transition: transform .25s ease; touch-action: pan-y;
+    width: 100%; max-width: 640px; height: 100%; margin: 0 auto; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: max(10px, env(safe-area-inset-top)) 8px 16px; box-sizing: border-box; touch-action: pan-y;
 }
-.picker.open .picker-card { transform: none; }
-.picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.pick { min-width: 0;
-    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 10px;
-    background: var(--lg-surface-2); border: 3px solid transparent; border-radius: 20px;
+.picker-head { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 8px; color: var(--lg-ink); font: 900 20px var(--lg-font); }
+.picker-x {
+    width: 52px; height: 52px; border-radius: 50%; border: 3px solid #fff; padding: 0;
+    background: #E53935; color: #fff; font: 900 26px/1 var(--lg-font); cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,.35);
+}
+.picker-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+@media (min-width: 560px) { .picker-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.pick {
+    min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 3px 2px 4px;
+    background: var(--lg-surface-2); border: 3px solid transparent; border-radius: 14px;
     color: var(--lg-ink); font-family: var(--lg-font); cursor: pointer;
 }
-.pick img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; background: #fff; }
+.pick img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #fff; }
 .pick.pixel img { object-fit: contain; image-rendering: pixelated; }
 .pick.current { border-color: var(--lg-sun); }
-.pick-name { font-weight: 900; font-size: 12px; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
-.pick-level { color: var(--lg-sun); font-size: 13px; letter-spacing: 1px; }
+.pick-name { font-weight: 800; font-size: 9px; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
 
 /* ---------- налаштування ---------- */
 .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 6px; }

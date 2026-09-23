@@ -102,11 +102,17 @@ function placeClone() {
     if (!clone) return null;
     const size = dragSquareSize() * DRAG_SCALE;
     const lift = dragSquareSize() * 0.45;
-    // Центр фігури трохи вище пальця
-    const cx = latestTouchX - touchState.boardRect.left;
-    const cy = latestTouchY - touchState.boardRect.top - lift;
+    // Центр фігури трохи вище пальця, але фігура не виходить за межі дошки
+    const bw = touchState.boardRect.width, bh = touchState.boardRect.height;
+    const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+    const cx = clamp(latestTouchX - touchState.boardRect.left, size / 2, bw - size / 2);
+    const cy = clamp(latestTouchY - touchState.boardRect.top - lift, size / 2, bh - size / 2);
     clone.style.setProperty('--translate-transform', `translate(${cx - size / 2}px, ${cy - size / 2}px)`);
-    return { x: latestTouchX, y: latestTouchY - lift };
+    // Клітинку під фігурою шукаємо в межах дошки
+    return {
+        x: touchState.boardRect.left + clamp(latestTouchX - touchState.boardRect.left, 1, bw - 1),
+        y: touchState.boardRect.top + clamp(latestTouchY - touchState.boardRect.top - lift, 1, bh - 1)
+    };
 }
 
 function updateClonePosition() {
