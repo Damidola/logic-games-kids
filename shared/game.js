@@ -32,8 +32,9 @@ export function startGame(cfg) {
       <button type="button" class="lg-pass" hidden>✅ Завершити хід</button></div>
     <div class="lg-material" data-side="bottom"></div>
     ${cfg.quick ? `<div class="lg-quick" role="radiogroup">${cfg.quick.options.map(([v, t]) => `<button type="button" role="radio" data-v="${v}">${t}</button>`).join('')}</div>` : ''}
-    <div class="lg-controls">
+    <div class="lg-controls lg-six">
       <button type="button" data-act="flip"><span class="ico lg-side-dot"></span><span class="lbl">Колір</span></button>
+      <button type="button" data-act="level"><span class="ico lg-dots"></span><span class="lbl">Рівень</span></button>
       <button type="button" data-act="new"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
       <button type="button" data-act="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
       <button type="button" data-act="undo"><span class="ico">↩️</span><span class="lbl">Назад</span></button>
@@ -55,8 +56,33 @@ export function startGame(cfg) {
   const human = side => friend || side === player;
   const names = cfg.sideNames || { w: 'Білі', b: 'Чорні' };
 
-  const hero = mountOpponent($('.lg-hero-slot'), { onLevel: l => { level = l; } });
+  const hero = mountOpponent($('.lg-hero-slot'), { onLevel: l => { level = l; paintLevel(); } });
   level = hero.level();
+  // Кнопка «Рівень»: крапки показують силу робота; тап відкриває над кнопками смужку 1…5
+  const dots = n => '<i></i>'.repeat(n);
+  function paintLevel() {
+    const b = root.querySelector('[data-act="level"]');
+    if (b) { b.querySelector('.lg-dots').innerHTML = dots(level); b.title = 'Рівень: ' + LEVEL_NAMES[level - 1]; }
+    root.querySelectorAll('.lg-level-pop button').forEach(x => x.classList.toggle('on', +x.dataset.l === level));
+  }
+  function toggleLevelPop() {
+    const ctr = root.querySelector('.lg-controls');
+    let pop = ctr.querySelector('.lg-level-pop');
+    if (pop) return pop.remove();
+    pop = document.createElement('div');
+    pop.className = 'lg-level-pop';
+    pop.innerHTML = LEVEL_NAMES.map((n, i) => `<button type="button" data-l="${i + 1}"><span class="lg-dots">${dots(i + 1)}</span><span>${n}</span></button>`).join('');
+    pop.addEventListener('click', e => {
+      e.stopPropagation();
+      const b = e.target.closest('button'); if (!b) return;
+      level = +b.dataset.l; hero.setLevel(level); LG.play('tap'); paintLevel(); pop.remove();
+    });
+    ctr.appendChild(pop); paintLevel();
+    setTimeout(() => document.addEventListener('pointerdown', function close(ev) {
+      if (!pop.contains(ev.target) && !ev.target.closest('[data-act="level"]')) pop.remove();
+      if (!pop.isConnected) document.removeEventListener('pointerdown', close, true);
+    }, true));
+  }
   // Після зміни розкладки дошка переміщується — chessground має заново виміряти її положення
   const applyHero = () => {
     hero.applyVisible(); if (friend) $('.lg-hero-slot').hidden = true;
@@ -143,7 +169,7 @@ export function startGame(cfg) {
     const b = a => root.querySelector(`[data-act="${a}"]`);
     b('flip').dataset.side = player;
     // З другом: без підказок, ходів назад і зміни кольору — щоб не натиснути випадково
-    for (const a of ['flip', 'hint', 'undo', 'redo']) {
+    for (const a of ['flip', 'level', 'hint', 'undo', 'redo']) {
       b(a).disabled = friend;
       b(a).classList.toggle('is-off', friend || (a === 'redo' && pos >= history.length - 1));
     }
@@ -277,6 +303,7 @@ export function startGame(cfg) {
     const b = e.target.closest('button'); if (!b || b.disabled) return;
     ({
       flip: () => { player = player === 'w' ? 'b' : 'w'; newGame(); },
+      level: toggleLevelPop,
       new: newGame, hint, undo, redo
     })[b.dataset.act]();
   });
@@ -319,7 +346,7 @@ export function startGame(cfg) {
       ${board ? `<div class="lg-set-title">Колір дошки</div>
       <div class="lg-swatches">${BOARD_THEMES.map(t => `<button type="button" data-t="${t.id}" title="${t.id}" style="background-image:url('${boardUrl(t.file)}')"></button>`).join('')}</div>` : ''}`;
     w.querySelectorAll('.lg-levels button').forEach(b => b.addEventListener('click', () => {
-      level = +b.dataset.l; hero.setLevel(level);
+      level = +b.dataset.l; hero.setLevel(level); paintLevel();
       w.querySelectorAll('.lg-levels button').forEach(x => x.classList.toggle('on', x === b));
     }));
     w.querySelector('#friend').addEventListener('change', e => {
@@ -347,6 +374,6 @@ export function startGame(cfg) {
   }, { passive: false });
 
   applyHero();
-  newGame();
+  newGame(); paintLevel();
   return { newGame, state, board, setPlayer: c => { player = c; newGame(); } };
 }

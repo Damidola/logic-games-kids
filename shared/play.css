@@ -140,3 +140,25 @@ cg-board square.mark-red { background: rgba(255, 107, 107, .32); }
   html.lg .lg-play > .lg-controls { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0; }
   html.lg .lg-quick button { min-height: 44px; min-width: 64px; font-size: 18px; }
 }
+
+/* ---------- кнопка «Рівень» і смужка вибору 1…5 ---------- */
+.lg-controls.lg-six { position: relative; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 0 6px; }
+.lg-controls.lg-six button { font-size: 8.5px; }
+.lg-dots { display: inline-flex; gap: 2px; align-items: center; justify-content: center; height: 14px; }
+.lg-dots i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.lg-level-pop {
+  position: absolute; left: 6px; right: 6px; bottom: calc(100% + 8px); z-index: 60;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 6px;
+  background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+.lg-level-pop button { height: auto !important; min-height: 48px; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font: 800 10px var(--lg-font); color: var(--lg-ink); background: var(--lg-surface-2); border: 2px solid transparent; border-radius: 12px; cursor: pointer; box-shadow: none; }
+.lg-level-pop button .lg-dots i { width: 7px; height: 7px; }
+.lg-level-pop button.on { background: var(--lg-primary); color: #fff; border-color: #5646D6; }
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  html.lg .lg-play > .lg-controls.lg-six { grid-template-columns: repeat(2, 1fr); }
+  html.lg .lg-controls.lg-six button { font-size: 14px; }
+  html.lg .lg-controls .lg-dots i { width: 8px; height: 8px; }
+  .lg-level-pop { left: 0; right: 0; }
+  .lg-level-pop button { font-size: 12px; }
+}
