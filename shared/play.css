@@ -1,5 +1,5 @@
 /* Спільна розкладка ігор на дошці 8×8: усе на одному екрані, без прокрутки. */
-@import url('vendor/chessground.base.css');
+@import url('https://cdn.jsdelivr.net/npm/@lichess-org/chessground@10.2.0/assets/chessground.base.css');
 @import url('vendor/lichess-board.css');
 
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }

@@ -4,35 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Як ходять фігури</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790163975">
-  <link rel="stylesheet" href="../shared/play.css?v=1790163975">
-  <link rel="stylesheet" href="learn.css?v=1790163975">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790175830">
+  <link rel="stylesheet" href="../shared/play.css?v=1790175830">
+  <link rel="stylesheet" href="lila-learn.css?v=1790175830">
+  <link rel="stylesheet" href="learn.css?v=1790175830">
 </head>
 <body data-asset-url=".">
-  <main class="learn">
-    <!-- Розділи уроків (як на lichess.org/learn) -->
-    <section id="map" class="map"></section>
-
-    <!-- Урок -->
-    <section id="lesson" class="lesson" hidden>
-      <div class="lesson-head"><b id="stage-title"></b><span class="score">⭐ <span id="score">0</span></span></div>
-      <div id="dots" class="dots"></div>
-      <p id="goal" class="goal"></p>
-      <div class="lg-board-wrap">
-        <div id="board" class="lg-board-el"></div>
-        <button type="button" id="failed" class="failed" hidden>😬 🔄</button>
-        <div id="done" class="done" hidden><span id="done-stars"></span></div>
-        <div id="overlay" class="overlay" hidden></div>
-      </div>
-      <div class="lesson-controls lg-controls">
-        <button type="button" id="to-map"><span class="ico">☰</span><span class="lbl">Розділи</span></button>
-        <button type="button" id="retry"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
-        <button type="button" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
-      </div>
-    </section>
-  </main>
-  <script src="../shared/games.js?v=1790163975"></script>
-  <script src="../shared/kit.js?v=1790163975" data-game="learn" data-night="on"></script>
-  <script type="module" src="app.js?v=1790163975"></script>
+  <main id="main-wrap"><div id="learn-app"></div></main>
+  <script src="../shared/games.js?v=1790175830"></script>
+  <script src="../shared/kit.js?v=1790175830" data-game="learn" data-night="on"></script>
+  <script type="module" src="app.js?v=1790175830"></script>
 </body>
 </html>

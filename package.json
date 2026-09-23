@@ -6,6 +6,9 @@
     "build": "node tools/build-learn.mjs"
   },
   "devDependencies": {
-    "esbuild": "^0.25.0"
+    "@lichess-org/chessground": "^10.2.0",
+    "chessops": "^0.15.1",
+    "esbuild": "^0.25.12",
+    "snabbdom": "^3.6.4"
   }
 }

@@ -1,7 +1,7 @@
 /* Спільна дошка 8×8 для всіх ігор — дошка Lichess (chessground).
    Гра дає позицію (Map клітинка → {role, color}) і можливі ходи; дошка сама
    малює, анімує, перетягує, показує крапки ходів, останній хід і стрілку підказки. */
-import { Chessground } from './vendor/chessground.js';
+import { Chessground } from 'https://cdn.jsdelivr.net/npm/@lichess-org/chessground@10.2.0/dist/chessground.min.js';
 
 const ROOT = new URL('..', import.meta.url).href; // корінь сайту
 const CHESS_ROLES = { pawn: 'P', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
@@ -27,7 +27,7 @@ export function applyBoardLook() {
   root.setProperty('--cg-coord-black', theme.black);
   let css = '';
   for (const [role, letter] of Object.entries(CHESS_ROLES)) for (const [color, c] of [['white', 'w'], ['black', 'b']])
-    css += `.cg-wrap piece.${role}.${color},mpiece.${role}.${color}{background-image:url("${ROOT}shared/pieces/${set}/${c}${letter}.svg")}\n`;
+    css += `piece.${role}.${color},mpiece.${role}.${color}{background-image:url("${ROOT}shared/pieces/${set}/${c}${letter}.svg")}\n`;
   if (!styleEl) { styleEl = document.createElement('style'); document.head.appendChild(styleEl); }
   styleEl.textContent = css;
 }
