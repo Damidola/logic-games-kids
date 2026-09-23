@@ -255,7 +255,7 @@
     state.given[i] = true;
     state.mine[i] = true;
     state.hinted[i] = !!fromHint;
-    LG.play('place');
+    LG.play('move');
     paint(i);
     save();
     checkWin();

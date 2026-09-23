@@ -57,8 +57,8 @@ export function startGame(cfg) {
   const human = side => friend || side === player;
   const names = cfg.sideNames || { w: 'Білі', b: 'Чорні' };
 
-  const hero = mountOpponent($('.lg-hero-slot'), { onLevel: l => { level = l; paintLevel(); } });
-  level = hero.level();
+  const hero = mountOpponent($('.lg-hero-slot'));
+  level = 1; // за замовчуванням — найлегший; тваринка на силу не впливає
   // Кнопка «Рівень»: крапки показують силу робота; тап відкриває над кнопками смужку 1…5
   const dots = n => '<i></i>'.repeat(n);
   function paintLevel() {

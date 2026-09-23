@@ -1,5 +1,5 @@
 /* Суперник-тваринка для всіх ігор з роботом: картинка з фоном-сценою,
-   маленькі стрілочки, вибір на весь екран. Тварина = рівень робота (1–5).
+   маленькі стрілочки, вибір на весь екран. Тваринка щоразу випадкова й на силу робота не впливає.
    У налаштуваннях тварину з фоном можна сховати. */
 const ROOT = new URL('..', import.meta.url).href;
 const A = f => ROOT + 'shared/opponents/' + f;
@@ -50,12 +50,13 @@ const GENERIC = [
 
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
-/* mountOpponent(el, { onLevel(level) }) → { level(), setThinking(on) }
+/* mountOpponent(el) → { level(), setThinking(on), say(text) }
    el — порожній контейнер над дошкою. */
 export function mountOpponent(el, opts = {}) {
   const LG = window.LG;
-  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.jpg')); // щоразу при відкритті — мавпочка
-  let level = OPPONENTS[index].level;
+  // Щоразу при відкритті — випадкова тваринка. Сила робота від тваринки не залежить (кнопка «Рівень», за замовчуванням 1)
+  let index = Math.floor(Math.random() * OPPONENTS.length);
+  let level = 1;
   el.classList.add('lg-hero');
   el.innerHTML = `
     <button type="button" class="lg-hero-pic" aria-label="Обрати суперника"><img alt=""></button>
@@ -79,7 +80,6 @@ export function mountOpponent(el, opts = {}) {
   function show(i, first) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
-    level = o.level;
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
@@ -95,7 +95,6 @@ export function mountOpponent(el, opts = {}) {
     };
     if (!first) el.classList.add('switching');
     pre.src = o.avatar;
-    if (!first && opts.onLevel) opts.onLevel(level);
   }
 
   // ---------- вибір на весь екран ----------
