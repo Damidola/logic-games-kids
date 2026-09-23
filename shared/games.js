@@ -421,7 +421,7 @@ window.LG_GAMES = [
     id: 'nim',
     path: 'nim/index.html',
     emoji: '🔥',
-    title: 'Остання сірника',
+    title: 'Нім',
     short: 'Бери сірники по черзі. Хто візьме останню?',
     age: 5,
     level: 1,

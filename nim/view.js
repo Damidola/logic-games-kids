@@ -9,6 +9,7 @@ export function nimView(el, { pick }) {
     const key = s.init.join(',');
     if (key !== lastKey) {
       lastKey = key;
+      rowsEl.style.setProperty('--rows', s.init.length);
       rowsEl.innerHTML = s.init.map((len, r) => `<div class="nim-row">${Array.from({ length: len }, (_, k) => `<button type="button" class="nim-stick" data-r="${r}" data-k="${k}" aria-label="Сірник"></button>`).join('')}</div>`).join('');
     }
     rowsEl.querySelectorAll('.nim-stick').forEach(b => {
