@@ -203,6 +203,8 @@ function updateButtonStates() {
     // Кнопки більше не «блимають» неактивними під час ходу робота:
     // вони завжди виглядають однаково, а зайві натискання просто ігноруються.
     undoButton.classList.toggle('is-off', !undoAllowed);
+    const redoBtn = document.getElementById('redo-button');
+    if (redoBtn) redoBtn.classList.toggle('is-off', !canRedo());
     hintButton.classList.toggle('is-off', !hintAllowed);
 }
 

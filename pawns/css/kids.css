@@ -71,8 +71,8 @@ html.lg body.lg-game {
 
 /* ---------- дошка ---------- */
 .board-wrapper {
-    position: relative; margin: 0 0 6px; padding: 0; flex: none;
-    width: min(92vw, 520px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 110px - 66px - 30px));
+    position: relative; margin: 0 0 2px; padding: 0; flex: none;
+    width: min(92vw, 520px, calc(100svh - var(--lg-bar-h) - 16px - 48px - 130px - 56px - 30px));
     max-width: none; aspect-ratio: 1;
 }
 #chessboard { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
@@ -113,11 +113,11 @@ html.lg body.lg-game {
 
 /* ---------- кнопки: компактні, з дрібним підписом ---------- */
 .game-controls {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
     width: min(100vw, 560px); padding: 0 10px; box-sizing: border-box; margin: 0; flex: none;
 }
 .game-controls button.ctl {
-    height: 42px; min-width: 0; padding: 2px; margin: 0; position: static; top: 0;
+    height: 38px; min-width: 0; padding: 2px; margin: 0; position: static; top: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
     font: 800 10px var(--lg-font); color: var(--lg-ink); text-shadow: none;
     background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 14px;
@@ -126,7 +126,7 @@ html.lg body.lg-game {
 .game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: var(--lg-btn-shadow); }
 .game-controls button.ctl:active { transform: scale(.93); box-shadow: var(--lg-btn-shadow); top: 0; }
 .game-controls button.ctl:disabled { opacity: 1; cursor: pointer !important; }
-.game-controls .ico { font-size: 16px; line-height: 1; }
+.game-controls .ico { font-size: 14px; line-height: 1; }
 .game-controls .lbl { font-size: 9px; font-weight: 800; line-height: 1; }
 .game-controls .counter { display: none !important; }
 /* Кружечок показує, яким кольором граєш ти: білий — за білих, чорний — за чорних */
@@ -201,3 +201,10 @@ body.hide-move-hints #chessboard .square.touch-drag-target-valid::before {
     background-size: 92%; opacity: 1; transition: none;
 }
 #chessboard .square.touch-drag-target-valid { box-shadow: inset 0 0 0 4px var(--move-dot, rgba(76, 175, 80, .85)); }
+
+/* Нижча верхня плашка — більше місця тварині */
+html.lg { --lg-bar-h: 50px; }
+html.lg .lg-bar .lg-icon-btn { width: 38px; height: 38px; font-size: 18px; border-radius: 12px; }
+html.lg .lg-bar .lg-bar-title { font-size: clamp(17px, 5vw, 22px); }
+/* «Вперед» тьмяна, поки нема куди повертати */
+#redo-button.is-off { opacity: .4; }

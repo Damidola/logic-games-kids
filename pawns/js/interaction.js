@@ -388,6 +388,7 @@ function registerEvents() {
     restartButton.addEventListener('click', () => { if (!aiThinking) initGame(true); });
     flipBoardButton.addEventListener('click', () => { if (!aiThinking && !gameOver) handleFlipBoard(); });
     undoButton.addEventListener('click', undoMove);
+    document.getElementById('redo-button').addEventListener('click', redoMove);
     hintButton.addEventListener('click', requestHint);
     enPassantToggleButton.addEventListener('click', toggleEnPassant);
     

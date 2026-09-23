@@ -16,14 +16,12 @@ const fallbackCatImage = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
 const opponents = [
     { name: 'Хом’ячок', difficulty: 'very_easy', avatar: 'img/avatars/hamster.png' },
     { name: 'Бонго-кіт', difficulty: 'very_easy', avatar: 'img/avatars/bongo.jpg' },
-    { name: 'Хлопчик у шапці', difficulty: 'very_easy', avatar: 'img/avatars/boy.jpg' },
     { name: 'Мавпочка', difficulty: 'completely_random', avatar: 'img/avatars/monkey.png' },
     { name: 'Єнот Педро', difficulty: 'completely_random', avatar: 'img/avatars/pedro.jpg' },
     { name: 'Робот Бульба', difficulty: 'completely_random', avatar: 'img/avatars/robot-blob.jpg' },
     { name: 'Капібара', difficulty: 'easy', avatar: 'img/avatars/capybara.jpg' },
     { name: 'Сова', difficulty: 'easy', avatar: 'img/avatars/owl.jpg' },
     { name: 'Кіт Очі-блюдця', difficulty: 'easy', avatar: 'img/avatars/bigeyes.jpg' },
-    { name: 'Веселий дядько', difficulty: 'easy', avatar: 'img/avatars/uncle.jpg' },
     { name: 'Зелений робот', difficulty: 'easy', avatar: 'img/avatars/robot-green.jpg' },
     { name: 'Кіт', difficulty: 'medium', avatar: 'img/avatars/cat.jpg' },
     { name: 'Видра', difficulty: 'medium', avatar: 'img/avatars/otter.jpg' },
@@ -113,6 +111,8 @@ function initGame(keepOpponent = false, mode = 'pvai') {
     gameOver = false;
     aiThinking = false;
     moveHistory = [];
+    redoStack = [];
+    lastHint = null;
     lastMove = null;
     enPassantTargetSquare = null;
     capturedCounts = { w: 0, b: 0 };
@@ -316,6 +316,17 @@ function bestHintMove(moves, board, color, ep) {
     return best;
 }
 
+let lastHint = null; // { key: позиція, move } — щоб повторне натискання показувало те саме
+
+function showHintMove(m) {
+    clearVisualState(); renderBoard();
+    const fromSq = getSquareElement(m.from.row, m.from.col), toSq = getSquareElement(m.to.row, m.to.col);
+    if (!fromSq || !toSq) return;
+    fromSq.classList.add('hint-highlight'); toSq.classList.add('hint-highlight');
+    hintHighlightedSquares = { from: { row: m.from.row, col: m.from.col }, to: { row: m.to.row, col: m.to.col } };
+    if (typeof showHintArrow === 'function') showHintArrow(hintHighlightedSquares);
+}
+
 function requestHint() {
     // Підказка працює завжди у твій хід — навіть якщо пішака вже вибрана чи затиснута
     if (selectedSquare || touchState.isDragging || touchState.identifier !== null) {
@@ -324,6 +335,9 @@ function requestHint() {
         renderBoard();
     }
     if (!canRequestHint()) return;
+    // Та сама позиція — та сама підказка: не рахуємо заново і не витрачаємо ще одну
+    const hintKey = JSON.stringify([boardState, currentPlayer, enPassantTargetSquare]);
+    if (lastHint && lastHint.key === hintKey) { showHintMove(lastHint.move); return; }
     // Clear any existing hint before showing a new one
     if (hintHighlightedSquares) {
         const fromHintSq = getSquareElement(hintHighlightedSquares.from.row, hintHighlightedSquares.from.col);
@@ -361,6 +375,7 @@ function requestHint() {
         let bestMove = bestHintMove(playerMoves, boardCopy, currentPlayer, epCopy);
 
         if (bestMove) {
+            lastHint = { key: hintKey, move: bestMove };
             clearVisualState(); renderBoard(); // Clean slate before showing hint
             const fromSq = getSquareElement(bestMove.from.row, bestMove.from.col);
             const toSq = getSquareElement(bestMove.to.row, bestMove.to.col);
@@ -502,6 +517,7 @@ function makeMove(fromRow, fromCol, toRow, toCol, isEnPassant = false, isCapture
      }
 
     saveToHistory(); // Save BEFORE making changes
+    redoStack = []; // новий хід — «вперед» більше нікуди
 
     const isTwoStep = Math.abs(toRow - fromRow) === 2;
     let capturedPawnCoords = null;
@@ -591,6 +607,42 @@ function saveToHistory() {
     // console.log("State saved to history. Depth:", moveHistory.length);
 }
 
+// --- Ходи вперед (після «Назад») ---
+let redoStack = [];
+
+function takeSnapshot() {
+    return {
+        boardState: JSON.parse(JSON.stringify(boardState)),
+        currentPlayer, capturedCounts: JSON.parse(JSON.stringify(capturedCounts)),
+        enPassantTargetSquare: enPassantTargetSquare ? { ...enPassantTargetSquare } : null,
+        lastMove: lastMove ? JSON.parse(JSON.stringify(lastMove)) : null,
+        gameOver
+    };
+}
+
+function canRedo() {
+    return redoStack.length > 0 && !aiThinking && !touchState.isDragging;
+}
+
+function redoMove() {
+    if (!canRedo()) return;
+    cleanupInteractionState(true);
+    const rec = redoStack.pop();
+    rec.entries.forEach(e => moveHistory.push(e));
+    const st = rec.snapshot;
+    boardState = st.boardState;
+    currentPlayer = st.currentPlayer;
+    capturedCounts = st.capturedCounts;
+    enPassantTargetSquare = st.enPassantTargetSquare;
+    lastMove = st.lastMove;
+    gameOver = false;
+    renderBoard();
+    updateCapturedPawnsCounter(0);
+    updateButtonStates();
+    if (st.gameOver) { checkGameOver(); return; }
+    if (currentPlayer === aiColor) triggerAiMoveWithDelay();
+}
+
 function undoMove() {
     if (!canUndo()) { console.log("Undo not possible."); return; }
     cleanupInteractionState(true); // Clean UI state
@@ -611,10 +663,15 @@ function undoMove() {
     }
     console.log(`Undoing ${entriesToUndo} step(s).`);
 
+    // Запам'ятовуємо, що скасували, — щоб кнопка «Вперед» могла повернути
+    const snapshotNow = takeSnapshot();
+    const popped = [];
     let stateToRestore = null;
     for (let i = 0; i < entriesToUndo; i++) {
         stateToRestore = moveHistory.pop();
+        popped.unshift(stateToRestore);
     }
+    redoStack.push({ entries: popped, snapshot: snapshotNow });
 
     if (stateToRestore) {
         // Restore state variables from the popped entry
