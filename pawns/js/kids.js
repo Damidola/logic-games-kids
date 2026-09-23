@@ -11,6 +11,10 @@
     const FILES = 'abcdefgh';
     const PIECES = '../shared/pieces/';
 
+    // Рівні складності — у тому порядку, в якому вони вперше зустрічаються серед
+    // тварин-суперників, незалежно від того, яку тварину зараз показано.
+    const DIFF_TIERS = opponents.reduce((a, o) => (a.includes(o.difficulty) ? a : a.concat(o.difficulty)), []);
+
     // ---------- кольори дошки ----------
     const PRESETS = [
         { name: 'Зелена', light: '#EEEED2', dark: '#769656' },
@@ -20,7 +24,8 @@
         { name: 'Рожева', light: '#FCE4EC', dark: '#E07A9C' },
         { name: 'Сіра', light: '#E6E6E6', dark: '#8A8A8A' }
     ];
-    let boardColors = LG.store.get('pawns:board', PRESETS[0]);
+    // Палітра дошки НЕ зберігається між заходами: щоразу при відкритті — лайхесівська зелена.
+    let boardColors = { light: PRESETS[0].light, dark: PRESETS[0].dark };
 
     function hexToRgb(hex) {
         hex = (hex || '#000000').replace('#', '');
@@ -136,7 +141,7 @@
         closePicker();
         if (i === currentOpponentIndex) return;
         currentOpponentIndex = i;
-        LG.store.set('pawns:opp', i);
+        LG.store.set('pawns:aiDifficultyOverride', null); // обрана тварина сама визначає складність
         cleanupInteractionState(true);
         playerColor = 'w';
         initGame(false, 'pvai');
@@ -150,49 +155,44 @@
     const origRender = window.renderBoard;
     window.renderBoard = function () { origRender(); updateCoords(); };
 
-    // ---------- налаштування: суперник і складність ----------
+    // ---------- налаштування: складність, підказки, ходи назад ----------
     LG.addSettings(() => {
         const wrap = document.createElement('div');
         const HINT_OPTIONS = [
             { v: 'inf', t: 'Без обмежень' },
-            { v: '3', t: '3 підказки' },
-            { v: '5', t: '5 підказок' },
-            { v: '10', t: '10 підказок' }
+            { v: '3', t: '3' },
+            { v: '5', t: '5' },
+            { v: '10', t: '10' }
         ];
         const hintCap = String(LG.store.get('pawns:hintLimit', 'inf'));
+        const undoCap = String(LG.store.get('pawns:undoLimit', 'inf'));
         wrap.innerHTML = `
-            <div class="lg-set-row"><span>Складність суперника</span></div>
-            <input type="range" id="diff-range" class="lg-range" style="width:100%;max-width:none"
-                min="0" max="${opponents.length - 1}" step="1" value="${currentOpponentIndex}">
-            <div class="lg-set-row"><span id="diff-name" style="font-weight:900"></span><span id="diff-stars" style="color:var(--lg-sun)"></span></div>
+            <div class="lg-set-title">Складність гри (тварину не міняє)</div>
+            <div class="diff-dots" id="diff-dots">${DIFF_TIERS.map((d, i) =>
+                `<button type="button" class="dot" data-i="${i}">${i + 1}</button>`).join('')}
+            </div>
             <div class="lg-set-row"><span>Кількість підказок</span>
                 <select id="hint-cap">${HINT_OPTIONS.map(o => `<option value="${o.v}" ${o.v === hintCap ? 'selected' : ''}>${o.t}</option>`).join('')}</select>
+            </div>
+            <div class="lg-set-row"><span>Ходів назад</span>
+                <select id="undo-cap">${HINT_OPTIONS.map(o => `<option value="${o.v}" ${o.v === undoCap ? 'selected' : ''}>${o.t}</option>`).join('')}</select>
             </div>`;
-        const range = wrap.querySelector('#diff-range');
-        const nameEl = wrap.querySelector('#diff-name');
-        const starsEl = wrap.querySelector('#diff-stars');
-        const paint = i => {
-            const o = opponents[i];
-            nameEl.textContent = o.name;
-            starsEl.textContent = '★'.repeat(Math.ceil((i + 1) / opponents.length * 5));
-        };
-        paint(currentOpponentIndex);
-        range.addEventListener('input', () => paint(+range.value));
-        range.addEventListener('change', () => {
-            const i = +range.value;
-            if (i === currentOpponentIndex) return;
-            currentOpponentIndex = i;
-            LG.store.set('pawns:opp', i);
-            cleanupInteractionState(true);
-            playerColor = 'w';
-            initGame(false, 'pvai');
-        });
+        const dots = [...wrap.querySelectorAll('.diff-dots .dot')];
+        const paintDots = idx => dots.forEach((d, i) => d.classList.toggle('filled', i <= idx));
+        paintDots(Math.max(0, DIFF_TIERS.indexOf(aiDifficulty)));
+        dots.forEach((d, i) => d.addEventListener('click', () => {
+            aiDifficulty = DIFF_TIERS[i];
+            LG.store.set('pawns:aiDifficultyOverride', aiDifficulty);
+            paintDots(i);
+        }));
         wrap.querySelector('#hint-cap').addEventListener('change', e => {
             LG.store.set('pawns:hintLimit', e.target.value);
         });
+        wrap.querySelector('#undo-cap').addEventListener('change', e => {
+            LG.store.set('pawns:undoLimit', e.target.value);
+        });
         return wrap;
     });
-
     // ---------- налаштування: дошка ----------
     LG.addSettings(() => {
         const wrap = document.createElement('div');
@@ -208,7 +208,8 @@
         const light = wrap.querySelector('#c-light'), dark = wrap.querySelector('#c-dark');
         const mark = () => wrap.querySelectorAll('.swatch').forEach((s, i) =>
             s.classList.toggle('active', PRESETS[i].light.toLowerCase() === boardColors.light.toLowerCase() && PRESETS[i].dark.toLowerCase() === boardColors.dark.toLowerCase()));
-        const save = () => { applyBoardColors(); LG.store.set('pawns:board', boardColors); mark(); };
+        // Колір дошки діє лише до перезаходу на сторінку — нічого не зберігаємо.
+        const save = () => { applyBoardColors(); mark(); };
         wrap.querySelectorAll('.swatch').forEach((s, i) => s.addEventListener('click', () => {
             boardColors = { light: PRESETS[i].light, dark: PRESETS[i].dark };
             light.value = boardColors.light; dark.value = boardColors.dark; save();

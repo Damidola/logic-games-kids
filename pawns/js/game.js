@@ -84,7 +84,7 @@ let playerColor = 'w'; // Color controlled by human at bottom ('w' or 'b')
 let aiColor = 'b'; // AI's color in PvAI mode
 let gameMode = 'pvai'; // 'pvai' or 'pvp'
 let aiDifficulty = 'medium'; // 'easy', 'medium', 'hard', or null in PvP
-let currentOpponentIndex = (window.LG && LG.store.get('pawns:opp', 0)) || 0; // збережений вибір
+let currentOpponentIndex = 0; // завжди хом'ячок при відкритті сторінки
 let moveHistory = []; // Array of past game states for undo
 let lastMove = null; // { from: {r,c}, to: {r,c}, ... }
 let enPassantTargetSquare = null; // { row, col } or null
@@ -159,6 +159,11 @@ function initGame(keepOpponent = false, mode = 'pvai') {
     currentOpponentIndex = Math.max(0, Math.min(currentOpponentIndex, opponents.length - 1));
     const currentOpponent = opponents[currentOpponentIndex];
     aiDifficulty = currentOpponent.difficulty;
+    // Складність можна незалежно перебити з налаштувань (тварину це не чіпає)
+    if (window.LG) {
+        const diffOverride = LG.store.get('pawns:aiDifficultyOverride', null);
+        if (diffOverride) aiDifficulty = diffOverride;
+    }
     aiAvatar.src = currentOpponent.avatar; // Use embedded SVG
     aiAvatar.alt = currentOpponent.name;
     updateOpponentLabel();
@@ -174,10 +179,12 @@ function initGame(keepOpponent = false, mode = 'pvai') {
         case 'expert': hintsRemaining = MAX_HINTS_MEDIUM; undosRemaining = MAX_UNDOS_MEDIUM; break;
     }
 
-    // Обмеження кількості підказок з налаштувань (якщо задане)
+    // Обмеження кількості підказок і ходів назад з налаштувань (якщо задане)
     if (window.LG) {
         const hintCap = LG.store.get('pawns:hintLimit', 'inf');
         if (hintCap !== 'inf') hintsRemaining = Number(hintCap);
+        const undoCap = LG.store.get('pawns:undoLimit', 'inf');
+        if (undoCap !== 'inf') undosRemaining = Number(undoCap);
     }
 
     // Common Setup
@@ -616,21 +623,8 @@ function undoMove() {
             opponentSelector.style.visibility = (gameMode === 'pvp') ? 'hidden' : 'visible';
         }
 
-        // Restore opponent avatar if in PvAI
-        if (gameMode === 'pvai' && typeof opponents !== 'undefined' && opponents && opponents.length > 0) {
-            const opponentIndex = opponents.findIndex(o => o.difficulty === aiDifficulty);
-            if (opponentIndex !== -1) {
-                currentOpponentIndex = opponentIndex;
-                const currentOpponent = opponents[currentOpponentIndex];
-                aiAvatar.src = currentOpponent.avatar; 
-                aiAvatar.alt = currentOpponent.name;
-                updateOpponentLabel();
-    updateOpponentLabel();
-            } else { // Fallback if opponent not found (shouldn't happen)
-                currentOpponentIndex = 1; // Default to medium
-                initGame(true, 'pvai'); // Re-init to be safe
-            }
-        }
+        // Аватар суперника ходом «Назад» не чіпаємо — лишається той, кого обрала дитина.
+        updateOpponentLabel();
 
         renderBoard(); // Render the restored board state
         updateButtonStates(); // Update button enabled/disabled states

@@ -228,20 +228,25 @@ function switchPlayer() {
 
 function canUndo() {
     const interactionActive = touchState.isDragging || selectedSquare !== null;
-    if (gameOver || interactionActive || aiThinking) return false;
+    if (gameOver || interactionActive) return false;
 
     // Undo allowed if player has undos left
     const hasUndosLeft = undosRemaining === Infinity || undosRemaining > 0;
     if (!hasUndosLeft) return false;
 
     if (gameMode === 'pvai') {
-        // In PvAI mode, can only undo during player's turn and need at least 2 history entries
-        return currentPlayer === playerColor && moveHistory.length >= 2;
+        // Player's turn: undo both the robot's reply and your own move (2 entries).
+        // Robot's turn (including while it's still "thinking"): just undo your last
+        // move and cancel the robot's pending reply (1 entry). This is what makes
+        // the button work right after you move, not only once the robot answers.
+        if (currentPlayer === playerColor) return moveHistory.length >= 2;
+        if (currentPlayer === aiColor) return moveHistory.length >= 1;
+        return false;
     } else if (gameMode === 'pvp') {
         // In PvP mode, can undo anytime as long as there's history
         return moveHistory.length >= 1;
     }
-    
+
     return false;
 }
 

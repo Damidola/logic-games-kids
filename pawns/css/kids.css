@@ -140,3 +140,13 @@ html.lg body.lg-game {
 }
 
 #win-modal { display: none !important; }
+
+/* ---------- складність: рядок пронумерованих крапок ---------- */
+.diff-dots { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.diff-dots .dot {
+    width: 32px; height: 32px; border-radius: 50%; padding: 0;
+    display: grid; place-items: center;
+    font: 900 13px var(--lg-font); color: var(--lg-muted);
+    background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer;
+}
+.diff-dots .dot.filled { background: var(--lg-primary); border-color: #5646D6; color: #fff; }
