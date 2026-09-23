@@ -3,13 +3,13 @@
 @import url('vendor/lichess-board.css');
 
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
-html.lg { --lg-bar-h: 50px; }
+html.lg { --lg-bar-h: 44px; }
 html.lg body.lg-game {
   position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0;
   padding: calc(var(--lg-bar-h) + 6px) 0 10px; touch-action: manipulation;
 }
-html.lg .lg-bar .lg-icon-btn { width: 38px; height: 38px; font-size: 18px; border-radius: 12px; }
-html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
+html.lg .lg-bar .lg-icon-btn { width: 34px; height: 34px; font-size: 16px; border-radius: 11px; }
+html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 
 .lg-play {
   width: 100%; max-width: 560px; height: 100%; margin: 0 auto;
@@ -27,21 +27,17 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 }
 .lg-hero-pic {
   position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; background: none; cursor: default;
-  display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: flex-end; justify-content: center; -webkit-tap-highlight-color: transparent;
   pointer-events: none; /* тап по фону нічого не робить — лише по самій тваринці */
 }
 .lg-hero-pic img {
   pointer-events: auto; cursor: pointer;
-  height: calc(100% - 12px); max-height: min(480px, calc(100vw - 84px)); aspect-ratio: 1; width: auto;
-  object-fit: cover; border-radius: 28%; background: var(--lg-surface-2);
+  height: calc(100% - 4px); max-height: min(520px, calc(100vw - 60px)); aspect-ratio: 1; width: auto;
+  object-fit: cover; object-position: var(--pic-pos, center); border-radius: 28%; background: var(--lg-surface-2);
   box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
 }
 .lg-hero.switching img { opacity: .35; }
 .lg-hero.thinking img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
-
-/* коли для суперника немає окремої сцени — підложкою стає та сама картинка, розмита й трохи більша,
-   щоб краї розмиття не було видно; квадрат-портрет зверху лишається як завжди */
-.lg-hero-combined::before { filter: blur(22px) brightness(.85) saturate(1.15); transform: scale(1.18); }
 .lg-hero-arrow {
   position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
   width: 34px; height: 34px; border-radius: 50%; padding: 0; display: grid; place-items: center;

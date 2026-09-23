@@ -8,7 +8,7 @@ const A = f => ROOT + 'shared/opponents/' + f;
 // У кожного суперника свій фон (shared/bg/*.svg) — жоден не повторюється.
 export const OPPONENTS = [
   ['Хом’ячок', 1, 'hamster.png', 'wildwest'],
-  ['Мавпочка', 2, 'monkey.jpg', null], // тварина+фон уже об'єднані в одній картинці
+  ['Мавпочка', 2, 'monkey.png', 'jungle', 'center bottom'], // на фото зверху зайве порожнє тло — показуємо низ, тварина більша
   ['Капібара', 3, 'capybara.jpg', 'summer'], ['Сова', 3, 'owl.jpg', 'nightforest'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg', 'candy'], ['Зелений робот', 3, 'robot-green.jpg', 'space'],
   ['Кіт', 4, 'cat.jpg', 'room'], ['Драматичний мопс', 4, 'pug.jpg', 'stage'], ['Кіт Смадж', 4, 'smudge.jpg', 'kitchen'],
   ['Собака', 4, 'dog.jpg', 'beach'], ['Хитрий кіт', 4, 'evilcat.jpg', 'rooftops'],
@@ -16,11 +16,9 @@ export const OPPONENTS = [
   ['Балерина Капучина', 2, 'ballerina.jpg', 'rainbow'],
   ['Лірілі Ларіла', 3, 'lirili.jpg', 'savanna'], ['Тралалело Тралала', 3, 'tralalero.jpg', 'underwater'], ['Тун-тун-тун-сахур', 4, 'tung-tung.jpg', 'lanterns'],
   ['Брр Брр Патапім', 4, 'patapim.jpg', 'autumn']
-].map(([name, level, file, bg]) => ({ name, level, avatar: A(file), bg }));
+].map(([name, level, file, bg, pos]) => ({ name, level, avatar: A(file), bg, pos: pos || 'center' }));
 
 const scene = n => ROOT + 'shared/bg/' + n + '.svg';
-// Якщо в суперника немає окремого фону — фоном-підложкою (розмитою) стає та сама картинка
-const sceneUrl = o => o.bg ? scene(o.bg) : o.avatar;
 
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
@@ -28,7 +26,7 @@ export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Нова�
    el — порожній контейнер над дошкою. */
 export function mountOpponent(el, opts = {}) {
   const LG = window.LG;
-  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.jpg')); // щоразу при відкритті — мавпочка
+  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.png')); // щоразу при відкритті — мавпочка
   let level = OPPONENTS[index].level;
   el.classList.add('lg-hero');
   el.innerHTML = `
@@ -39,7 +37,7 @@ export function mountOpponent(el, opts = {}) {
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
   // Сцени й картинки вантажимо одразу — тоді нічого не блимає
-  OPPONENTS.forEach(o => { new Image().src = sceneUrl(o); });
+  OPPONENTS.forEach(o => { new Image().src = scene(o.bg); });
   setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
 
   function placeArrows() {
@@ -55,9 +53,9 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
-    el.classList.toggle('lg-hero-combined', !o.bg); // фон-підложка — та сама картинка, розмита
-    el.dataset.scene = o.bg || 'combined';
-    el.style.setProperty('--scene', `url("${sceneUrl(o)}")`);
+    el.dataset.scene = o.bg;
+    el.style.setProperty('--scene', `url("${scene(o.bg)}")`);
+    el.style.setProperty('--pic-pos', o.pos);
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
@@ -82,7 +80,7 @@ export function mountOpponent(el, opts = {}) {
   const grid = picker.querySelector('.lg-picker-grid');
   function openPicker() {
     grid.innerHTML = OPPONENTS.map((o, i) => `<button type="button" class="lg-pick ${i === index ? 'current' : ''}" data-i="${i}">
-      <img src="${o.avatar}" alt=""><span>${o.name}</span></button>`).join('');
+      <img src="${o.avatar}" alt="" style="object-position: ${o.pos}"><span>${o.name}</span></button>`).join('');
     picker.hidden = false;
     requestAnimationFrame(() => picker.classList.add('open'));
     grid.querySelector('.current')?.scrollIntoView({ block: 'center' });
