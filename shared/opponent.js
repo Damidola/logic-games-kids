@@ -19,6 +19,8 @@ export const OPPONENTS = [
 ].map(([name, level, file, bg]) => ({ name, level, avatar: A(file), bg }));
 
 const scene = n => ROOT + 'shared/bg/' + n + '.svg';
+// Якщо в суперника немає окремого фону — фоном-підложкою (розмитою) стає та сама картинка
+const sceneUrl = o => o.bg ? scene(o.bg) : o.avatar;
 
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
@@ -37,7 +39,7 @@ export function mountOpponent(el, opts = {}) {
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
   // Сцени й картинки вантажимо одразу — тоді нічого не блимає
-  OPPONENTS.forEach(o => { if (o.bg) new Image().src = scene(o.bg); });
+  OPPONENTS.forEach(o => { new Image().src = sceneUrl(o); });
   setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
 
   function placeArrows() {
@@ -53,9 +55,9 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
-    el.classList.toggle('lg-hero-combined', !o.bg); // картинка вже містить фон — без окремої сцени
-    if (o.bg) { el.dataset.scene = o.bg; el.style.setProperty('--scene', `url("${scene(o.bg)}")`); }
-    else { delete el.dataset.scene; el.style.removeProperty('--scene'); }
+    el.classList.toggle('lg-hero-combined', !o.bg); // фон-підложка — та сама картинка, розмита
+    el.dataset.scene = o.bg || 'combined';
+    el.style.setProperty('--scene', `url("${sceneUrl(o)}")`);
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();

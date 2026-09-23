@@ -18,7 +18,7 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 
 /* ---------- тваринка-суперник з фоном-сценою ---------- */
 .lg-hero-slot { flex: 1 1 0; min-height: 90px; width: 100%; }
-.lg-hero { position: relative; isolation: isolate; }
+.lg-hero { position: relative; isolation: isolate; overflow: hidden; border-radius: 22px; }
 .lg-hero[hidden] { display: none; }
 .lg-play:has(.lg-hero[hidden]) { justify-content: center; }
 .lg-hero::before {
@@ -39,13 +39,9 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 .lg-hero.switching img { opacity: .35; }
 .lg-hero.thinking img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
 
-/* картинка вже містить свій фон одним цілим — без окремої сцени й квадрата-рамки */
-.lg-hero-combined::before { content: none; }
-.lg-hero-combined .lg-hero-pic img {
-  width: calc(100% - 16px); height: calc(100% - 12px); max-height: none; aspect-ratio: auto;
-  border-radius: 22px; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-}
-.lg-hero-combined.thinking .lg-hero-pic img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
+/* коли для суперника немає окремої сцени — підложкою стає та сама картинка, розмита й трохи більша,
+   щоб краї розмиття не було видно; квадрат-портрет зверху лишається як завжди */
+.lg-hero-combined::before { filter: blur(22px) brightness(.85) saturate(1.15); transform: scale(1.18); }
 .lg-hero-arrow {
   position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
   width: 34px; height: 34px; border-radius: 50%; padding: 0; display: grid; place-items: center;
