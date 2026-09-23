@@ -21,6 +21,33 @@ export const OPPONENTS = [
 
 const scene = n => ROOT + 'shared/bg/' + n + '.svg';
 
+// Репліки суперника (раз за партію — у хмаринці, як у коміксі)
+const LINES = {
+  'hamster.png': ['Я сховав твого пішака за щічку! 🐹', 'Хрум-хрум… я думаю.'],
+  'monkey.jpg': ['Банан за гарний хід! 🍌', 'У-у-а-а! Я стрибаю, як кінь!'],
+  'capybara.jpg': ['Я спокійна, як капібара у ванні 🛁', 'Не поспішаймо… ми ж капібари.'],
+  'owl.jpg': ['Угу. Я бачу всю дошку, навіть уночі 🦉', 'Мудрі сови думають двічі.'],
+  'bigeyes.jpg': ['Мої очі бачать УСІ ходи 👀', 'Ой, а що це ти задумав?'],
+  'robot-green.jpg': ['Біп-буп. Обчислюю… 🤖', 'Мої батарейки заряджені на перемогу!'],
+  'cat.jpg': ['Мур. Я б краще поспав… 😴', 'Ця фігура — моя мишка 🐭'],
+  'pug.jpg': ['Драма! Ти нападаєш на мою фігуру?! 😱', 'Я не плачу, це просто шахи.'],
+  'smudge.jpg': ['Не люблю овочі. І твій хід теж 🥗', 'Хм. Я незадоволений.'],
+  'dog.jpg': ['Гав! Кинь мені пішака! 🦴', 'Я принесу тобі твою фігуру!'],
+  'evilcat.jpg': ['Хе-хе, у мене хитрий план 😼', 'Ти ще не бачиш мою пастку…'],
+  'robot-yellow.jpg': ['СИСТЕМА: ПЕРЕМОГА ЗАПЛАНОВАНА 🤖', 'Помилку не знайдено. Поки що.'],
+  'ballerina.jpg': ['Мій кінь стрибає, як балерина 💃', 'Раз-два-три — і хід!'],
+  'lirili.jpg': ['Лірілі ларіла… думаю повільно, як слон 🐘'],
+  'tralalero.jpg': ['Тралалело! Плаваю в думках 🦈'],
+  'tung-tung.jpg': ['Тун-тун-тун… стукаю по дошці 🥁'],
+  'patapim.jpg': ['Брр-брр… Патапім думає 🌳']
+};
+const GENERIC = [
+  'Не поспішай — подумай! 🤔', 'Цікаво, що ти задумав…', 'Я хочу їсти. А ти? 🍪', 'Ого, гарний хід!',
+  'Хмм… дай подумати.', 'Перш ніж ходити — глянь, що б’ють мої фігури!', 'Бережи свого короля! 👑',
+  'Ти граєш, як справжній гросмейстер!', 'Тссс… я рахую ходи.', 'А ти бачиш мою пастку? 🙈',
+  'Фігури люблять центр дошки!', 'Ще трохи — і я щось придумаю!'
+];
+
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
 /* mountOpponent(el, { onLevel(level) }) → { level(), setThinking(on) }
@@ -101,7 +128,24 @@ export function mountOpponent(el, opts = {}) {
   applyVisible();
   show(index, true);
 
+  // Хмаринка з реплікою: з'являється, висить ~8 с і зникає (тап — сховати одразу)
+  let bubble = null, bubbleTimer = 0;
+  function say(text) {
+    if (el.hidden) return;
+    const o = OPPONENTS[index], own = LINES[o.avatar.split('/').pop()] || [];
+    const pool = own.length && Math.random() < 0.55 ? own : GENERIC;
+    text = text || pool[Math.floor(Math.random() * pool.length)];
+    bubble?.remove(); clearTimeout(bubbleTimer);
+    bubble = document.createElement('div');
+    bubble.className = 'lg-bubble'; bubble.textContent = text;
+    bubble.addEventListener('click', () => hide());
+    el.appendChild(bubble);
+    const hide = () => { if (!bubble) return; const b = bubble; bubble = null; b.classList.add('out'); setTimeout(() => b.remove(), 400); };
+    bubbleTimer = setTimeout(hide, 8000);
+  }
+
   return {
+    say,
     level: () => level,
     setLevel: l => { level = l; },
     setThinking: on => el.classList.toggle('thinking', !!on),

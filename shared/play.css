@@ -162,3 +162,19 @@ cg-board square.mark-red { background: rgba(255, 107, 107, .32); }
   .lg-level-pop { left: 0; right: 0; }
   .lg-level-pop button { font-size: 12px; }
 }
+
+/* ---------- хмаринка з реплікою суперника (як у коміксі) ---------- */
+.lg-bubble {
+  position: absolute; z-index: 4; top: 10px; left: 14px; max-width: min(58%, 260px);
+  padding: 9px 13px; background: #fff; color: #1d1b30; border: 3px solid #1d1b30; border-radius: 20px;
+  font: 800 15px/1.25 var(--lg-font); box-shadow: 3px 4px 0 rgba(0, 0, 0, .35); cursor: pointer;
+  transform-origin: 85% 100%; animation: lgBubbleIn .38s cubic-bezier(.2, 1.6, .4, 1);
+}
+.lg-bubble::after {
+  content: ''; position: absolute; right: -9px; bottom: 12px; width: 14px; height: 14px; background: #fff;
+  border-right: 3px solid #1d1b30; border-bottom: 3px solid #1d1b30; transform: rotate(-45deg);
+}
+.lg-bubble.out { animation: lgBubbleOut .4s ease forwards; }
+@keyframes lgBubbleIn { from { transform: scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes lgBubbleOut { to { transform: scale(.6) translateY(-10px); opacity: 0; } }
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) { .lg-bubble { max-width: 70%; font-size: 14px; top: 8px; left: 8px; } }

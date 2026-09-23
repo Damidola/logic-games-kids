@@ -47,6 +47,7 @@ export function startGame(cfg) {
   let history = [];          // позиції від початку партії
   let pos = 0;               // яку позицію зараз показано
   let hintsLeft, undosLeft, lastHint = null, thinking = false, over = false, aiTimer = null;
+  let robotMoves = 0, sayAt = 2 + Math.floor(Math.random() * 5);
   let level = 1;
   let paintQuick = () => {}; // кнопки під дошкою (якщо є)
   const state = () => history[pos];
@@ -216,6 +217,8 @@ export function startGame(cfg) {
 
   function robotMove() {
     thinking = true; hero.setThinking(true); render();
+    // раз за партію суперник щось каже (на одному з перших ходів)
+    if (++robotMoves === sayAt && !friend) hero.say();
     clearTimeout(aiTimer);
     // Робот ходить ще раз поспіль (замкнув квадратик, суперник пропускає хід) — пауза коротша
     const again = pos > 0 && rules.turn(history[pos - 1]) === rules.turn(state());
@@ -227,7 +230,7 @@ export function startGame(cfg) {
       commit(move);
       render();
       afterMove();
-    }, again ? 350 : 650);
+    }, again ? 400 : 850 + Math.random() * 450); // «думає» трохи менше за півтори секунди — не миттєво
   }
 
   function finish(r) {
@@ -243,6 +246,7 @@ export function startGame(cfg) {
 
   function newGame() {
     clearTimeout(aiTimer); thinking = false; over = false; hero.setThinking(false);
+    robotMoves = 0; sayAt = 2 + Math.floor(Math.random() * 5);
     history = [rules.initial(cfg.options ? cfg.options() : {})];
     pos = 0; lastHint = null;
     if (friend) player = 'w';

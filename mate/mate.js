@@ -375,7 +375,7 @@ async function practiceMove(from, to) {
     const { q: r, lm: l } = playUci(pos, m.from + m.to + m.promo);
     pos = r; history.push(pos); show(pos, l);
     if (!practiceEnd()) allowMoves();
-  }, Math.max(0, 450 - (Date.now() - started))));
+  }, Math.max(0, 850 + Math.random() * 400 - (Date.now() - started))));
 }
 function practiceEnd() {
   const again = () => { location.hash === '#' + sec ? startPractice() : null; };
