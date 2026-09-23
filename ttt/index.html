@@ -45,19 +45,19 @@
         #controls button {
             min-height: 50px; padding: 10px 16px; border-radius: 16px;
             font: 800 17px var(--lg-font); color: var(--lg-ink);
-            background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
-            cursor: pointer;
+            background: #fff; border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
+            cursor: pointer; transition: transform .1s ease;
         }
-        #controls button:active { transform: translateY(4px); box-shadow: none; }
-        #controls #new-game-btn { background: var(--lg-primary); color: #fff; border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; }
+        #controls button:active { transform: scale(.95); box-shadow: var(--lg-btn-shadow); }
+        #controls #new-game-btn { background: var(--lg-primary); color: #fff; border-color: #5646D6; }
         #controls button:disabled { opacity: .45; cursor: default; }
-        #controls button:disabled:active { transform: none; box-shadow: 0 4px 0 var(--lg-line); }
+        #controls button:disabled:active { transform: none; box-shadow: var(--lg-btn-shadow); }
         #change-symbol-btn.x b { color: #4DA3FF; }
         #change-symbol-btn.o b { color: #FF6B6B; }
         #modal { display: none !important; }
         .hint-text { color: var(--lg-muted); font-weight: 700; font-size: 14px; text-align: center; margin: 0; }
     </style>
-    <link rel="stylesheet" href="../shared/kit.css?v=1790142952">
+    <link rel="stylesheet" href="../shared/kit.css?v=1790143292">
 </head>
 <body>
     <div id="game-container">
@@ -87,8 +87,8 @@
         </div>
     </div>
 
-    <script src="../shared/games.js?v=1790142952"></script>
-    <script src="../shared/kit.js?v=1790142952" data-game="ttt"></script>
+    <script src="../shared/games.js?v=1790143292"></script>
+    <script src="../shared/kit.js?v=1790143292" data-game="ttt"></script>
     <script>
         const boardElement = document.getElementById('board');
         // statusElement видалено

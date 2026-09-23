@@ -64,11 +64,11 @@ body { margin: 0; }
     display: inline-flex; align-items: center; gap: 8px;
     min-height: 50px; padding: 10px 16px; border-radius: 16px;
     font: 800 17px var(--lg-font); color: var(--lg-ink);
-    background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
-    cursor: pointer;
+    background: #fff; border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
+    cursor: pointer; transition: transform .1s ease;
 }
-.btn:active { transform: translateY(4px); box-shadow: none; }
-.btn-primary { background: var(--lg-primary); color: #fff; border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; }
+.btn:active { transform: scale(.95); box-shadow: var(--lg-btn-shadow); }
+.btn-primary { background: var(--lg-primary); color: #fff; border-color: #5646D6; }
 .menu-dots { display: flex; gap: 3px; }
 .menu-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--lg-line); }
 .menu-dot.active { background: var(--player-color); }

@@ -39,13 +39,14 @@
         .controls button {
             min-height: 50px; padding: 10px 16px; border-radius: 16px;
             font: 800 17px var(--lg-font); color: var(--lg-ink); cursor: pointer;
-            background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
+            background: #fff; border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
+            transition: transform .1s ease;
         }
-        .controls button:active { transform: translateY(4px); box-shadow: none; }
+        .controls button:active { transform: scale(.95); box-shadow: var(--lg-btn-shadow); }
         .controls button:disabled { opacity: .45; }
-        .controls #new-game { background: var(--lg-primary); color: #fff; border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; }
+        .controls #new-game { background: var(--lg-primary); color: #fff; border-color: #5646D6; }
     </style>
-    <link rel="stylesheet" href="../shared/kit.css?v=1790142952">
+    <link rel="stylesheet" href="../shared/kit.css?v=1790143292">
 </head>
 <body>
     <div class="game-container">
@@ -58,8 +59,8 @@
         </div>
     </div>
 
-    <script src="../shared/games.js?v=1790142952"></script>
-    <script src="../shared/kit.js?v=1790142952" data-game="chess"></script>
+    <script src="../shared/games.js?v=1790143292"></script>
+    <script src="../shared/kit.js?v=1790143292" data-game="chess"></script>
     <script>
         const chessboardElement = document.getElementById('chessboard');
         const gameStatusElement = document.getElementById('game-status');

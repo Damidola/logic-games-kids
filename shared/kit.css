@@ -18,6 +18,7 @@
   --lg-sky: #4DA3FF;
   --lg-radius: 18px;
   --lg-shadow: 0 6px 0 rgba(45, 42, 74, .08), 0 12px 28px rgba(45, 42, 74, .10);
+  --lg-btn-shadow: 0 2px 6px rgba(45, 42, 74, .14);
   --lg-font: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --lg-bar-h: 64px;
 }
@@ -75,13 +76,13 @@ html.lg body.lg-game .lg-hide { display: none !important; }
   border: 2px solid var(--lg-line); border-radius: 14px;
   background: var(--lg-surface); color: var(--lg-ink);
   font-size: 22px; line-height: 1; cursor: pointer; text-decoration: none;
-  box-shadow: 0 3px 0 var(--lg-line);
-  transition: transform .12s ease, box-shadow .12s ease, background .12s;
+  box-shadow: var(--lg-btn-shadow);
+  transition: transform .1s ease, background .12s, border-color .12s;
 }
 .lg-icon-btn:hover { background: var(--lg-primary-soft); }
-.lg-icon-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--lg-line); }
+.lg-icon-btn:active { transform: scale(.94); background: var(--lg-primary-soft); }
 .lg-icon-btn:focus-visible, .lg-btn:focus-visible { outline: 3px solid var(--lg-sky); outline-offset: 2px; }
-.lg-help { background: var(--lg-sun); border-color: #E9A200; box-shadow: 0 3px 0 #D18F00; }
+.lg-help { background: var(--lg-sun); border-color: #E9A200; }
 .lg-help:hover { background: #FFC233; }
 
 /* ---------- кнопки ---------- */
@@ -91,13 +92,13 @@ html.lg body.lg-game .lg-hide { display: none !important; }
   font: 800 17px/1.1 var(--lg-font);
   color: var(--lg-ink); background: var(--lg-surface);
   border: 2px solid var(--lg-line); border-radius: 16px;
-  box-shadow: 0 4px 0 var(--lg-line);
+  box-shadow: var(--lg-btn-shadow);
   cursor: pointer; text-decoration: none;
-  transition: transform .12s ease, box-shadow .12s ease, filter .12s;
+  transition: transform .1s ease, filter .12s, background .12s;
 }
 .lg-btn:hover { filter: brightness(1.04); }
-.lg-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-.lg-btn-primary { background: var(--lg-primary); color: var(--lg-primary-ink); border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; }
+.lg-btn:active { transform: scale(.96); }
+.lg-btn-primary { background: var(--lg-primary); color: var(--lg-primary-ink); border-color: #5646D6; }
 .lg-btn-ghost { background: transparent; box-shadow: none; }
 .lg-btn-wide { width: 100%; margin-top: 8px; }
 
@@ -233,20 +234,19 @@ html.lg .lg-modal .lg-btn-primary { background-color: var(--lg-primary); color: 
 
 /* ---------- нічна тема (вмикається грою, що її підтримує) ---------- */
 html.lg-night {
-  --lg-bg: #15142A;
-  --lg-surface: #24223F;
-  --lg-surface-2: #2E2B4E;
+  --lg-bg: #19181F;
+  --lg-surface: #242330;
+  --lg-surface-2: #2B2A38;
   --lg-ink: #F2F0FF;
-  --lg-muted: #ABA6D2;
-  --lg-line: #3A3763;
-  --lg-primary-soft: #3B3675;
+  --lg-muted: #A9A5B8;
+  --lg-line: #383644;
+  --lg-primary-soft: #322F44;
+  --lg-btn-shadow: 0 2px 8px rgba(0, 0, 0, .45);
 }
 html.lg.lg-night body.lg-game {
   background-color: var(--lg-bg);
-  background-image:
-    radial-gradient(circle at 15% 10%, rgba(108, 92, 231, .22) 0 140px, transparent 141px),
-    radial-gradient(circle at 90% 30%, rgba(77, 163, 255, .12) 0 120px, transparent 121px);
+  background-image: radial-gradient(circle at 18% 8%, rgba(108, 92, 231, .12) 0 180px, transparent 181px);
 }
-html.lg-night .lg-bar { background: rgba(28, 26, 50, .92); }
+html.lg-night .lg-bar { background: rgba(20, 19, 26, .92); }
 html.lg-night .lg-modal-x { color: var(--lg-ink); }
 html.lg-night .lg-rules-goal { background: #3A3350; }

@@ -724,14 +724,15 @@ html.lg body.lg-game { justify-content: flex-start; gap: 14px; }
     min-height: 50px; border-radius: 16px; margin: 0;
     font: 800 17px var(--lg-font);
     background: #fff; color: var(--lg-ink);
-    border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
+    border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
+    transition: transform .1s ease, background .12s;
 }
-.game-controls button:hover { background: var(--lg-primary-soft); transform: none; box-shadow: 0 4px 0 var(--lg-line); }
-.game-controls button:active { transform: translateY(4px); box-shadow: none; }
-.game-controls #new-game-btn { background: var(--lg-primary); color: #fff; border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; padding: 10px 20px; }
+.game-controls button:hover { background: var(--lg-primary-soft); transform: none; box-shadow: var(--lg-btn-shadow); }
+.game-controls button:active { transform: scale(.95); box-shadow: var(--lg-btn-shadow); }
+.game-controls #new-game-btn { background: var(--lg-primary); color: #fff; border-color: #5646D6; padding: 10px 20px; }
 .game-controls .icon-btn, .game-controls #theme-btn { width: 54px !important; min-width: 54px !important; height: 50px; padding: 0; font-size: 24px; }
 #game-result-modal { display: none !important; }
 .game-controls #theme-btn, .game-controls #theme-btn:hover {
-    border-radius: 16px; background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line); transform: none;
+    border-radius: 16px; background: #fff; border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow); transform: none;
 }
 .game-controls #theme-btn::before { font-size: 24px; }

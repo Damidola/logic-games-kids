@@ -92,10 +92,10 @@ html.lg body.lg-game {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
     font: 800 10px var(--lg-font); color: var(--lg-ink); text-shadow: none;
     background: var(--lg-surface); border: 2px solid var(--lg-line); border-radius: 14px;
-    box-shadow: 0 3px 0 var(--lg-line); transition: none;
+    box-shadow: var(--lg-btn-shadow); transition: transform .1s ease, background .12s;
 }
-.game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: 0 3px 0 var(--lg-line); }
-.game-controls button.ctl:active { transform: translateY(3px); box-shadow: none; top: 0; }
+.game-controls button.ctl:hover, .game-controls button.ctl:hover:not(:disabled) { background: var(--lg-surface); transform: none; box-shadow: var(--lg-btn-shadow); }
+.game-controls button.ctl:active { transform: scale(.93); box-shadow: var(--lg-btn-shadow); top: 0; }
 .game-controls button.ctl:disabled { opacity: 1; cursor: pointer !important; }
 .game-controls .ico { font-size: 19px; line-height: 1; }
 .game-controls .lbl { font-size: 10px; font-weight: 800; line-height: 1; }

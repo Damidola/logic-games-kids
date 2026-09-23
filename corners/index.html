@@ -47,11 +47,11 @@
             min-height: 50px; min-width: 50px; padding: 8px 14px; border-radius: 16px;
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             font: 800 17px var(--lg-font); color: var(--lg-ink);
-            background: #fff; border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line);
-            cursor: pointer; user-select: none;
+            background: #fff; border: 2px solid var(--lg-line); box-shadow: var(--lg-btn-shadow);
+            cursor: pointer; user-select: none; transition: transform .1s ease;
         }
-        .game-controls button:active, #end-turn:active { transform: translateY(4px); box-shadow: none; }
-        .game-controls #new-game { background: var(--lg-primary); color: #fff; border-color: #5646D6; box-shadow: 0 4px 0 #4435BF; }
+        .game-controls button:active, #end-turn:active { transform: scale(.95); box-shadow: var(--lg-btn-shadow); }
+        .game-controls #new-game { background: var(--lg-primary); color: #fff; border-color: #5646D6; }
         .undo-button:disabled { opacity: .45; }
         .square-icon { width: 18px; height: 18px; border: 3px solid var(--lg-ink); border-radius: 3px; }
         .triangle-icon { width: 0; height: 0; border-left: 11px solid transparent; border-right: 11px solid transparent; border-bottom: 19px solid var(--lg-ink); }
@@ -64,13 +64,13 @@
             font-weight: 800; font-size: 15px; padding: 6px 12px; border-radius: 999px;
             background: #fff; border: 2px solid var(--lg-line);
         }
-        #end-turn { background: var(--lg-mint); color: #fff; border-color: #22A77C; box-shadow: 0 4px 0 #1B8A66; display: none; }
+        #end-turn { background: var(--lg-mint); color: #fff; border-color: #22A77C; display: none; }
         #end-turn.show { display: inline-flex; animation: bounce-in .3s cubic-bezier(.2, 1.6, .4, 1); }
         @keyframes bounce-in { from { transform: scale(.6); } }
         .turn-note { font-weight: 800; color: var(--lg-muted); font-size: 15px; min-height: 22px; text-align: center; margin: 0; }
         .game-over { display: none !important; }
     </style>
-    <link rel="stylesheet" href="../shared/kit.css?v=1790142952">
+    <link rel="stylesheet" href="../shared/kit.css?v=1790143292">
 </head>
 <body>
     
@@ -1574,7 +1574,7 @@
         // Initialize the game
         initGame();
     </script>
-    <script src="../shared/games.js?v=1790142952"></script>
-    <script src="../shared/kit.js?v=1790142952" data-game="corners"></script>
+    <script src="../shared/games.js?v=1790143292"></script>
+    <script src="../shared/kit.js?v=1790143292" data-game="corners"></script>
 </body>
 </html> 
