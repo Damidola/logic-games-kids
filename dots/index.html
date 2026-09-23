@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Точки й квадратики</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790177713">
+  <link rel="stylesheet" href="../shared/play.css?v=1790177713">
+  <style>
+    .lg-custom-view .lg-board-wrap { width: min(96vw, 500px, calc(100svh - var(--lg-bar-h) - 16px - 150px - 60px)); }
+    .db-board { aspect-ratio: 1; background: #FFF9EE; border-radius: 22px; box-shadow: inset 0 0 0 3px #F0E2C8; }
+    html.lg-night .db-board { background: #2d2b42; box-shadow: inset 0 0 0 3px #3d3a58; }
+    .db-board svg { display: block; width: 100%; height: 100%; }
+    .db-dot { fill: #2D2A4A; }
+    html.lg-night .db-dot { fill: #e8e6ff; }
+    .db-line { cursor: pointer; }
+    .db-line .hit { stroke: transparent; stroke-width: 44; stroke-linecap: round; }
+    .db-line .ln { stroke: #d9cfbf; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 2 14; }
+    html.lg-night .db-line .ln { stroke: #55527a; }
+    .db-line.free:active .ln { stroke: #FFC928; stroke-dasharray: none; }
+    .db-line.on { pointer-events: none; }
+    .db-line.on .ln { stroke-dasharray: none; stroke-width: 12; }
+    .db-line.w .ln { stroke: #3B82F6; }
+    .db-line.b .ln { stroke: #EF4444; }
+    .db-line.last .ln { animation: dbdraw .4s ease; }
+    .db-line.hinted .ln { stroke: #FF9F1C; stroke-dasharray: none; stroke-width: 12; animation: dbglow .9s ease-in-out 3; }
+    @keyframes dbdraw { from { stroke-width: 26; } }
+    @keyframes dbglow { 50% { opacity: .3; } }
+    .db-box rect { fill: transparent; transition: fill .3s ease; }
+    .db-box text { font: 900 48px var(--lg-font); text-anchor: middle; fill: transparent; }
+    .db-box.w rect { fill: #BFD7FF; } .db-box.w text { fill: #3B82F6; }
+    .db-box.b rect { fill: #FFCACA; } .db-box.b text { fill: #EF4444; }
+    .lg-material .db-sc { display: flex; align-items: center; gap: 6px; font-size: 18px; }
+    .lg-material .db-sc i { width: 18px; height: 18px; border-radius: 5px; background: #3B82F6; }
+    .lg-material .db-sc.b i { background: #EF4444; }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790177713"></script>
+  <script src="../shared/kit.js?v=1790177713" data-game="dots" data-night="on"></script>
+  <script type="module">
+    import { startGame, choice } from '../shared/game.js?v=1790177713';
+    import { createRules } from './rules.js?v=1790177713';
+    import { dotsView } from './view.js?v=1790177713';
+    let game;
+    game = startGame({
+      rules: createRules({ size: () => LG.store.get('dots:size', '4') }),
+      view: dotsView,
+      sideNames: { w: '🔵 Сині', b: '🔴 Червоні' },
+      extraSettings: choice('Поле', 'dots:size', '4', [['3', '3×3 квадратики'], ['4', '4×4 квадратики'], ['5', '5×5 квадратиків']], () => game.newGame())
+    });
+  </script>
+</body>
+</html>

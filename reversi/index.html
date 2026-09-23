@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Реверсі</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790177713">
+  <link rel="stylesheet" href="../shared/play.css?v=1790177713">
+  <style>
+    .lg-custom-view .lg-board-wrap { width: min(96vw, 500px, calc(100svh - var(--lg-bar-h) - 16px - 150px - 60px)); }
+    .rv-board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; padding: 2px; box-sizing: border-box; aspect-ratio: 1; background: #1f5f3f; border-radius: 14px; }
+    .rv-cell { position: relative; border: 0; padding: 0; background: #2e8b57; border-radius: 3px; cursor: pointer; min-width: 0; min-height: 0; }
+    .rv-cell.free::after { content: ''; position: absolute; inset: 38%; border-radius: 50%; background: rgba(0, 0, 0, .28); }
+    .rv-cell.last { box-shadow: inset 0 0 0 3px #FFC928; }
+    .rv-cell.hinted { box-shadow: inset 0 0 0 4px #FF9F1C; animation: rvglow 1s ease-in-out 3; }
+    @keyframes rvglow { 50% { background: #5fbf85; } }
+    .rv-disc { position: absolute; inset: 9%; border-radius: 50%; display: block; }
+    .rv-disc.w { background: radial-gradient(circle at 35% 30%, #555, #111 70%); box-shadow: 0 2px 3px rgba(0, 0, 0, .45); }
+    .rv-disc.b { background: radial-gradient(circle at 35% 30%, #fff, #d9d9d9 70%); box-shadow: 0 2px 3px rgba(0, 0, 0, .45); }
+    .rv-disc.flip { animation: rvflip .35s ease; }
+    .rv-disc.drop { animation: rvdrop .25s cubic-bezier(.2, 1.8, .4, 1); }
+    @keyframes rvflip { 50% { transform: scaleX(0); } }
+    @keyframes rvdrop { from { transform: scale(.3); } }
+    .lg-material .rv-sc { display: flex; align-items: center; gap: 6px; font-size: 18px; }
+    .lg-material .rv-disc { position: static; width: 20px; height: 20px; }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790177713"></script>
+  <script src="../shared/kit.js?v=1790177713" data-game="reversi" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790177713';
+    import { createRules } from './rules.js?v=1790177713';
+    import { reversiView } from './view.js?v=1790177713';
+    startGame({ rules: createRules(), view: reversiView, sideNames: { w: '⚫ Чорні', b: '⚪ Білі' } });
+  </script>
+</body>
+</html>

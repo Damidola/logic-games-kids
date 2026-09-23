@@ -176,6 +176,8 @@ export function startGame(cfg) {
   function robotMove() {
     thinking = true; hero.setThinking(true); render();
     clearTimeout(aiTimer);
+    // Робот ходить ще раз поспіль (замкнув квадратик, суперник пропускає хід) — пауза коротша
+    const again = pos > 0 && rules.turn(history[pos - 1]) === rules.turn(state());
     aiTimer = setTimeout(() => {
       const s = state();
       const move = aiMove(rules, s, level);
@@ -184,7 +186,7 @@ export function startGame(cfg) {
       commit(move);
       render();
       afterMove();
-    }, 650);
+    }, again ? 350 : 650);
   }
 
   function finish(r) {
