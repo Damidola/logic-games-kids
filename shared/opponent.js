@@ -8,8 +8,9 @@ const A = f => ROOT + 'shared/opponents/' + f;
 // У кожного суперника свій фон (shared/bg/*.svg) — жоден не повторюється.
 export const OPPONENTS = [
   ['Хом’ячок', 1, 'hamster.png', 'wildwest'],
-  ['Мавпочка', 2, 'monkey.png', 'jungle', 'center bottom'], // на фото зверху зайве порожнє тло — показуємо низ, тварина більша
-  ['Капібара', 3, 'capybara.jpg', 'summer'], ['Сова', 3, 'owl.jpg', 'nightforest'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg', 'candy'], ['Зелений робот', 3, 'robot-green.jpg', 'space'],
+  ['Капібара', 3, 'capybara.jpg', 'summer'], ['Сова', 3, 'owl.jpg', 'nightforest'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg', 'candy'],
+  ['Мавпочка', 2, 'monkey.jpg', 'jungle', 'center bottom'], // на фото зверху зайве порожнє тло — показуємо низ, тварина більша
+  ['Зелений робот', 3, 'robot-green.jpg', 'space'],
   ['Кіт', 4, 'cat.jpg', 'room'], ['Драматичний мопс', 4, 'pug.jpg', 'stage'], ['Кіт Смадж', 4, 'smudge.jpg', 'kitchen'],
   ['Собака', 4, 'dog.jpg', 'beach'], ['Хитрий кіт', 4, 'evilcat.jpg', 'rooftops'],
   ['Жовтий робот', 5, 'robot-yellow.jpg', 'factory'],
@@ -26,7 +27,7 @@ export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Нова�
    el — порожній контейнер над дошкою. */
 export function mountOpponent(el, opts = {}) {
   const LG = window.LG;
-  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.png')); // щоразу при відкритті — мавпочка
+  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.jpg')); // щоразу при відкритті — мавпочка
   let level = OPPONENTS[index].level;
   el.classList.add('lg-hero');
   el.innerHTML = `
@@ -37,8 +38,7 @@ export function mountOpponent(el, opts = {}) {
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
   // Сцени й картинки вантажимо одразу — тоді нічого не блимає
-  OPPONENTS.forEach(o => { new Image().src = scene(o.bg); });
-  setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
+  OPPONENTS.forEach(o => { new Image().src = scene(o.bg); new Image().src = o.avatar; });
 
   function placeArrows() {
     const w = el.getBoundingClientRect(), a = img.getBoundingClientRect();
@@ -53,14 +53,15 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
-    el.dataset.scene = o.bg;
-    el.style.setProperty('--scene', `url("${scene(o.bg)}")`);
-    el.style.setProperty('--pic-pos', o.pos);
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
     pre.onload = pre.onerror = () => {
       if (OPPONENTS[index] !== o) return;
+      // Фон, обрізка й картинка міняються разом — інакше стара тваринка на мить стрибає на чужому фоні
+      el.dataset.scene = o.bg;
+      el.style.setProperty('--scene', `url("${scene(o.bg)}")`);
+      el.style.setProperty('--pic-pos', o.pos);
       img.src = o.avatar; img.alt = o.name;
       el.classList.remove('switching');
       requestAnimationFrame(placeArrows);

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Хрестики-нулики</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790195997">
-  <link rel="stylesheet" href="../shared/play.css?v=1790195997">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790196281">
+  <link rel="stylesheet" href="../shared/play.css?v=1790196281">
   <style>
     .ttt-board { --n: 3; --gap: calc(9% / var(--n)); position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr); gap: var(--gap); padding: var(--gap); box-sizing: border-box; background: var(--lg-ink); border-radius: calc(78px / var(--n)); aspect-ratio: 1; }
     html.lg-night .ttt-board { background: #3a3850; }
@@ -27,12 +27,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790195997"></script>
-  <script src="../shared/kit.js?v=1790195997" data-game="ttt" data-night="on"></script>
+  <script src="../shared/games.js?v=1790196281"></script>
+  <script src="../shared/kit.js?v=1790196281" data-game="ttt" data-night="on"></script>
   <script type="module">
-    import { startGame, choice } from '../shared/game.js?v=1790195997';
-    import { createRules } from './rules.js?v=1790195997';
-    import { tttView } from './view.js?v=1790195997';
+    import { startGame, choice } from '../shared/game.js?v=1790196281';
+    import { createRules } from './rules.js?v=1790196281';
+    import { tttView } from './view.js?v=1790196281';
     const size = () => LG.store.get('ttt:size', '3');
     let game;
     game = startGame({
