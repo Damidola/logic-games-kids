@@ -4,37 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Як ходять фігури</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-  <link rel="stylesheet" href="../shared/kit.css?v=1790160782">
-  <link rel="stylesheet" href="learn.css?v=1790160782">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790161096">
+  <link rel="stylesheet" href="../shared/play.css?v=1790161096">
+  <link rel="stylesheet" href="learn.css?v=1790161096">
 </head>
-<body>
+<body data-asset-url=".">
   <main class="learn">
-    <!-- Розділи: по одному на кожну фігуру -->
-    <section id="chapters" class="chapters" aria-label="Розділи"></section>
+    <!-- Розділи уроків (як на lichess.org/learn) -->
+    <section id="map" class="map"></section>
 
     <!-- Урок -->
     <section id="lesson" class="lesson" hidden>
-      <div class="lesson-head">
-        <img id="lesson-piece" alt="">
-        <div class="lesson-dots" id="lesson-dots"></div>
+      <div class="lesson-head"><b id="stage-title"></b><span class="score">⭐ <span id="score">0</span></span></div>
+      <div id="dots" class="dots"></div>
+      <p id="goal" class="goal"></p>
+      <div class="lg-board-wrap">
+        <div id="board" class="lg-board-el"></div>
+        <button type="button" id="failed" class="failed" hidden>😬 🔄</button>
+        <div id="done" class="done" hidden><span id="done-stars"></span></div>
+        <div id="overlay" class="overlay" hidden></div>
       </div>
-      <div class="board-wrap">
-        <div id="board" class="board"></div>
-        <div id="done" class="done" hidden><div class="done-stars" id="done-stars"></div></div>
-      </div>
-      <div class="lesson-controls">
-        <button type="button" class="ctl" id="to-chapters"><span class="ico">☰</span><span class="lbl">Розділи</span></button>
-        <button type="button" class="ctl" id="retry"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
-        <button type="button" class="ctl" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
+      <div class="lesson-controls lg-controls">
+        <button type="button" id="to-map"><span class="ico">☰</span><span class="lbl">Розділи</span></button>
+        <button type="button" id="retry"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+        <button type="button" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
       </div>
     </section>
   </main>
-
-  <script src="../shared/games.js?v=1790160782"></script>
-  <script src="../shared/kit.js?v=1790160782" data-game="learn" data-night="on"></script>
-  <script src="levels.js?v=1790160782"></script>
-  <script src="engine.js?v=1790160782"></script>
-  <script src="learn.js?v=1790160782"></script>
+  <script src="../shared/games.js?v=1790161096"></script>
+  <script src="../shared/kit.js?v=1790161096" data-game="learn" data-night="on"></script>
+  <script type="module" src="app.js?v=1790161096"></script>
 </body>
 </html>

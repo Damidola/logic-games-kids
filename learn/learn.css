@@ -1,94 +1,42 @@
-/* «Як ходять фігури»: усе на одному екрані, дошка як у Lichess */
-html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
-html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 24px); }
-html.lg body.lg-game { position: fixed; inset: 0; margin: 0; height: 100svh; padding: calc(var(--lg-bar-h) + 8px) 0 10px; touch-action: manipulation; }
+/* «Як ходять фігури»: список розділів і екран уроку */
 .learn { width: 100%; max-width: 560px; height: 100%; margin: 0 auto; display: flex; flex-direction: column; }
+.map { overflow-y: auto; padding: 0 12px 16px; touch-action: pan-y; }
+.map h2 { font: 900 17px var(--lg-font); color: var(--lg-muted); margin: 10px 2px 6px; }
+.stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stage {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; min-width: 0;
+  border: 0; border-radius: 18px; background: var(--lg-surface); color: var(--lg-ink); font-family: var(--lg-font);
+  box-shadow: var(--lg-btn-shadow); cursor: pointer;
+}
+.stage img { width: 56%; aspect-ratio: 1; }
+.stage b { font-size: 14px; font-weight: 900; }
+.stage small { font-size: 10px; color: var(--lg-muted); text-align: center; line-height: 1.15; min-height: 2.3em; }
+.stage i { font-style: normal; color: #FFC928; font-size: 13px; min-height: 16px; letter-spacing: 1px; }
+.stage.done { outline: 3px solid #FFC928; outline-offset: -3px; }
 
-/* ---------- розділи ---------- */
-.chapters {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 4px 12px 12px;
-  overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
-}
-.chapter {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px 8px;
-  border: 0; border-radius: 22px; cursor: pointer; color: #fff; font-family: var(--lg-font);
-  background: var(--c, #6C5CE7); box-shadow: var(--lg-btn-shadow); transition: transform .1s;
-}
-.chapter:active { transform: scale(.96); }
-.chapter img { width: 58%; aspect-ratio: 1; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
-.chapter b { font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
-.chapter .prog { font-size: 14px; letter-spacing: 1px; color: #FFE27A; min-height: 18px; }
-.chapter.all-done { outline: 4px solid #FFE27A; outline-offset: -4px; }
+.lesson { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 0; }
+.lesson[hidden], .map[hidden] { display: none; }
+.lesson-head { width: min(94vw, 520px); display: flex; justify-content: space-between; align-items: center; font: 900 18px var(--lg-font); color: var(--lg-ink); }
+.lesson-head .score { color: #FFC928; }
+.dots { display: flex; flex-wrap: wrap; gap: 5px; width: min(94vw, 520px); }
+.dots button { width: 28px; height: 28px; border-radius: 50%; padding: 0; font: 900 12px var(--lg-font); color: var(--lg-muted); background: var(--lg-surface); border: 2px solid var(--lg-line); cursor: pointer; }
+.dots button.r1 { background: #FFD24A; border-color: #E0A800; color: #5a3e00; }
+.dots button.r2, .dots button.r3 { background: #cfe8ff; border-color: #7fb6ea; color: #1d3b5a; }
+.dots button.cur { box-shadow: 0 0 0 2px var(--lg-primary); color: var(--lg-ink); }
+.goal { width: min(94vw, 520px); margin: 2px 0; min-height: 2.6em; font: 800 15px/1.3 var(--lg-font); color: var(--lg-ink); text-align: center; }
+.learn .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 120px - 52px)); }
+.lesson-controls { grid-template-columns: repeat(3, 1fr); margin-top: auto; }
 
-/* ---------- урок ---------- */
-.lesson { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 0; }
-.lesson[hidden], .chapters[hidden] { display: none; }
-.lesson-head { display: flex; align-items: center; gap: 10px; width: min(94vw, 520px); }
-#lesson-piece { width: 44px; height: 44px; background: var(--lg-surface); border-radius: 12px; padding: 3px; box-sizing: border-box; flex: none; }
-.lesson-dots { display: flex; flex-wrap: wrap; gap: 6px; }
-.lesson-dots button {
-  width: 30px; height: 30px; border-radius: 50%; padding: 0; cursor: pointer;
-  border: 2px solid var(--lg-line); background: var(--lg-surface); color: var(--lg-muted);
-  font: 900 12px var(--lg-font);
-}
-.lesson-dots button.done { background: #FFD24A; border-color: #E0A800; color: #5a3e00; }
-.lesson-dots button.cur { border-color: var(--lg-primary); box-shadow: 0 0 0 2px var(--lg-primary); color: var(--lg-ink); }
-
-.board-wrap {
-  position: relative; flex: none;
-  width: min(94vw, 520px, calc(100svh - var(--lg-bar-h) - 150px)); aspect-ratio: 1;
-}
-.board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 100%; height: 100%; border-radius: 6px; overflow: hidden; position: relative; }
-.sq { position: relative; }
-.sq.l { background: #F0D9B5; }
-.sq.d { background: #B58863; }
-.sq .coord { position: absolute; font: 800 clamp(9px, 2.6vw, 13px)/1 var(--lg-font); pointer-events: none; }
-.sq .coord.rank { top: 3px; left: 4px; }
-.sq .coord.file { bottom: 2px; right: 4px; }
-.sq.l .coord { color: #B58863; }
-.sq.d .coord { color: #F0D9B5; }
-.sq.last { box-shadow: inset 0 0 0 100px rgba(205, 210, 106, .55); }
-/* Куди можна піти */
-.sq.can::after { content: ''; position: absolute; inset: 37%; border-radius: 50%; background: rgba(46, 204, 64, .75); }
-.sq.can.hit::after { inset: 4%; background: none; border: 5px solid rgba(230, 74, 25, .8); }
-.sq.can { cursor: pointer; }
-/* Зірочка */
-.star { position: absolute; inset: 14%; animation: star-bob 1.6s ease-in-out infinite; pointer-events: none; }
-@keyframes star-bob { 50% { transform: translateY(-6%) scale(1.06); } }
-.star.gone { animation: star-pop .35s ease-out forwards; }
-@keyframes star-pop { to { transform: scale(1.8); opacity: 0; } }
-/* Камінь */
-.stone { position: absolute; inset: 12%; border-radius: 42% 48% 40% 50%; pointer-events: none;
-  background: radial-gradient(circle at 35% 30%, #d9d5cf, #8f8a83 60%, #6b675f); box-shadow: 0 3px 4px rgba(0,0,0,.35); }
-.enemy { position: absolute; inset: 4%; background: center / 90% no-repeat; pointer-events: none; }
-.enemy.gone { animation: star-pop .3s ease-out forwards; }
-/* Своя фігура */
-.hero-piece {
-  position: absolute; width: 12.5%; height: 12.5%; background: center / 90% no-repeat; z-index: 3;
-  transition: left .22s ease, top .22s ease; cursor: pointer; touch-action: none;
-  filter: drop-shadow(0 3px 3px rgba(0,0,0,.35));
-}
-.sq.sel { box-shadow: inset 0 0 0 100px rgba(20, 85, 30, .45); }
-.hero-piece.foe { cursor: default; z-index: 2; transition: left .3s ease, top .3s ease; }
-.hero-piece.gone { animation: star-pop .3s ease-out forwards; }
-.hero-piece.drag { transition: none; transform: scale(1.4); z-index: 5; cursor: grabbing; }
-.hero-piece.bump { animation: bump .3s; }
-@keyframes bump { 30% { transform: translateX(-8%); } 60% { transform: translateX(8%); } }
-
-/* Рівень пройдено */
-.done { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 8, 30, .35); border-radius: 6px; z-index: 10; }
-.done[hidden] { display: none; }
-.done-stars { font-size: clamp(48px, 16vw, 84px); letter-spacing: 4px; animation: done-pop .45s cubic-bezier(.2, 1.6, .4, 1); text-shadow: 0 4px 10px rgba(0,0,0,.4); }
-.done-stars .off { filter: grayscale(1) brightness(.6); opacity: .6; }
-@keyframes done-pop { from { transform: scale(.3); opacity: 0; } }
-
-/* Кнопки */
-.lesson-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: min(94vw, 520px); margin-top: auto; }
-.lesson-controls .ctl {
-  height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 2px;
-  font: 800 10px var(--lg-font); color: var(--lg-ink); background: var(--lg-surface);
-  border: 2px solid var(--lg-line); border-radius: 14px; box-shadow: var(--lg-btn-shadow); cursor: pointer;
-}
-.lesson-controls .ctl:active { transform: scale(.94); }
-.lesson-controls .ico { font-size: 17px; line-height: 1; }
-.lesson-controls .ctl.is-off { opacity: .4; }
+.failed, .done, .overlay { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; }
+.failed[hidden], .done[hidden], .overlay[hidden] { display: none; }
+.failed { border: 0; background: rgba(120, 0, 0, .35); font-size: 56px; cursor: pointer; }
+.done { background: rgba(10, 8, 30, .3); pointer-events: none; }
+#done-stars { font-size: clamp(48px, 16vw, 84px); color: #FFC928; text-shadow: 0 4px 10px rgba(0,0,0,.45); animation: lp .45s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes lp { from { transform: scale(.3); opacity: 0; } }
+.overlay { background: rgba(10, 8, 30, .55); padding: 14px; }
+.card { background: var(--lg-surface); color: var(--lg-ink); border-radius: 22px; padding: 16px; max-width: 92%; text-align: center; font-family: var(--lg-font); }
+.card img { width: 72px; height: 72px; }
+.card h3 { margin: 4px 0; font-size: 22px; font-weight: 900; }
+.card p { font-size: 15px; font-weight: 700; line-height: 1.35; }
+/* зірочки Lichess на дошці */
+.cg-wrap svg .apple { animation: none; }

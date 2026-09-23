@@ -1,0 +1,11 @@
+{
+  "name": "logic-games-kids",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build-learn.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
