@@ -4,17 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Райдер</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790199028">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790199148">
   <style>
     html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
     html.lg body.lg-game { position: fixed; inset: 0; margin: 0; padding: 0; background: #000; }
     #game { position: fixed; left: 0; right: 0; bottom: 0; top: var(--lg-bar-h); width: 100%; height: calc(100% - var(--lg-bar-h)); display: block; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+    .rd-levels { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 5; display: flex; gap: 6px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.25); }
+    .rd-levels button { min-width: 64px; min-height: 36px; border: 0; border-radius: 10px; background: transparent; color: #fff; font: 800 14px system-ui, sans-serif; cursor: pointer; opacity: .7; }
+    .rd-levels button[aria-checked="true"] { background: #fff; color: #000; opacity: 1; }
   </style>
 </head>
 <body>
   <canvas id="game" aria-label="Траса. Тримай палець, щоб їхати й крутити сальто"></canvas>
-  <script src="../shared/games.js?v=1790199028"></script>
-  <script src="../shared/kit.js?v=1790199028" data-game="rider" data-night="on"></script>
-  <script type="module" src="rider.js?v=1790199028"></script>
+  <div class="rd-levels" id="levels" role="radiogroup" aria-label="Траса">
+    <button type="button" role="radio" data-l="1">Легка</button>
+    <button type="button" role="radio" data-l="2">Середня</button>
+    <button type="button" role="radio" data-l="3">Важка</button>
+  </div>
+  <script src="../shared/games.js?v=1790199148"></script>
+  <script src="../shared/kit.js?v=1790199148" data-game="rider" data-night="on"></script>
+  <script type="module" src="rider.js?v=1790199148"></script>
 </body>
 </html>

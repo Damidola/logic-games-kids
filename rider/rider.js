@@ -3,19 +3,22 @@
 import { buildTrack, newBike, step, ground, R } from './core.js';
 
 const LG = window.LG, cv = document.getElementById('game'), ctx = cv.getContext('2d');
+// Рівні: кнопки внизу
+const lvBox = document.getElementById('levels');
 let W = 0, H = 0, S = 1, dpr = 1;
 function resize() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
   W = cv.clientWidth; H = cv.clientHeight;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-  S = Math.min(W, H * 0.8) / 520; // світових одиниць в одному пікселі екрана
+  S = Math.max(900 / W, 620 / H); // світових одиниць в одному пікселі: видно далі, байк менший
 }
 window.addEventListener('resize', resize); resize();
 
 let track, bike, cam, hold = false, started = false, shards = [], popups = [], deadAt = 0, finished = false;
-const best = () => LG.store.get('rider:best', null);
+let level = +LG.store.get('rider:level', 1);
+const best = () => LG.store.get('rider:best' + level, null);
 function reset() {
-  track = buildTrack(); bike = newBike(); cam = { x: bike.x, y: bike.y };
+  track = buildTrack(level); bike = newBike(); cam = { x: bike.x, y: bike.y, look: 0 };
   shards = []; popups = []; deadAt = 0; finished = false;
 }
 reset();
@@ -56,14 +59,14 @@ function finish() {
   finished = true;
   const total = track.gems.length, b = best();
   const score = bike.flips * 10 + bike.gems;
-  if (!b || score > b.score) LG.store.set('rider:best', { score, flips: bike.flips, gems: bike.gems });
+  if (!b || score > b.score) LG.store.set('rider:best' + level, { score, flips: bike.flips, gems: bike.gems });
   LG.win(`Фініш! Сальто: ${bike.flips}, діамантів: ${bike.gems} з ${total}.`, { reward: true, onAgain: () => { reset(); hold = false; } });
 }
 
 // ---------- малювання ----------
-const toScreen = (x, y) => [(x - cam.x) / S + W * 0.33, (y - cam.y) / S + H * 0.55];
+const toScreen = (x, y) => [(x - cam.x - cam.look) / S + W * 0.33, (y - cam.y) / S + H * 0.5];
 function draw(now) {
-  if (!bike.dead) { cam.x += (bike.x - cam.x) * 0.2; cam.y += (bike.y - cam.y) * 0.08; }
+  if (!bike.dead) { cam.x += (bike.x - cam.x) * 0.2; cam.y += (bike.y - cam.y) * 0.06; cam.look += (Math.max(0, bike.air ? bike.vx : bike.s) * 0.25 - cam.look) * 0.03; } // дивимось трохи вперед
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   // далекі «гори» — ледь сірі, повільніші за трасу
@@ -72,7 +75,7 @@ function draw(now) {
   for (let sx = 0; sx <= W + 20; sx += 20) { const wx = cam.x * 0.3 + sx * S; ctx.lineTo(sx, H * 0.62 + Math.sin(wx / 260) * 40 + Math.sin(wx / 90) * 12); }
   ctx.lineTo(W, H); ctx.fill();
 
-  const x0 = cam.x - W * 0.33 * S - 50, x1 = cam.x + W * 0.67 * S + 50;
+  const x0 = cam.x + cam.look - W * 0.33 * S - 50, x1 = cam.x + cam.look + W * 0.67 * S + 50;
   // земля: темна заливка й біла лінія з сяйвом
   for (const p of track.pieces) {
     if (p[p.length - 1][0] < x0 || p[0][0] > x1) continue;
@@ -143,3 +146,9 @@ function drawShards() {
   }
 }
 requestAnimationFrame(frame);
+function paintLevels() { lvBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.l === level))); }
+lvBox.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  level = +b.dataset.l; LG.store.set('rider:level', level); LG.play('tap'); paintLevels(); reset(); started = false; hold = false;
+});
+paintLevels();
