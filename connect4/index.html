@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Чотири в ряд</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790180412">
-  <link rel="stylesheet" href="../shared/play.css?v=1790180412">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790180558">
+  <link rel="stylesheet" href="../shared/play.css?v=1790180558">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 520px, calc((100svh - var(--lg-bar-h) - 16px - 170px - 60px) * 7 / 6)); aspect-ratio: 7 / 6; }
     .c4-board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1.4%; padding: 1.8%; box-sizing: border-box; background: #3B5BDB; border-radius: 22px; }
@@ -23,12 +23,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790180412"></script>
-  <script src="../shared/kit.js?v=1790180412" data-game="connect4" data-night="on"></script>
+  <script src="../shared/games.js?v=1790180558"></script>
+  <script src="../shared/kit.js?v=1790180558" data-game="connect4" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790180412';
-    import { createRules } from './rules.js?v=1790180412';
-    import { connect4View } from './view.js?v=1790180412';
+    import { startGame } from '../shared/game.js?v=1790180558';
+    import { createRules } from './rules.js?v=1790180558';
+    import { connect4View } from './view.js?v=1790180558';
     startGame({ rules: createRules(), view: connect4View, sideNames: { w: '🔴 Червоні', b: '🟡 Жовті' } });
   </script>
 </body>

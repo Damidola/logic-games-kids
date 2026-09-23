@@ -21,6 +21,10 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 .lg-hero { position: relative; isolation: isolate; }
 .lg-hero[hidden] { display: none; }
 .lg-play:has(.lg-hero[hidden]) { justify-content: center; }
+.lg-hero::before {
+  content: ''; position: absolute; inset: 0 8px; z-index: 0; border-radius: 22px;
+  background: #6ec6ff var(--scene) center / cover no-repeat; transition: background-image .35s ease;
+}
 .lg-hero-pic {
   position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; background: none; cursor: default;
   display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
@@ -28,14 +32,12 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(16px, 4.8vw, 22px); }
 }
 .lg-hero-pic img {
   pointer-events: auto; cursor: pointer;
-  width: 100%; height: 100%; object-fit: cover; object-position: center 30%; background: #222;
-  transition: opacity .15s ease, filter .3s ease;
+  height: calc(100% - 12px); max-height: min(480px, calc(100vw - 84px)); aspect-ratio: 1; width: auto;
+  object-fit: cover; border-radius: 28%; background: var(--lg-surface-2);
+  box-shadow: 0 0 0 4px var(--lg-surface), 0 10px 30px rgba(0, 0, 0, .35); transition: opacity .15s ease;
 }
-/* знизу — легке затемнення, щоб рахунок збитих поверх картинки читався */
-.lg-hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; z-index: 1; pointer-events: none; background: linear-gradient(transparent, rgba(0, 0, 0, .35)); }
 .lg-hero.switching img { opacity: .35; }
-.lg-hero.thinking img { animation: lg-think 1.1s ease-in-out infinite; }
-@keyframes lg-think { 50% { filter: brightness(1.15) saturate(1.1); } }
+.lg-hero.thinking img { box-shadow: 0 0 0 4px var(--lg-sun), 0 10px 30px rgba(0, 0, 0, .35); }
 .lg-hero-arrow {
   position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
   width: 34px; height: 34px; border-radius: 50%; padding: 0; display: grid; place-items: center;

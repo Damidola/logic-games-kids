@@ -1,13 +1,13 @@
-/* Суперник-тваринка для всіх ігор з роботом: широка картинка на всю ширину — тваринка у своїй сцені
-   (як бот на chess.com), маленькі стрілочки, вибір на весь екран.
-   Тварина = рівень робота (1–5). У налаштуваннях тваринку можна сховати. */
+/* Суперник-тваринка для всіх ігор з роботом: картинка з фоном-сценою,
+   маленькі стрілочки, вибір на весь екран. Тварина = рівень робота (1–5).
+   У налаштуваннях тварину з фоном можна сховати. */
 const ROOT = new URL('..', import.meta.url).href;
 const A = f => ROOT + 'shared/opponents/' + f;
 
 // Рівень 1 — піддається … 5 — сильний. Італійські «брейнроти» — в кінці списку.
 export const OPPONENTS = [
-  ['Хом’ячок', 1, 'hamster.jpg'],
-  ['Мавпочка', 2, 'monkey.jpg'],
+  ['Хом’ячок', 1, 'hamster.png'],
+  ['Мавпочка', 2, 'monkey.png'],
   ['Капібара', 3, 'capybara.jpg'], ['Сова', 3, 'owl.jpg'], ['Кіт Очі-блюдця', 3, 'bigeyes.jpg'], ['Зелений робот', 3, 'robot-green.jpg'],
   ['Кіт', 4, 'cat.jpg'], ['Драматичний мопс', 4, 'pug.jpg'], ['Кіт Смадж', 4, 'smudge.jpg'],
   ['Собака', 4, 'dog.jpg'], ['Хитрий кіт', 4, 'evilcat.jpg'],
@@ -17,13 +17,17 @@ export const OPPONENTS = [
   ['Брр Брр Патапім', 4, 'patapim.jpg']
 ].map(([name, level, file]) => ({ name, level, avatar: A(file) }));
 
+// Одна сцена на рівень — при перемиканні сусідніх тварин фон не міняється
+const SCENE = { 1: 'summer', 2: 'rainbow', 3: 'jungle', 4: 'autumn', 5: 'space' };
+const scene = n => ROOT + 'shared/bg/' + n + '.svg';
+
 export const LEVEL_NAMES = ['Піддається', 'Слабкий', 'Новачок', 'Бадьорий', 'Сильний'];
 
 /* mountOpponent(el, { onLevel(level) }) → { level(), setThinking(on) }
    el — порожній контейнер над дошкою. */
 export function mountOpponent(el, opts = {}) {
   const LG = window.LG;
-  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.jpg')); // щоразу при відкритті — мавпочка
+  let index = OPPONENTS.findIndex(o => o.avatar.endsWith('monkey.png')); // щоразу при відкритті — мавпочка
   let level = OPPONENTS[index].level;
   el.classList.add('lg-hero');
   el.innerHTML = `
@@ -33,7 +37,8 @@ export function mountOpponent(el, opts = {}) {
   const pic = el.querySelector('.lg-hero-pic'), img = pic.querySelector('img');
   const prev = el.querySelector('.l'), next = el.querySelector('.r');
 
-  // Картинки вантажимо заздалегідь — тоді нічого не блимає
+  // Сцени й картинки вантажимо одразу — тоді нічого не блимає
+  Object.values(SCENE).forEach(n => { new Image().src = scene(n); });
   setTimeout(() => OPPONENTS.forEach(o => { new Image().src = o.avatar; }), 1200);
 
   function placeArrows() {
@@ -49,6 +54,8 @@ export function mountOpponent(el, opts = {}) {
     index = (i + OPPONENTS.length) % OPPONENTS.length;
     const o = OPPONENTS[index];
     level = o.level;
+    el.dataset.scene = SCENE[o.level];
+    el.style.setProperty('--scene', `url("${scene(SCENE[o.level])}")`);
     pic.setAttribute('aria-label', 'Суперник: ' + o.name + '. Натисни, щоб обрати іншого');
     // Плавно: нова картинка спершу вантажиться, потім з'являється
     const pre = new Image();
