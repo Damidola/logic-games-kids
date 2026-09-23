@@ -1,0 +1,39 @@
+/* Вигляд дошки Lichess (2D) — перенесено з lichess-org/lila,
+   ui/lib/css/theme/board/_chessground.scss, _coords-in.scss, _coords-colors.scss (AGPLv3+).
+   Колір клітинок і координат береться з теми дошки: --cg-board, --sq-light, --sq-dark. */
+cg-board { background-color: var(--sq-light, #f0d9b5); background-image: var(--cg-board); background-size: cover; }
+
+cg-board square.move-dest { background: radial-gradient(rgb(20 85 30 / 0.5) 19%, rgb(0 0 0 / 0) 20%); pointer-events: auto; }
+cg-board square.premove-dest { background: radial-gradient(rgb(20 30 85 / 0.5) 19%, rgb(0 0 0 / 0) 20%); pointer-events: auto; }
+cg-board square.oc.move-dest { background: radial-gradient(transparent 0%, transparent 79%, rgb(20 85 0 / 0.3) 80%); }
+cg-board square.oc.premove-dest { background: radial-gradient(transparent 0%, transparent 79%, rgb(20 30 85 / 0.2) 80%); }
+cg-board square.last-move { will-change: transform; background-color: rgb(155 199 0 / 0.41); }
+cg-board square.check { background: radial-gradient(ellipse at center, rgb(255 0 0 / 1) 0%, rgb(231 0 0 / 1) 25%, rgb(169 0 0 / 0) 89%, rgb(158 0 0 / 0) 100%); }
+cg-board square.selected { background-color: rgb(20 85 30 / 0.5); }
+cg-board square.current-premove { background-color: rgb(20 30 85 / 0.5) !important; }
+@media (hover: hover) {
+  cg-board square.move-dest:hover { background: rgb(20 85 30 / 0.3); }
+  cg-board square.premove-dest:hover { background: rgb(20 30 85 / 0.2); }
+}
+
+.cg-wrap piece { z-index: 2; will-change: transform; pointer-events: none; }
+.cg-wrap piece.dragging { cursor: move; z-index: 204 !important; }
+.cg-wrap piece.anim { z-index: 3; }
+.cg-wrap piece.fading { z-index: 1; opacity: 0.5; }
+.cg-wrap piece.ghost { opacity: 0.3; }
+
+/* Координати всередині дошки: цифри справа вгорі, літери знизу зліва */
+.cg-wrap coords {
+  position: absolute; display: flex; pointer-events: none; user-select: none;
+  font-size: clamp(8px, 2.6vw, 12px); font-weight: bold; text-shadow: none; opacity: 1;
+}
+.cg-wrap coords.ranks { flex-flow: column-reverse; top: 1px; right: 0; left: auto; height: 100%; width: 0.8em; }
+.cg-wrap coords.ranks.black { flex-flow: column; }
+.cg-wrap coords.files { bottom: 0; left: 0; top: auto; text-align: left; flex-flow: row; width: 100%; height: 1.4em; text-transform: none; }
+.cg-wrap coords.files.black { flex-flow: row-reverse; }
+.cg-wrap coords.files coord { padding-left: 4px; }
+.cg-wrap coords coord { flex: 1 1 auto; }
+.cg-wrap coords.ranks coord { transform: none; }
+/* Колір підпису — протилежний кольору клітинки */
+.cg-wrap coords .coord-light { color: var(--sq-dark, #946f51); }
+.cg-wrap coords .coord-dark { color: var(--sq-light, #f0d9b5); }

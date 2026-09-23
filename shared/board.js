@@ -24,11 +24,6 @@ function boardSvg(light, dark) {
     `<rect width="8" height="8" fill="${light}"/><g fill="${dark}">${rects}</g></svg>`;
   return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 }
-const isGreenish = hex => {
-  const n = parseInt((hex || '#000').slice(1), 16);
-  const r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
-  return g > r + 15 && g > b + 15;
-};
 
 // Кольори дошки й набір фігур застосовуються до всієї сторінки через CSS-змінні
 let styleEl = null;
@@ -41,8 +36,6 @@ export function applyBoardLook() {
   root.setProperty('--cg-board', boardSvg(colors.light, colors.dark));
   root.setProperty('--sq-light', colors.light);
   root.setProperty('--sq-dark', colors.dark);
-  // Крапка «куди можна» — зелена; на зеленій дошці — жовта
-  root.setProperty('--move-dot', isGreenish(colors.dark) || isGreenish(colors.light) ? 'rgba(255,193,7,.9)' : 'rgba(46,204,64,.85)');
   let css = '';
   for (const [role, letter] of Object.entries(CHESS_ROLES)) for (const [color, c] of [['white', 'w'], ['black', 'b']])
     css += `.cg-wrap piece.${role}.${color}{background-image:url("${ROOT}shared/pieces/${set}/${c}${letter}.svg")}\n`;
@@ -60,11 +53,11 @@ export function createBoard(el, opts = {}) {
     orientation: opts.orientation || 'white',
     coordinates: true,
     coordinatesOnSquares: false,
-    animation: { enabled: true, duration: 220 },
+    animation: { enabled: true, duration: 200 },
     highlight: { lastMove: true, check: true },
     movable: { free: false, color: undefined, showDests: true, events: { after: (o, d) => opts.onMove && opts.onMove(o, d) } },
     premovable: { enabled: false },
-    draggable: { enabled: true, showGhost: true, distance: 4 },
+    draggable: { enabled: true, showGhost: true }, // як на Lichess: фігура точно під пальцем
     selectable: { enabled: true },
     drawable: { enabled: false, visible: true, brushes: { hint: { key: 'h', color: '#FF9F1C', opacity: 0.95, lineWidth: 13 } } },
     events: { select: key => opts.onSelect && opts.onSelect(key) }

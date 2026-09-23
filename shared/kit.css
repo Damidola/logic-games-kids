@@ -162,7 +162,8 @@ html.lg .lg-bar .lg-bar-title { flex: none; min-width: 0; overflow: visible; }
 .lg-result-emoji { font-size: 96px; line-height: 1; margin: 6px 0 10px; animation: lg-pop .6s cubic-bezier(.2, 1.6, .4, 1); }
 .lg-result h2 { font-size: 34px; }
 .lg-result-btns { display: flex; gap: 14px; justify-content: center; margin-top: 18px; }
-html.lg .lg-modal .lg-btn-big { width: 96px; height: 80px; padding: 0; font-size: 40px; border-radius: 22px; }
+/* 🏠 і 🔄 — однакового розміру (одна — посилання, друга — кнопка) */
+html.lg .lg-modal .lg-result-btns > .lg-btn { flex: 0 0 110px; width: 110px; height: 84px; min-height: 0; box-sizing: border-box; padding: 0; margin: 0; font-size: 42px; line-height: 1; border-radius: 22px; }
 .lg-result-img img, .lg-result-img video { display: block; max-width: 100%; max-height: 220px; margin: 8px auto; border-radius: 16px; object-fit: contain; }
 .lg-result-win h2 { color: #4435BF; }
 @keyframes lg-pop { from { transform: scale(.2) rotate(-20deg); opacity: 0; } to { transform: none; opacity: 1; } }
