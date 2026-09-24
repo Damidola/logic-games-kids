@@ -15,7 +15,7 @@ export const modeLabel = ([, f, n]) => `${NAMES[f]} проти ${n} пішакі
 export const modeButton = ([, f, n]) => {
   const role = { Q: 'queen', R: 'rook', B: 'bishop', N: 'knight', P: 'pawn' };
   const pcs = f.startsWith('P') ? `<mpiece class="pawn black"></mpiece><small>${f.length}</small>` : [...f].map(c => `<mpiece class="${role[c]} black"></mpiece>`).join('');
-  return `${pcs}<small>vs</small><small>${n}</small><mpiece class="pawn white"></mpiece>`;
+  return `${pcs}<small class="vs">vs</small><small>${n}</small><mpiece class="pawn white"></mpiece>`;
 };
 const ROLE = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen' };
 const VALUE = { N: 320, B: 330, R: 500, Q: 900 };
