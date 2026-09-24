@@ -23,6 +23,7 @@ const RU = { rook: 'турою', bishop: 'слоном', queen: 'ферзем', 
 let idx = 0, pos, done = false, lock = false;
 
 const board = createBoard($('board'), { onMove: (o, d) => onMove(o, d) });
+board.cg.set({ movable: { showDests: false } }); // крапки не підказують, куди тікати
 const pieces = p => { const m = new Map(); for (const [sq, pc] of p.board) m.set(makeSquare(sq), { role: pc.role, color: pc.color }); return m; };
 const show = (p, lm) => board.setPosition(pieces(p), { lastMove: lm, check: p.isCheck() ? p.turn : false, animate: !!lm });
 const kindOf = (p, m) => { const king = p.board.get(m.from).role === 'king', cap = p.ctx().checkers.has(m.to); return king && !cap ? 'run' : cap ? 'capture' : 'block'; };

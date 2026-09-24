@@ -23,7 +23,7 @@ const GROUPS = [
     ['esc_run', '🏃', 'Утечи королем', 'Відведи короля туди, де його не б’ють'],
     ['esc_capture', '⚔️', 'Побий того, хто шахує', 'Часто найкращий спосіб!'],
     ['esc_block', '🛡️', 'Закрийся', 'Постав фігуру між королем і нападником'],
-    ['esc_mixed', '🎲', 'Знайди єдиний порятунок', 'Урятуватися можна лише одним ходом']]],
+    ['esc_mixed', '🎲', 'Різні', 'Утекти, побити чи закритися — здогадайся сам']]],
   ['Мат в 1 хід', [
     ['m1rook', 'rook', 'Турою', 'Найпростіші — тура й король'],
     ['m1bishop', 'bishop', 'Слоном', 'Слон ходить навскоси'],
@@ -47,8 +47,8 @@ const GROUPS = [
 const TASK = {
   chk_rook: 'Постав шах турою: напади на чорного короля.', chk_bishop: 'Постав шах слоном: напади на короля навскоси.',
   chk_queen: 'Постав шах ферзем.', chk_knight: 'Постав шах конем — стрибком літерою «Г».', chk_pawn: 'Постав шах пішаком: пішак б’є навскоси вперед.',
-  esc_run: 'Твоєму королю шах! Відведи короля на клітинку, яку ніхто не б’є.', esc_capture: 'Твоєму королю шах! Побий фігуру, що шахує.',
-  esc_block: 'Твоєму королю шах! Закрийся: постав свою фігуру між королем і нападником.', esc_mixed: 'Твоєму королю шах! Знайди єдиний хід, що рятує.',
+  esc_run: 'Твоєму королю шах! Відведи короля на єдину клітинку, яку ніхто не б’є.', esc_capture: 'Твоєму королю шах! Побий фігуру, що шахує.',
+  esc_block: 'Твоєму королю шах! Закрийся: постав свою фігуру між королем і нападником.', esc_mixed: 'Твоєму королю шах! Урятуйся: утечи, побий або закрийся — один хід рятує.',
   m1rook: 'Постав мат турою одним ходом.', m1queen: 'Постав мат ферзем одним ходом.', m1bishop: 'Постав мат слоном одним ходом.',
   m1knight: 'Постав мат конем одним ходом.', m1pawn: 'Постав мат пішаком. Дійшов до кінця — обери, ким він стане!',
   m1mix: 'Постав мат одним ходом.', mate2: 'Постав мат за 2 ходи: твій хід, відповідь суперника — і мат.',
@@ -184,6 +184,8 @@ function loadPuzzle() {
   const userFirst = line.length % 2 === 1;
   userColor = userFirst ? pos.turn : pos.turn === 'white' ? 'black' : 'white';
   wrap.classList.remove('solved');
+  // у задачах на шах не підказуємо крапками, куди можна піти
+  board.cg.set({ movable: { showDests: !/^(chk|esc)_/.test(sec) } });
   board.setOrientation(userColor); board.clearHint(); board.setMovable(null);
   show(pos, undefined, false); paint();
   const t = ++token;
@@ -395,6 +397,7 @@ function genPosition(k) {
   }
 }
 function startPractice() {
+  board.cg.set({ movable: { showDests: true } });
   engine();
   pos = genPosition(sec); history = [pos]; userColor = 'white'; done = false; hintStage = 0; token++;
   wrap.classList.remove('solved'); board.setOrientation('white'); board.clearHint();
