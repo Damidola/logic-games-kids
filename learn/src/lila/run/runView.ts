@@ -1,8 +1,9 @@
 import { type Classes, type VNode } from 'snabbdom';
 
-import { bind, button, div, h2, img, p } from 'lib/view';
+import { a, bind, button, div, h2, img, p } from 'lib/view';
 
 import chessground from '../chessground';
+import { hashHref } from '../hashRouting';
 import type { LearnCtrl } from '../ctrl';
 import type { LevelCtrl } from '../levelCtrl';
 import { mapSideView } from '../mapSideView';
@@ -58,7 +59,16 @@ export const runView = (ctrl: LearnCtrl) => {
   };
   if (stage.cssClass) rootClass[stage.cssClass] = true;
   if (levelCtrl.blueprint.cssClass) rootClass[levelCtrl.blueprint.cssClass] = true;
+  rootClass['lg-demo-on'] = runCtrl.demo();
   return div('.learn.learn--run', { class: rootClass }, [
+    // logic-games-kids (телефон): угорі — меню, рівні з зірочками й «Приклад», щоб усе було на одному екрані
+    div('.lg-run-top', [
+      a(hashHref())('.lg-run-menu', { attrs: { title: 'Меню уроків' } }, '☰'),
+      progressView(runCtrl),
+      runCtrl.hasDemo() && !runCtrl.demo()
+        ? button('.lg-run-ex', { attrs: { title: 'Приклад' }, hook: bind('click', runCtrl.replayDemo) }, '📖')
+        : null,
+    ]),
     div('.learn__side', mapSideView(ctrl)),
     div('.learn__main.main-board', { class: { apples: levelCtrl.isAppleLevel() } }, [
       runCtrl.stageStarting() ? stageStarting(runCtrl) : null,

@@ -36,17 +36,35 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
 
 /* Урок: лише дошка, завдання й номери рівнів — без великого заголовка й списку всіх уроків */
 .learn--run .learn__main.main-board { margin-top: 8px; }
-/* телефон: дошка й завдання під нею — на одному екрані, без прокрутки */
-@media (max-width: 799px) {
-  .learn--run .learn__main.main-board { width: min(100%, calc(100svh - var(--lg-bar-h, 38px) - 20px - 230px)); margin-left: auto; margin-right: auto; }
-  .learn--run .learn__table .lg-demo-say { min-height: 80px; }
-  .learn--run .lg-demo-btns { padding: 6px 10px; }
-}
 .learn--run .learn__table .title { display: none; }
 .learn--run .learn__side .stages > .categ { display: none; }
-@media (max-width: 799px) {
-  .learn--run .learn__table { margin-top: 10px; }
-  .learn--run .learn__table .goal { font-size: 16px; font-weight: 700; }
+/* Текст завдання — звичайним абзацом (у lila .goal — flex-рядок, і текст із переносами «розлазився») */
+.learn__table .goal { display: block; text-align: center; line-height: 1.35; }
+.learn__table .goal p { margin: 0; }
+/* Верхній рядок (лише телефон): меню · рівні з зірочками · приклад */
+.lg-run-top { display: none; }
+@media (max-width: 799px) and (orientation: portrait) {
+  #main-wrap:has(.learn--run) { padding-bottom: 4px; }
+  .learn.learn--run { gap: 6px; grid-template-areas: "top" "main" "table"; }
+  .learn--run .learn__side { display: none; }
+  .learn--run .lg-run-top { grid-area: top; display: flex; align-items: stretch; gap: 4px; padding: 6px 4px 0; }
+  .lg-run-top .progress { flex: 1; display: flex; border: 1px solid var(--c-border); border-radius: 7px; overflow: hidden; }
+  .lg-run-top .progress a { flex: 1 1 0; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--c-bg-high); border-inline-start: 1px solid var(--c-border); font-size: 13px; color: var(--c-link); opacity: .85; }
+  .lg-run-top .progress a:first-child { border: 0; }
+  .lg-run-top .progress a.done { color: var(--c-over); background: var(--c-good); opacity: 1; }
+  .lg-run-top .progress a.active { color: var(--c-over); background: var(--c-primary); opacity: 1; }
+  .lg-run-top .progress .stars { display: flex; font-size: 9px; }
+  .lg-run-top .lg-run-menu, .lg-run-top .lg-run-ex { flex: none; width: 38px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: var(--c-bg-high); border: 1px solid var(--c-border); color: var(--c-font); font-size: 18px; cursor: pointer; }
+  .learn--run .learn__table .progress, .learn--run .learn__table .lg-demo-open { display: none; }
+  .learn--run .learn__main.main-board { margin: 0 auto; width: min(100%, calc(100svh - var(--lg-bar-h, 38px) - 20px - 42px - 132px)); }
+  .learn--run .learn__table { margin: 0; }
+  .learn--run .learn__table .goal { font-size: 15px; font-weight: 700; padding: 8px 10px; min-height: 0; }
+  .learn--run .learn__table .lg-demo-say { min-height: 64px; font-size: 15px; }
+  .learn--run .learn__table .lg-demo-title { font-size: 12px; }
+  .learn--run .lg-demo-btns { padding: 6px 8px; gap: 8px; }
+  .learn--run .lg-demo-btns button { padding: 7px 10px; font-size: 15px; }
+  .learn--run .learn__table .result { min-height: 64px; }
+  .learn--run .learn__table .result h2 { font-size: 20px; margin: 4px 0; }
 }
 /* комп'ютер: дошка на всю висоту екрана (у lila ширину дошки задають спільні змінні сторінки) */
 @media (min-width: 800px) {
