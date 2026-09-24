@@ -49,3 +49,6 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
     ---col3-uniboard-width: min(calc(100svh - var(--lg-bar-h) - 60px), calc(100vw - 720px)); }
   .learn--run .learn__main.main-board { margin-top: 0; }
 }
+
+/* Зірочки з'являються одразу (у Lichess поява 0,6 с ховається під вікном «Етап N», якого тут немає) */
+.learn__main .apple { animation: .15s ease-out 0s 1 forwards apple-appear, 1.7s ease-in-out .2s infinite none soft-grow, .7s ease-in-out .2s infinite none soft-hue; }

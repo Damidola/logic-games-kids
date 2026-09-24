@@ -4,8 +4,8 @@ const make = (name: string, volume?: number) => {
 };
 
 export const move = () => site.sound.play('move');
-export const take = make('sfx/Tournament3rd', 0.4);
-export const levelStart = make('other/ping');
+export const take = make('sfx/Tournament3rd', 0.13); // зірочка — утричі тихіше, ніж у Lichess
+export const levelStart = make('other/ping', 0.4); // новий рівень — тихіше
 export const levelEnd = make('other/energy3');
 export const stageStart = make('other/guitar');
 export const stageEnd = make('other/gewonnen');
