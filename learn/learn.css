@@ -56,7 +56,7 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
   .lg-run-top .progress .stars { display: flex; font-size: 9px; }
   .lg-run-top .lg-run-menu, .lg-run-top .lg-run-ex { flex: none; width: 38px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: var(--c-bg-high); border: 1px solid var(--c-border); color: var(--c-font); font-size: 18px; cursor: pointer; }
   .learn--run .learn__table .progress, .learn--run .learn__table .lg-demo-open { display: none; }
-  .learn--run .learn__main.main-board { margin: 0 auto; width: min(100%, calc(100svh - var(--lg-bar-h, 38px) - 20px - 42px - 132px)); }
+  .learn--run .learn__main.main-board { margin: 0 auto; width: min(100%, calc(100svh - var(--lg-bar-h, 38px) - 20px - 42px - 142px)); }
   .learn--run .learn__table { margin: 0; }
   .learn--run .learn__table .goal { font-size: 15px; font-weight: 700; padding: 8px 10px; min-height: 0; }
   .learn--run .learn__table .lg-demo-say { min-height: 64px; font-size: 15px; }
