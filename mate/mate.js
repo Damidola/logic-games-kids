@@ -109,7 +109,7 @@ function askPromotion(to, color) {
 }
 
 function setButtons(list) {
-  document.querySelectorAll('.lg-controls button').forEach((b, i) => {
+  document.querySelectorAll('.lg-controls button:not(#prev)').forEach((b, i) => {
     const [ico, lbl] = list[i]; b.querySelector('.ico').textContent = ico; b.querySelector('.lbl').textContent = lbl;
   });
 }
@@ -251,6 +251,11 @@ function showSolution() {
     }, pos.turn === userColor ? 900 : 300);
   };
   stepOne();
+}
+function prevPuzzle() {
+  const n = DATA[sec].length;
+  idx = (idx - 1 + n) % n;
+  loadPuzzle();
 }
 function nextPuzzle() {
   const list = DATA[sec], s = solvedOf(sec);
@@ -413,6 +418,7 @@ $('show').addEventListener('click', () => {
   if (mode !== 'practice' || done || history.length < 3 || pos.turn !== 'white') return LG.play('error');
   history.splice(-2); pos = history[history.length - 1]; board.clearHint(); show(pos); allowMoves();
 });
+$('prev').addEventListener('click', () => { if (mode === 'puzzle') prevPuzzle(); });
 $('next').addEventListener('click', () => { if (mode === 'puzzle') nextPuzzle(); else if (mode === 'practice') startPractice(); });
 
 LG.addSettings(() => LG.pieceSetPicker(() => { applyBoardLook(); board.redraw(); if (mode === 'menu') renderMenu(); }));
