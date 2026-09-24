@@ -7,15 +7,13 @@
   <meta name="description" content="Безкоштовні логічні ігри для дітей українською: шашки, шахи, судоку зі звірятами, чотири в ряд та інші. З порадами для батьків.">
   <meta name="theme-color" content="#15142A">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
-  <link rel="stylesheet" href="shared/kit.css?v=1790230197">
+  <link rel="stylesheet" href="shared/kit.css?v=1790230312">
   <style>
     body {
       margin: 0;
       font-family: var(--lg-font);
       color: var(--lg-ink);
       background-color: var(--lg-bg);
-      background-image: radial-gradient(circle at 12% 6%, rgba(108, 92, 231, .12) 0 180px, transparent 181px);
-      background-attachment: fixed;
       -webkit-tap-highlight-color: transparent;
     }
     .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 12px; }
@@ -31,22 +29,26 @@
     .card {
       --c: #6C5CE7;
       position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-      aspect-ratio: 1 / 0.96; padding: 6px 4px;
+      aspect-ratio: 1 / 0.96; padding: 22px 4px 8px;
       text-decoration: none; color: #fff; text-align: center;
-      background:
-        radial-gradient(circle at 22% 20%, rgba(255,255,255,.28) 0 18%, transparent 19%),
-        var(--c);
-      border-radius: 22px; box-shadow: 0 4px 12px rgba(0,0,0,.28);
+      background: var(--c);
+      border-radius: 22px; box-shadow: inset 0 -5px 0 rgba(0,0,0,.14), 0 4px 12px rgba(0,0,0,.22);
       transition: transform .1s ease, box-shadow .1s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .card:active { transform: scale(.95); box-shadow: 0 2px 6px rgba(0,0,0,.28); }
     .card:focus-visible { outline: 4px solid var(--lg-sky); outline-offset: 3px; }
-    .card .big { font-size: clamp(38px, 12vw, 64px); line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.15)); }
+    .card .big { font-size: clamp(34px, 10.5vw, 58px); line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.15)); }
+    /* складність: ★☆☆ — найпростіші, ★★★ — шахи; маленька плашка в куті, не заважає емодзі й назві */
+    .card .lvl { position: absolute; top: 7px; right: 8px; display: flex; gap: 1px; padding: 2px 6px; border-radius: 999px;
+      background: rgba(0,0,0,.2); font-size: 12px; line-height: 1.2; letter-spacing: 0; }
+    .card .lvl i { font-style: normal; color: #fff; }
+    .card .lvl i.off { opacity: .35; }
     .card h2 { margin: 0; font-size: clamp(13px, 3.8vw, 18px); font-weight: 900; line-height: 1.1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
     @media (min-width: 700px) {
       .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
       .card h2 { font-size: 20px; }
+      .card .lvl { font-size: 14px; top: 10px; right: 12px; }
     }
 
     /* ---------- для батьків: сховано за непомітною стрілкою ---------- */
@@ -119,8 +121,8 @@
     <footer>Зроблено з любов’ю для маленьких мислителів 💜</footer>
   </div>
 
-  <script src="shared/games.js?v=1790230197"></script>
-  <script src="shared/kit.js?v=1790230197"></script>
+  <script src="shared/games.js?v=1790230312"></script>
+  <script src="shared/kit.js?v=1790230312"></script>
   <script>
   (function () {
     const games = window.LG_GAMES;
@@ -138,7 +140,9 @@
     function renderGrid() {
       $('grid').innerHTML = list.map(g => {
         const s = stats[g.id];
-        return `<a class="card" href="${g.path}" style="--c:${g.color}">
+        const lvl = Math.max(1, Math.min(3, g.level || 1));
+        return `<a class="card" href="${g.path}" style="--c:${g.color}" aria-label="${esc(g.title)}, складність ${lvl} з 3">
+          <span class="lvl" aria-hidden="true">${[1, 2, 3].map(i => `<i class="${i > lvl ? 'off' : ''}">★</i>`).join('')}</span>
           <span class="big" aria-hidden="true">${g.emoji}</span>
           <h2>${esc(g.title)}</h2>
         </a>`;
