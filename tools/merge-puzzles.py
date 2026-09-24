@@ -1,4 +1,4 @@
-# Збирає mate/puzzles.json: мати (tools/build-mates.mjs) + тактика (tools/build-tactics.mjs).
+# Збирає chess-puzzles/puzzles.json: мати (tools/build-mates.mjs) + тактика (tools/build-tactics.mjs).
 # Тактика: спершу найпростіші — менше фігур, потім нижчий рейтинг; не більше 40 у розділі.
 import json, sys, glob
 mates, tac_files, out = sys.argv[1], sys.argv[2], sys.argv[3]

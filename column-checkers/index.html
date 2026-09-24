@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Башні</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790259921">
+  <link rel="stylesheet" href="../shared/play.css?v=1790259921">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790259921">
+  <style>
+    /* Башта: під верхньою шашкою видно шашку іншого кольору (uw — біла, ub — чорна), а в куточку — висота */
+    .cg-wrap piece.uw { filter: drop-shadow(0 3px 0 #f3eee2) drop-shadow(0 2px 0 #7d735e); }
+    .cg-wrap piece.ub { filter: drop-shadow(0 3px 0 #2b2b2b) drop-shadow(0 2px 0 #000); }
+    .cg-wrap piece[class*=" h"]::after {
+      position: absolute; right: -2%; top: -4%; min-width: 38%; height: 38%; border-radius: 999px; box-sizing: border-box;
+      display: grid; place-items: center; padding: 0 3px; font: 900 clamp(10px, 2.6vw, 15px)/1 var(--lg-font);
+      background: #FFC928; color: #3b2a00; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+    }
+    .cg-wrap piece.h2::after { content: '2'; }
+    .cg-wrap piece.h3::after { content: '3'; }
+    .cg-wrap piece.h4::after { content: '4'; }
+    .cg-wrap piece.h5::after { content: '5'; }
+    .cg-wrap piece.h6::after { content: '6'; }
+    .cg-wrap piece.h7::after { content: '7'; }
+    .cg-wrap piece.h8::after { content: '8'; }
+    .cg-wrap piece.h9::after { content: '9'; }
+    .cg-wrap piece.h10::after { content: '10'; }
+    .cg-wrap piece.h11::after { content: '11'; }
+    .cg-wrap piece.h12::after { content: '12'; }
+    .lg-material .tw-sc { font-size: 15px; }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790259921"></script>
+  <script src="../shared/kit.js?v=1790259921" data-game="towers" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790259921';
+    import { createRules } from './rules.js?v=1790259921';
+    startGame({
+      rules: createRules(),
+    });
+  </script>
+</body>
+</html>

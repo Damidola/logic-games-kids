@@ -3,7 +3,7 @@
 window.LG_GAMES = [
   {
     id: 'learn',
-    path: 'learn/index.html',
+    path: 'learn-chess/index.html',
     emoji: '🎓',
     title: 'Як ходять фігури',
     short: 'Уроки: фігури збирають зірочки; цінність фігур; практика проти робота.',
@@ -61,7 +61,7 @@ window.LG_GAMES = [
   },
   {
     id: 'knight',
-    path: 'knight/index.html',
+    path: 'knights-tour/index.html',
     emoji: '🏇',
     title: 'Хід конем',
     short: 'Обійди конем усю дошку — на кожну клітинку лише раз.',
@@ -89,7 +89,7 @@ window.LG_GAMES = [
   },
   {
     id: 'hanoi',
-    path: 'hanoi/index.html',
+    path: 'tower-of-hanoi/index.html',
     emoji: '🗼',
     title: 'Ханойська вежа',
     short: 'Перенеси вежу з дисків на інший стрижень.',
@@ -117,7 +117,7 @@ window.LG_GAMES = [
   },
   {
     id: 'ttt',
-    path: 'ttt/index.html',
+    path: 'tic-tac-toe/index.html',
     emoji: '❌',
     title: 'Хрестики-нулики',
     short: 'Збери три в ряд раніше за робота.',
@@ -143,7 +143,7 @@ window.LG_GAMES = [
   },
   {
     id: 'connect4',
-    path: 'connect4/index.html',
+    path: 'connect-four/index.html',
     emoji: '🔴',
     title: 'Чотири в ряд',
     short: 'Кидай фішки й збери четвірку.',
@@ -169,7 +169,7 @@ window.LG_GAMES = [
   },
   {
     id: 'salamandra',
-    path: 'salamandra/index.html',
+    path: 'river-crossing/index.html',
     emoji: '🦎',
     title: 'Переправа',
     short: 'Допоможи саламандрі перейти річку з рибами.',
@@ -278,7 +278,7 @@ window.LG_GAMES = [
   {
     id: 'towers',
     long: true, // довга партія — довгий звук перемоги
-    path: 'towers/index.html',
+    path: 'column-checkers/index.html',
     emoji: '🏰',
     title: 'Башні',
     short: 'Шашки, де збиті шашки стають башнею.',
@@ -307,7 +307,7 @@ window.LG_GAMES = [
   {
     id: 'turkish',
     long: true, // довга партія — довгий звук перемоги
-    path: 'turkish/index.html',
+    path: 'turkish-checkers/index.html',
     emoji: '🇹🇷',
     title: 'Турецькі шашки',
     short: 'Шашки, що ходять прямо і вбік.',
@@ -365,7 +365,7 @@ window.LG_GAMES = [
   {
     id: 'wolfs',
     long: true, // довга партія — довгий звук перемоги
-    path: 'wolfs/index.html',
+    path: 'pieces-vs-pawns/index.html',
     emoji: '🐴',
     title: 'Фігури й пішаки',
     short: 'Тура, слон, кінь чи ферзь проти армії пішаків.',
@@ -392,7 +392,7 @@ window.LG_GAMES = [
   {
     id: 'chushki',
     long: true, // довга партія — довгий звук перемоги
-    path: 'chushki/index.html',
+    path: 'czech-checkers/index.html',
     emoji: '🔷',
     title: 'Чешки',
     short: 'Шахи з кружечками, трикутниками і квадратами.',
@@ -475,7 +475,7 @@ window.LG_GAMES = [
   },
   {
     id: 'dots',
-    path: 'dots/index.html',
+    path: 'dots-and-boxes/index.html',
     emoji: '🔲',
     title: 'Точки й квадратики',
     short: 'Проводь лінії й замикай квадратики.',
@@ -531,7 +531,7 @@ window.LG_GAMES = [
   },
   {
     id: 'queens',
-    path: 'queens/index.html',
+    path: 'eight-queens/index.html',
     emoji: '👑',
     title: '8 ферзів',
     short: 'Постав 8 ферзів, щоб жоден не бив іншого.',
@@ -587,7 +587,7 @@ window.LG_GAMES = [
   },
   {
     id: 'mate',
-    path: 'mate/index.html',
+    path: 'chess-puzzles/index.html',
     emoji: '🏆',
     title: 'Шахові задачі',
     short: 'Шах і як від нього врятуватися; мат турою, слоном, пішаком, ферзем, конем; мат в 2 ходи; вилка, зв’язка.',

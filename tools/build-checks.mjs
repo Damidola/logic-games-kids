@@ -1,12 +1,12 @@
 // Задачі на шах (складені й перевірені правилами chessops):
 //  «Постав шах» фігурою — турою, слоном, ферзем, конем, пішаком: спершу 3 фігури, далі 4–5.
 //  «Урятуйся від шаху» — білому королю шах: утечі, побий того, хто шахує, закрийся, і «різні»
-//  (у «різних» рятує лише один хід). Запуск: node tools/build-checks.mjs mate/puzzles.json
+//  (у «різних» рятує лише один хід). Запуск: node tools/build-checks.mjs chess-puzzles/puzzles.json
 import fs from 'node:fs';
 import { Chess, SquareSet, makeUci } from 'chessops';
 import { makeFen, makeBoardFen } from 'chessops/fen';
 
-const out = process.argv[2] || 'mate/puzzles.json';
+const out = process.argv[2] || 'chess-puzzles/puzzles.json';
 const rnd = n => Math.floor(Math.random() * n);
 const ROLES = ['queen', 'rook', 'bishop', 'knight'];
 function legal(p) {

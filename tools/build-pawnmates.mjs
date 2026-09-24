@@ -1,12 +1,12 @@
 // «Мат пішаком» (m1pawn): король і 2–4 пішаки ставлять мат — рівно ОДИН хід матує, і це хід пішаком.
 // Спершу — мати ходом чи взяттям пішака (пішаки й король працюють разом, зайвих фігур немає),
 // потім — перетворення, де треба вибрати, ким стане пішак (кінь, ферзь, тура чи слон — матує лише одна).
-// Запуск: node tools/build-pawnmates.mjs mate/puzzles.json
+// Запуск: node tools/build-pawnmates.mjs chess-puzzles/puzzles.json
 import fs from 'node:fs';
 import { Chess, SquareSet, makeUci } from 'chessops';
 import { makeFen, makeBoardFen } from 'chessops/fen';
 
-const out = process.argv[2] || 'mate/puzzles.json';
+const out = process.argv[2] || 'chess-puzzles/puzzles.json';
 const rnd = n => Math.floor(Math.random() * n);
 const PROMOS = ['queen', 'knight', 'rook', 'bishop'];
 function legal(p) {
@@ -88,7 +88,7 @@ function generate(want, promo, perN) {
   return res.sort((x, y) => x[4] - y[4]);
 }
 
-// node tools/build-pawnmates.mjs mate/puzzles.json [plain | knight | queen | merge] — частини зберігаються в tools/.pawnmates-*.json
+// node tools/build-pawnmates.mjs chess-puzzles/puzzles.json [plain | knight | queen | merge] — частини зберігаються в tools/.pawnmates-*.json
 const MODE = process.argv[3] || 'all';
 const part = k => new URL(`.pawnmates-${k}.json`, import.meta.url);
 const PLAN = {

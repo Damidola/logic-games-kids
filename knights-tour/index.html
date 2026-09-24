@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Хід конем</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790259921">
+  <link rel="stylesheet" href="../shared/play.css?v=1790259921">
+  <style>
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    html.lg body.lg-game { position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0; padding: calc(var(--lg-bar-h) + 10px) 0 10px; }
+    .kt { max-width: 560px; height: 100%; margin: 0 auto; padding: 0 10px 10px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+    .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 16px; background: var(--lg-surface); border: 2px solid var(--lg-line); }
+    .seg button { min-width: 50px; min-height: 40px; padding: 4px 8px; border: 0; border-radius: 12px; font: 900 16px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer; }
+    .seg button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
+    .chip { font-weight: 800; font-size: 15px; padding: 5px 12px; border-radius: 999px; background: var(--lg-surface); border: 2px solid var(--lg-line); font-variant-numeric: tabular-nums; color: var(--lg-ink); }
+    /* Дошка Lichess 8×8, обрізана до n×n: видно лівий нижній кут (a1…), решта схована */
+    .kt-crop { --n: 5; --size: min(100vw - 20px, 540px, calc(100svh - var(--lg-bar-h) - 250px)); position: relative; width: var(--size); height: var(--size); overflow: hidden; border-radius: 6px; box-shadow: 0 8px 22px rgba(0, 0, 0, .3); flex: none; }
+    .kt-full { position: absolute; left: 0; bottom: 0; width: calc(var(--size) * 8 / var(--n)); height: calc(var(--size) * 8 / var(--n)); }
+    .kt-full .lg-board-el { width: 100%; height: 100%; }
+    .kt-nums { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr); pointer-events: none; }
+    .kt-nums span { display: grid; place-items: center; font: 900 calc(var(--size) / var(--n) * .34) var(--lg-font); color: rgba(20, 60, 35, .8); }
+    cg-board square.kt-seen { background: rgba(80, 200, 120, .55); }
+    cg-board square.kt-can { background: radial-gradient(rgba(20, 85, 30, .5) 22%, transparent 24%); }
+    cg-board square.kt-hint { background: radial-gradient(#FF9F1C 26%, rgba(255, 159, 28, .35) 28%); }
+    cg-board square.kt-stuck { background: rgba(231, 76, 60, .55); }
+    .kt .cg-wrap coords.ranks { display: none; }
+    .kt-task { min-height: 42px; max-width: min(100%, 520px); display: flex; align-items: center; justify-content: center; text-align: center; font: 800 15px/1.3 var(--lg-font); color: var(--lg-ink); padding: 0 8px; }
+    .kt .lg-controls { grid-template-columns: repeat(3, 1fr); width: min(100%, 420px); }
+    @media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+      .kt { max-width: none; }
+      .kt-crop { --size: min(calc(100svh - var(--lg-bar-h) - 230px), 820px); }
+      .kt .lg-controls { width: min(100%, 520px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="kt">
+    <div class="seg" role="radiogroup" aria-label="Розмір дошки" id="size"></div>
+    <span class="chip" id="count">1 / 25</span>
+    <div class="kt-crop" id="crop"><div class="kt-full"><div class="lg-board-el" id="board"></div></div><div class="kt-nums" id="nums"></div></div>
+    <div class="kt-task" id="task">Обійди конем усі клітинки — на кожну ставай лише раз.</div>
+    <div class="lg-controls">
+      <button type="button" id="new"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+      <button type="button" id="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
+      <button type="button" id="undo"><span class="ico">↩️</span><span class="lbl">Назад</span></button>
+    </div>
+  </main>
+  <script src="../shared/games.js?v=1790259921"></script>
+  <script src="../shared/kit.js?v=1790259921" data-game="knight" data-night="on"></script>
+  <script type="module" src="knight.js?v=1790259921"></script>
+</body>
+</html>

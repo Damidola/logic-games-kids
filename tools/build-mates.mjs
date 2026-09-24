@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import { Chess, SquareSet, parseUci, makeUci } from 'chessops';
 import { parseFen, makeFen, makeBoardFen } from 'chessops/fen';
 
-const [src = '/tmp/puz50k.jsonl', out = 'mate/mates.json'] = process.argv.slice(2);
+const [src = '/tmp/puz50k.jsonl', out = 'chess-puzzles/mates.json'] = process.argv.slice(2);
 const ROLES = ['queen', 'rook', 'bishop', 'knight'];
 const PROMO = { queen: 'q', rook: 'r', bishop: 'b', knight: 'n' };
 

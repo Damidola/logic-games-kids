@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Ханойська вежа</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790259921">
+  <style>
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    html.lg body.lg-game { position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0; padding: calc(var(--lg-bar-h) + 10px) 0 10px; }
+    .hn { max-width: 560px; height: 100%; margin: 0 auto; padding: 0 12px 10px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 16px; background: var(--lg-surface); border: 2px solid var(--lg-line); }
+    .seg button { min-width: 44px; min-height: 40px; padding: 4px 8px; border: 0; border-radius: 12px; font: 900 17px var(--lg-font); color: var(--lg-ink); background: transparent; cursor: pointer; }
+    .seg button[aria-checked="true"] { background: var(--lg-primary); color: #fff; }
+    .hn-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .chip { font-weight: 800; font-size: 15px; padding: 5px 12px; border-radius: 999px; background: var(--lg-surface); border: 2px solid var(--lg-line); font-variant-numeric: tabular-nums; }
+    .hn-stage { position: relative; flex: 1; width: 100%; min-height: 240px; display: grid; grid-template-columns: repeat(3, 1fr); touch-action: none; user-select: none; -webkit-user-select: none; }
+    .hn-stage::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 16px; border-radius: 8px; background: #8B5A2B; box-shadow: 0 4px 0 #6B4226; }
+    .hn-peg { position: relative; display: flex; flex-direction: column-reverse; align-items: center; padding-bottom: 16px; cursor: pointer; }
+    .hn-peg::before { content: ''; position: absolute; bottom: 10px; left: 50%; width: 12px; height: 88%; transform: translateX(-50%); border-radius: 6px 6px 0 0; background: #A0703F; }
+    .hn-peg.target::before { background: #2ECC9A; }
+    .hn-peg.hint-from::before, .hn-peg.hint-to::before { background: #FF9F1C; animation: hnglow .8s ease-in-out 3; }
+    @keyframes hnglow { 50% { opacity: .35; } }
+    .hn-disk { position: relative; z-index: 1; height: var(--dh, 30px); border-radius: 999px; margin-top: 3px; box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .18), 0 2px 3px rgba(0, 0, 0, .25); transition: transform .12s ease; }
+    .hn-disk.lifted { transform: translateY(-24px); box-shadow: 0 0 0 3px #FFC928, inset 0 -5px 0 rgba(0, 0, 0, .18); }
+    .hn-disk.drag { position: fixed; z-index: 50; pointer-events: none; transition: none; }
+    .hn-peg.bad { animation: hnshake .3s ease; }
+    .hn .lg-controls { grid-template-columns: repeat(3, 1fr); width: min(100%, 420px); }
+    @keyframes hnshake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    @media (min-width: 900px) and (min-aspect-ratio: 1/1) { .hn { max-width: min(1100px, 150svh); } .hn .lg-controls { width: min(100%, 560px); } }
+  </style>
+</head>
+<body>
+  <main class="hn">
+    <div class="seg" role="radiogroup" aria-label="Скільки дисків" id="count"></div>
+    <div class="hn-status"><span class="chip" id="moves">Ходи: 0</span><span class="chip" id="min">Найменше: 7</span></div>
+    <div class="hn-stage" id="stage"></div>
+    <div class="lg-controls">
+      <button type="button" id="new"><span class="ico">🔄</span><span class="lbl">Заново</span></button>
+      <button type="button" id="hint"><span class="ico">💡</span><span class="lbl">Підказка</span></button>
+      <button type="button" id="undo"><span class="ico">↩️</span><span class="lbl">Назад</span></button>
+    </div>
+  </main>
+  <script src="../shared/games.js?v=1790259921"></script>
+  <script src="../shared/kit.js?v=1790259921" data-game="hanoi" data-night="on"></script>
+  <script src="hanoi.js?v=1790259921"></script>
+</body>
+</html>

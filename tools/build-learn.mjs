@@ -1,11 +1,11 @@
-// Збирає «Як ходять фігури» (Lichess Learn + під'єднання до сайту) в один файл learn/app.js.
-// Запуск: npm install && npm run build   (готовий learn/app.js лежить у репозиторії)
+// Збирає «Як ходять фігури» (Lichess Learn + під'єднання до сайту) в один файл learn-chess/app.js.
+// Запуск: npm install && npm run build   (готовий learn-chess/app.js лежить у репозиторії)
 import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 
 const here = p => fileURLToPath(new URL(p, import.meta.url));
 const CHESSGROUND = 'https://cdn.jsdelivr.net/npm/@lichess-org/chessground@10.2.0/dist/chessground.min.js';
-// службові модулі lila → наші замінники в learn/src/shims
+// службові модулі lila → наші замінники в learn-chess/src/shims
 const shim = {
   lib: 'lib.ts', 'lib/game': 'lib-game.ts', 'lib/game/ground': 'lib.ts', 'lib/view': 'lib-view.ts',
   'lib/licon': 'lib-misc.ts', 'lib/i18n': 'lib-misc.ts', 'lib/algo': 'lib-misc.ts', 'lib/storage': 'lib-misc.ts',
@@ -14,17 +14,17 @@ const shim = {
 };
 
 await build({
-  entryPoints: [here('../learn/src/app.ts')],
-  outfile: here('../learn/app.js'),
+  entryPoints: [here('../learn-chess/src/app.ts')],
+  outfile: here('../learn-chess/app.js'),
   bundle: true, format: 'esm', minify: true, target: 'es2020', legalComments: 'none',
   plugins: [{
     name: 'site-paths',
     setup(b) {
-      b.onResolve({ filter: /^lib(\/.*)?$/ }, a => ({ path: here('../learn/src/shims/' + shim[a.path]) }));
+      b.onResolve({ filter: /^lib(\/.*)?$/ }, a => ({ path: here('../learn-chess/src/shims/' + shim[a.path]) }));
       // дошка — та сама, що в іграх, з CDN; chessops, snabbdom і chessground/util вбудовуються з npm
       b.onResolve({ filter: /^@lichess-org\/chessground$/ }, () => ({ path: CHESSGROUND, external: true }));
       b.onResolve({ filter: /shared\/board\.js$/ }, () => ({ path: '../shared/board.js', external: true }));
     }
   }]
 });
-console.log('learn/app.js зібрано');
+console.log('learn-chess/app.js зібрано');
