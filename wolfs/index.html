@@ -4,29 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Фігури й пішаки</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790255323">
-  <link rel="stylesheet" href="../shared/play.css?v=1790255323">
-  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790255323">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790255423">
+  <link rel="stylesheet" href="../shared/play.css?v=1790255423">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790255423">
   <style>
-    /* 7 режимів — компактно у 2 ряди; дошка менша на висоту цих рядів, щоб кнопки внизу не вилазили за екран */
-    .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 44px - 120px - 50px - 24px - 36px)); }
-    html.lg .lg-play > .lg-quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 4px; padding: 2px 4px; max-width: min(100vw - 12px, 560px); width: auto; box-sizing: border-box; }
-    html.lg .lg-quick button { display: inline-flex; align-items: center; justify-content: center; gap: 1px; min-width: 0; min-height: 30px; padding: 1px 6px; }
-    .lg-quick mpiece { display: inline-block; flex: none; width: 20px; height: 20px; background-size: cover; }
+    /* 7 режимів — 2 ряди по сітці (4 + 3) на всю ширину: не переносяться в третій ряд за будь-якого шрифту */
+    html.lg .lg-play > .lg-quick { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2px; padding: 2px; width: min(100%, 560px); max-width: none; box-sizing: border-box; }
+    html.lg .lg-quick button { grid-column: span 3; display: flex; align-items: center; justify-content: center; gap: 0; min-width: 0; min-height: 28px; padding: 1px 2px; white-space: nowrap; overflow: hidden; }
+    html.lg .lg-quick button:nth-child(n+5) { grid-column: span 4; }
+    .lg-quick mpiece { display: inline-block; flex: none; width: 19px; height: 19px; background-size: cover; }
     .lg-quick small { font-size: 11px; font-weight: 900; margin: 0 1px; }
-    .lg-quick small.vs { opacity: .7; }
-    @media (max-width: 430px) { .lg-quick small.vs { font-size: 0; margin: 0 3px; } }
+    .lg-quick small.vs { opacity: .7; margin: 0 2px; }
+    .lg-hero-slot { min-height: 64px; }
     .lg-quick button[aria-checked="true"] small { color: #fff; }
     @media (min-width: 900px) and (min-aspect-ratio: 1/1) { .lg-quick mpiece { width: 26px; height: 26px; } .lg-quick small { font-size: 13px; } }
   </style>
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790255323"></script>
-  <script src="../shared/kit.js?v=1790255323" data-game="wolfs" data-night="on"></script>
+  <script src="../shared/games.js?v=1790255423"></script>
+  <script src="../shared/kit.js?v=1790255423" data-game="wolfs" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790255323';
-    import { createRules, MODES, modeButton, modeLabel } from './rules.js?v=1790255323';
+    import { startGame } from '../shared/game.js?v=1790255423';
+    import { createRules, MODES, modeButton, modeLabel } from './rules.js?v=1790255423';
     // Посилання з уроків: wolfs/#r_p5 — одразу потрібний режим
     const fromHash = location.hash.slice(1);
     if (MODES.some(m => m[0] === fromHash)) LG.store.set('wolfs:mode2', fromHash);
