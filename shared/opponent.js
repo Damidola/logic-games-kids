@@ -127,20 +127,45 @@ export function mountOpponent(el, opts = {}) {
   applyVisible();
   show(index, true);
 
-  // Хмаринка з реплікою: з'являється, висить ~8 с і зникає (тап — сховати одразу)
+  // Хмаринка з реплікою, як у коміксі: хвостик — від рота тваринки, хмаринка — праворуч угору від нього.
+  // Висить ~8 с і зникає (тап — сховати одразу).
   let bubble = null, bubbleTimer = 0;
   function say(text) {
     if (el.hidden) return;
     const o = OPPONENTS[index], own = LINES[o.avatar.split('/').pop()] || [];
     const pool = own.length && Math.random() < 0.55 ? own : GENERIC;
     text = text || pool[Math.floor(Math.random() * pool.length)];
-    bubble?.remove(); clearTimeout(bubbleTimer);
-    bubble = document.createElement('div');
-    bubble.className = 'lg-bubble'; bubble.textContent = text;
-    bubble.addEventListener('click', () => hide());
-    el.appendChild(bubble);
-    const hide = () => { if (!bubble) return; const b = bubble; bubble = null; b.classList.add('out'); setTimeout(() => b.remove(), 400); };
-    bubbleTimer = setTimeout(hide, 8000);
+    hide(true); clearTimeout(bubbleTimer);
+    const box = document.createElement('div');
+    box.className = 'lg-say';
+    box.innerHTML = '<svg class="lg-say-tail" aria-hidden="true"><polygon /></svg><div class="lg-bubble"></div>';
+    box.querySelector('.lg-bubble').textContent = text;
+    box.addEventListener('click', () => hide());
+    el.appendChild(box);
+    bubble = box;
+    place(box);
+    bubbleTimer = setTimeout(() => hide(), 8000);
+  }
+  function hide(now) {
+    if (!bubble) return;
+    const b = bubble; bubble = null;
+    if (now) return b.remove();
+    b.classList.add('out'); setTimeout(() => b.remove(), 400);
+  }
+  function place(box) {
+    const H = el.getBoundingClientRect(), I = img.getBoundingClientRect(), bub = box.querySelector('.lg-bubble');
+    if (!I.width) return;
+    // рот — трохи нижче середини портрета
+    const mx = I.left - H.left + I.width * 0.54, my = I.top - H.top + I.height * 0.66;
+    const bw = bub.offsetWidth, bh = bub.offsetHeight, pad = 6;
+    const left = Math.max(pad, Math.min(H.width - bw - pad, mx + I.width * 0.12));
+    const top = Math.max(pad, Math.min(H.height - bh - pad, my - bh - I.height * 0.1));
+    bub.style.left = left + 'px'; bub.style.top = top + 'px';
+    // хвостик: основа — на нижньому краї хмаринки ближче до рота, вістря — у рота
+    const baseX = Math.max(left + 14, Math.min(left + bw - 40, mx + 6)), baseY = top + bh - 3;
+    const svg = box.querySelector('svg');
+    svg.setAttribute('width', H.width); svg.setAttribute('height', H.height);
+    svg.querySelector('polygon').setAttribute('points', `${baseX},${baseY} ${baseX + 26},${baseY} ${mx + 4},${my}`);
   }
 
   return {
