@@ -1,8 +1,9 @@
 /* Райдер: чорно-біла траса. Тримай палець — байк їде; у повітрі — крутить сальто.
    Приземлився не колесами — аварія, і заїзд починається знову. */
-import { buildTrack, newBike, step, ground, R } from './core.js';
+import { buildTrack, newBike, step, ground, R, P, DEFAULTS } from './core.js';
 
 const LG = window.LG, cv = document.getElementById('game'), ctx = cv.getContext('2d');
+Object.assign(P, LG.store.get('rider:tune', {})); // збережені повзунки
 // Рівні: кнопки внизу
 const lvBox = document.getElementById('levels');
 let W = 0, H = 0, S = 1, dpr = 1;
@@ -10,7 +11,7 @@ function resize() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
   W = cv.clientWidth; H = cv.clientHeight;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-  S = Math.max(900 / W, 620 / H); // світових одиниць в одному пікселі: видно далі, байк менший
+  S = Math.max(900 / W, 620 / H) * P.zoom; // світових одиниць в одному пікселі: видно далі, байк менший
 }
 window.addEventListener('resize', resize); resize();
 
@@ -141,7 +142,7 @@ function drawBike() {
 }
 function drawShards() {
   for (const s of shards) {
-    s.vy += 1400 / 60; s.x += s.vx / 60; s.y += s.vy / 60; s.r += 0.2;
+    s.vy += P.gravity / 60; s.x += s.vx / 60; s.y += s.vy / 60; s.r += 0.2;
     const [x, y] = toScreen(s.x, s.y);
     ctx.save(); ctx.translate(x, y); ctx.rotate(s.r); ctx.fillStyle = '#fff'; ctx.fillRect(-s.s / 2, -s.s / 4, s.s, s.s / 2); ctx.restore();
   }
@@ -149,7 +150,58 @@ function drawShards() {
 requestAnimationFrame(frame);
 function paintLevels() { lvBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.l === level))); }
 lvBox.addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
+  const b = e.target.closest('button[data-l]'); if (!b) return;
+  if (+b.dataset.l === 4 && level === 4) return playRandom(true); // ще раз 🎲 — нова випадкова траса
   level = +b.dataset.l; LG.store.set('rider:level', level); LG.play('tap'); paintLevels(); reset(); started = false; hold = false;
 });
 paintLevels();
+
+// ---------- повзунки (⚙️): фізика, камера, випадкова траса ----------
+const SLIDERS = [
+  ['Фізика'],
+  ['maxSpeed', 'Найбільша швидкість', 300, 2000, 10],
+  ['engine', 'Потужність мотора', 400, 4000, 50],
+  ['gravity', 'Гравітація', 300, 3000, 50],
+  ['spin', 'Швидкість сальто', 5, 80, 1],
+  ['spinMax', 'Найшвидший оберт', 2, 20, 0.5],
+  ['bounce', 'Пружність коліс', 0, 0.9, 0.05],
+  ['assist', 'Допомога в польоті (вирівнювання)', 0, 40, 1],
+  ['airDelay', 'Затримка перед сальто, с', 0, 1, 0.05],
+  ['Камера'],
+  ['zoom', 'Віддалення камери', 0.5, 2.5, 0.05],
+  ['Випадкова траса 🎲'],
+  ['length', 'Довжина (шматків)', 5, 50, 1],
+  ['hills', 'Висота пагорбів', 0, 250, 5],
+  ['jumps', 'Стрибки, %', 0, 100, 5],
+  ['gaps', 'Ширина провалів', 0, 500, 10]
+];
+const TRACK_KEYS = ['length', 'hills', 'jumps', 'gaps'];
+function saveTune() { const t = {}; for (const k of Object.keys(DEFAULTS)) if (P[k] !== DEFAULTS[k]) t[k] = P[k]; LG.store.set('rider:tune', t); }
+function playRandom(newSeed) {
+  if (newSeed) P.seed = Math.floor(Math.random() * 1e6) + 1;
+  saveTune(); level = 4; LG.store.set('rider:level', 4); paintLevels(); reset(); started = false; hold = false;
+}
+LG.addSettings(() => {
+  const w = document.createElement('div');
+  w.innerHTML = SLIDERS.map(([k, label, min, max, st]) => label === undefined
+    ? `<div class="lg-set-title">${k}</div>`
+    : `<label class="lg-set-row rd-slider"><span>${label} <b data-v="${k}">${+P[k].toFixed(2)}</b></span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${st}" value="${P[k]}"></label>`).join('') +
+    `<div class="rd-tune-btns"><button type="button" class="lg-btn" data-a="random">🎲 Нова випадкова траса</button><button type="button" class="lg-btn" data-a="reset">↺ Як було</button></div>`;
+  w.addEventListener('input', e => {
+    const k = e.target.dataset.k; if (!k) return;
+    P[k] = +e.target.value; w.querySelector(`[data-v="${k}"]`).textContent = +P[k].toFixed(2);
+    saveTune();
+    if (k === 'zoom') resize();
+    if (TRACK_KEYS.includes(k) && level === 4) { reset(); started = false; }
+  });
+  w.addEventListener('click', e => {
+    const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+    if (a === 'random') { playRandom(true); LG.closeModal && LG.closeModal(); }
+    if (a === 'reset') {
+      Object.assign(P, DEFAULTS); LG.store.set('rider:tune', {}); resize(); reset(); started = false;
+      w.querySelectorAll('input[data-k]').forEach(i => { i.value = P[i.dataset.k]; w.querySelector(`[data-v="${i.dataset.k}"]`).textContent = +P[i.dataset.k].toFixed(2); });
+    }
+  });
+  return w;
+});
+document.getElementById('tune').addEventListener('click', () => LG.showSettings());

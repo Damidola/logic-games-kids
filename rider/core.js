@@ -1,7 +1,11 @@
 /* Райдер: фізика й траса без малювання (щоб можна було перевірити рівень і без екрана).
    Байк — точка з кутом нахилу. На землі: тримаєш — газ; у повітрі: тримаєш — крутиться назад (сальто).
    Приземлитися треба колесами вниз: кут байка близький до нахилу траси. Інакше — аварія. */
-export const G = 1400, R = 14;
+export const R = 14;
+// Налаштування фізики (повзунки в ⚙️). Значення за замовчуванням — DEFAULTS; P змінюється на льоту.
+export const DEFAULTS = { gravity: 1400, engine: 1500, maxSpeed: 950, spin: 30, spinMax: 8, bounce: 0.15, assist: 14, airDelay: 0.35, zoom: 1,
+  length: 18, hills: 80, jumps: 50, gaps: 180, seed: 1 };
+export const P = { ...DEFAULTS };
 
 // Траса: шматки ламаної (між шматками — провали), координата y — вниз. Рівні: 1 — легкий, 2 — середній, 3 — важкий
 export function buildTrack(level = 2) {
@@ -39,6 +43,8 @@ export function buildTrack(level = 2) {
     curve(900, t => 170 * Math.sin(t * Math.PI));                   // яма
     line(200, 0); ramp(260, 120); gap(180, 30); line(420, 150);      // ще один стрибок
     line(700, 0);
+  } else if (level === 4) {
+    randomTrack(curve, line, gap, ramp);
   } else {
     curve(1200, t => -80 * Math.sin(t * Math.PI * 2 * 2.5));        // круті пагорби
     curve(600, t => 320 * (1 - Math.cos(t * Math.PI)) / 2);
@@ -55,6 +61,36 @@ export function buildTrack(level = 2) {
   const track = { pieces, gems, finish: x - 450, bottom: Math.max(...pieces.flat().map(p => p[1])) + 700 };
   placeGems(track);
   return track;
+}
+
+// Випадкова траса з повзунків: довжина, висота пагорбів, частота стрибків, ширина провалів (seed — «нова траса»)
+// Випадкова траса з повзунків: довжина, висота пагорбів, частота стрибків, ширина провалів (seed — «нова траса»).
+// Будується з тих самих шматків, що й готові траси, з обмеженням крутизни — щоб її можна було проїхати.
+function randomTrack(curve, line, gap, ramp) {
+  let a = (P.seed * 2654435761) >>> 0;
+  const rnd = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const H = P.hills, J = P.jumps / 100, GAP = P.gaps, STEEP = 0.6; // найбільший нахил ≈ 31°
+  for (let i = 0; i < P.length; i++) {
+    const r = rnd();
+    line(150 + rnd() * 150, 0);                  // рівна ділянка між перешкодами
+    if (r < J * 0.65 && i > 0) {                 // трамплін, провал і довгий схил для приземлення
+      const h = 80 + rnd() * 110, g = GAP * (0.5 + rnd() * 0.5), land = 500 + g * 1.6;
+      ramp(260 + rnd() * 60, h); gap(g, 20 + rnd() * 30); line(land, land * 0.45);
+    } else if (r < J * 0.8 && i > 0) {           // сходинки вниз
+      for (let k = 0, n = 2 + Math.floor(rnd() * 3); k < n; k++) { line(160, 0); gap(8, 30 + rnd() * 25); }
+    } else if (rnd() < 0.55) {                   // пагорби
+      const len = 700 + rnd() * 600, n = 1 + Math.floor(rnd() * 2);
+      const amp = Math.min(H * (0.8 + rnd() * 0.6), STEEP * len / (Math.PI * n));
+      curve(len, t => -amp * (1 - Math.cos(t * Math.PI * 2 * n)) / 2); // плавно починається й закінчується
+    } else if (rnd() < 0.5) {                    // яма
+      const len = 700 + rnd() * 400, d = Math.min(H * (1 + rnd()), STEEP * 0.8 * len / Math.PI);
+      curve(len, t => d * (1 - Math.cos(t * Math.PI * 2)) / 2);
+    } else {                                     // купини
+      const amp = Math.min(14, H * 0.2); // на повній швидкості високі купини працюють як трампліни
+      curve(800, t => -amp * (1 - Math.cos(t * Math.PI * 2 * 4)) / 2);
+    }
+  }
+  line(700, 0);
 }
 
 // Діаманти ставимо туди, де байк справді пролітає (симуляція заїзду з газом) і на вершини пагорбів
@@ -89,7 +125,6 @@ const norm = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a
    На землі тримаєш — крутиться заднє колесо; у повітрі тримаєш — байк обертається назад (сальто),
    оберт триває за інерцією. Аварія — коли об землю вдаряється голова вершника або рама. */
 export const WR = 9, WB = 38; // радіус колеса й відстань між колесами
-const THROTTLE = 1500, MAX_V = 950, SPIN_MAX = 8, SPIN_ACC = 30;
 
 export function newBike() {
   const a = { x: 40, y: -WR, px: 40, py: -WR }, b = { x: 40 + WB, y: -WR, px: 40 + WB, py: -WR };
@@ -125,7 +160,7 @@ function collide(track, w) {
   let vx = w.x - w.px, vy = w.y - w.py;
   w.x = g.qx + g.nx * WR; w.y = g.qy + g.ny * WR;
   const vn = vx * g.nx + vy * g.ny;
-  if (vn < 0) { vx -= 1.15 * vn * g.nx; vy -= 1.15 * vn * g.ny; } // легкий відскок
+  if (vn < 0) { vx -= (1 + P.bounce) * vn * g.nx; vy -= (1 + P.bounce) * vn * g.ny; } // відскок коліс
   w.px = w.x - vx; w.py = w.y - vy;
   return true;
 }
@@ -147,20 +182,21 @@ export function step(track, b, hold, dt) {
     const vx = w.x - w.px, vy = w.y - w.py;
     w.px = w.x; w.py = w.y;
     const damp = (w === A ? b.gA : b.gB) ? 0.9995 : 1;
-    w.x += vx * damp; w.y += vy * damp + G * dt * dt;
+    w.x += vx * damp; w.y += vy * damp + P.gravity * dt * dt;
   }
   const fx = hx * 2 / WB, fy = hy * 2 / WB;
   if (hold && (b.gA || b.gB)) { // газ: колеса штовхають байк уздовж рами
     const v = (va[0] + vb[0]) / 2 * fx + (va[1] + vb[1]) / 2 * fy;
-    if (v < MAX_V) { A.x += fx * THROTTLE * dt * dt; A.y += fy * THROTTLE * dt * dt; B.x += fx * THROTTLE * dt * dt * 0.6; B.y += fy * THROTTLE * dt * dt * 0.6; }
+    const E = P.engine;
+    if (v < P.maxSpeed) { A.x += fx * E * dt * dt; A.y += fy * E * dt * dt; B.x += fx * E * dt * dt * 0.6; B.y += fy * E * dt * dt * 0.6; }
   }
   b.airT = b.air ? (b.airT || 0) + dt : 0;
   if (b.air) {
     // коротенькі підскоки на купинах не крутять байк — лише справжній політ
-    if (hold && b.airT > 0.35 && omega > -SPIN_MAX) rotate(b, -SPIN_ACC * dt * dt); // крутимо назад
-    else if (!hold || b.airT <= 0.35) { // відпустив (або ледь відірвався): оберт гасне, байк м'яко повертається вздовж польоту (легше приземлитися)
+    if (hold && b.airT > P.airDelay && omega > -P.spinMax) rotate(b, -P.spin * dt * dt); // крутимо назад
+    else if (!hold || b.airT <= P.airDelay) { // відпустив (або ледь відірвався): оберт гасне, байк м'яко повертається вздовж польоту (легше приземлитися)
       const vx = (va[0] + vb[0]) / 2, vy = (va[1] + vb[1]) / 2, d = norm(Math.atan2(vy, vx) - Math.atan2(hy, hx));
-      rotate(b, (Math.max(-1, Math.min(1, d)) * 14 - omega * 3) * dt * dt);
+      rotate(b, (Math.max(-1, Math.min(1, d)) * P.assist - omega * P.assist / 4.7) * dt * dt);
     }
   }
   // рама жорстка; колеса не провалюються в землю
