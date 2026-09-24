@@ -46,6 +46,7 @@ export interface LevelBase {
   pointsForCapture?: boolean;
   showPieceValues?: boolean;
   showFailureFollowUp?: boolean;
+  knightPath?: boolean; // logic-games-kids: кінь показує шлях «Г» (два прямо, один убік)
 }
 
 export interface LevelDefaults {

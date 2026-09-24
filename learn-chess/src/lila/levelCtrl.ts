@@ -149,6 +149,7 @@ export class LevelCtrl {
       const enemyRoleCaptured = enemyRoleToBeCaptured(orig, dest);
       const move = chess.move(orig, dest, prom);
       if (move) this.setFen(chess.fen(), blueprint.color, new Map(), [orig, dest]);
+      if (move && blueprint.knightPath && chess.get(dest)?.role === 'knight') this.knightPath(ground, orig, dest);
       else {
         // moving into check
         vm.failed = true;
@@ -202,6 +203,22 @@ export class LevelCtrl {
       }
       redraw();
     };
+  };
+
+  // logic-games-kids: кінь іде «Г» — дві клітинки прямо, потім одна вбік (лише на перших рівнях)
+  knightPath = (ground: CgApi, orig: SquareName, dest: SquareName) => {
+    const piece = ground.state.pieces.get(dest);
+    if (!piece) return;
+    const o = parseSquare(orig), d = parseSquare(dest);
+    const dr = (d >> 3) - (o >> 3), df = (d & 7) - (o & 7);
+    const mid = makeSquare(Math.abs(dr) === 2 ? o + 8 * dr : o + df);
+    ground.set({ animation: { enabled: false } });
+    ground.setPieces(new Map([[dest, undefined], [orig, piece]]));
+    ground.set({ animation: { enabled: true } });
+    const midPiece = ground.state.pieces.get(mid);
+    if (midPiece) return ground.setPieces(new Map([[orig, undefined], [dest, piece]])); // згин зайнятий — просто стрибок
+    ground.setPieces(new Map([[orig, undefined], [mid, piece]]));
+    timeouts.setTimeout(() => ground.setPieces(new Map([[mid, midPiece], [dest, piece]])), 230);
   };
 
   setFen = (fen: string, color: Color, dests: Dests, lastMove?: [SquareName, SquareName]) =>

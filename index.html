@@ -7,7 +7,7 @@
   <meta name="description" content="Безкоштовні логічні ігри для дітей українською: шашки, шахи, судоку зі звірятами, чотири в ряд та інші. З порадами для батьків.">
   <meta name="theme-color" content="#15142A">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
-  <link rel="stylesheet" href="shared/kit.css?v=1790259921">
+  <link rel="stylesheet" href="shared/kit.css?v=1790270219">
   <style>
     body {
       margin: 0;
@@ -50,6 +50,17 @@
       .card h2 { font-size: 20px; }
       .card .lvl { font-size: 14px; top: 10px; right: 12px; }
     }
+
+    /* ---------- велика картка «Шахи» ---------- */
+    .hero-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 16px 12px 18px; margin-bottom: 6px;
+      border-radius: 26px; background: linear-gradient(135deg, #6C5CE7, #8E7CFF); color: #fff; text-decoration: none; text-align: center;
+      box-shadow: inset 0 -6px 0 rgba(0,0,0,.16), 0 6px 16px rgba(0,0,0,.25); }
+    .hero-card:active { transform: scale(.98); }
+    .hero-pieces { display: flex; gap: 2px; }
+    .hero-pieces img { display: block; width: clamp(48px, 15vw, 76px); height: clamp(48px, 15vw, 76px); background-size: cover; filter: drop-shadow(0 3px 0 rgba(0,0,0,.2)); }
+    .hero-card b { font-size: clamp(30px, 9vw, 44px); font-weight: 900; line-height: 1; }
+    .hero-card small { font-size: clamp(14px, 3.8vw, 17px); font-weight: 800; opacity: .92; }
+    .sec { margin: 14px 4px 8px; font-size: 19px; font-weight: 900; color: var(--lg-ink); }
 
     /* ---------- для батьків: сховано за непомітною стрілкою ---------- */
     .reveal { display: flex; justify-content: center; margin-top: 6px; }
@@ -95,7 +106,15 @@
       <h1>Логічні <span>ігри</span></h1>
     </header>
 
-    <main class="grid" id="grid"></main>
+    <main>
+      <a class="hero-card" href="chess-path/index.html">
+        <span class="hero-pieces" id="hero-pieces" aria-hidden="true"></span>
+        <b>Шахи</b>
+        <small>Шлях новачка: від пішака до партії з роботом</small>
+      </a>
+      <h2 class="sec">Інші логічні ігри</h2>
+      <div class="grid" id="grid"></div>
+    </main>
 
     <div class="reveal"><button type="button" id="reveal-btn" aria-label="Для батьків" aria-expanded="false">⌄</button></div>
     <section class="parents" id="parents" aria-labelledby="parents-title">
@@ -121,8 +140,8 @@
     <footer>Зроблено з любов’ю для маленьких мислителів 💜</footer>
   </div>
 
-  <script src="shared/games.js?v=1790259921"></script>
-  <script src="shared/kit.js?v=1790259921"></script>
+  <script src="shared/games.js?v=1790270219"></script>
+  <script src="shared/kit.js?v=1790270219"></script>
   <script>
   (function () {
     const games = window.LG_GAMES;
@@ -131,10 +150,12 @@
     const $ = id => document.getElementById(id);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-    // Спершу шахи й усе з фігурами, далі шашки та інші стратегії, найпростіші — внизу
-    const ORDER = ['chess', 'mate', 'learn', 'pawns', 'wolfs', 'footprints', 'chushki', 'knight', 'queens', 'checkers', 'turkish', 'towers', 'corners', 'reversi', 'quoridor', 'dots', 'connect4', 'salamandra', 'nim', 'hanoi', 'sudoku', 'ttt', 'rider'];
+    // Шахи — окремою великою карткою (усе шахове зібрано у «Шляху новачка»); тут — інші логічні ігри
+    try { sessionStorage.removeItem('lg:back'); } catch (e) { /* без сховища */ }
+    const IN_PATH = ['path', 'chess', 'mate', 'learn', 'pawns', 'wolfs', 'knight', 'queens'];
+    const ORDER = ['footprints', 'chushki', 'checkers', 'turkish', 'towers', 'corners', 'reversi', 'quoridor', 'dots', 'connect4', 'salamandra', 'nim', 'hanoi', 'sudoku', 'ttt', 'rider'];
     const list = ORDER.map(id => games.find(g => g.id === id)).filter(Boolean)
-      .concat(games.filter(g => !ORDER.includes(g.id)));
+      .concat(games.filter(g => !ORDER.includes(g.id) && !IN_PATH.includes(g.id)));
 
 
     function renderGrid() {
@@ -163,6 +184,8 @@
       });
     }
 
+    const set = (LG.pieceSet && LG.pieceSet()) || 'cburnett';
+    $('hero-pieces').innerHTML = ['P', 'N', 'Q', 'K'].map(c => `<img src="shared/pieces/${set}/w${c}.svg" alt="">`).join('');
     renderGrid();
     renderParents();
   })();

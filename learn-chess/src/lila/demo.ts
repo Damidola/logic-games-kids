@@ -210,7 +210,14 @@ export function playDemo(g: CgApi, d: Demo, say: (t: string) => void, alive: () 
       for (const u of s.move.split(' ')) {
         const o = u.slice(0, 2) as Key, t = u.slice(2, 4) as Key, pc = g.state.pieces.get(o);
         if (!pc) continue;
-        g.setPieces(new Map([[o, undefined], [t, s.promo ? { role: s.promo, color: pc.color, promoted: true } : pc]]));
+        const to = s.promo ? { role: s.promo, color: pc.color, promoted: true } : pc;
+        if (pc.role === 'knight' && !knightMidBusy(g, o, t)) { // кінь — «Г»: спершу дві клітинки прямо, потім одна вбік
+          const a = (o.charCodeAt(0) - 97) + 8 * (+o[1] - 1), b = (t.charCodeAt(0) - 97) + 8 * (+t[1] - 1);
+          const dr = (b >> 3) - (a >> 3), df = (b & 7) - (a & 7), m = a + (Math.abs(dr) === 2 ? 8 * dr : df);
+          const mid = ('abcdefgh'[m & 7] + ((m >> 3) + 1)) as Key, keep = g.state.pieces.get(mid);
+          g.setPieces(new Map([[o, undefined], [mid, pc]]));
+          timeouts.setTimeout(() => g.setPieces(new Map([[mid, keep], [t, to]])), 260);
+        } else g.setPieces(new Map([[o, undefined], [t, to]]));
         if (!last.length) last = [o, t];
         if (apples.includes(t)) { apples = apples.filter(a => a !== t); take(); }
       }
@@ -223,4 +230,11 @@ export function playDemo(g: CgApi, d: Demo, say: (t: string) => void, alive: () 
     timeouts.setTimeout(next, s.wait ?? (s.move ? 1300 : 2400));
   };
   timeouts.setTimeout(next, 200);
+}
+
+// Клітинка на згині «Г» зайнята — тоді кінь просто перестрибує
+function knightMidBusy(g: CgApi, o: Key, t: Key): boolean {
+  const a = (o.charCodeAt(0) - 97) + 8 * (+o[1] - 1), b = (t.charCodeAt(0) - 97) + 8 * (+t[1] - 1);
+  const dr = (b >> 3) - (a >> 3), df = (b & 7) - (a & 7), m = a + (Math.abs(dr) === 2 ? 8 * dr : df);
+  return g.state.pieces.has(('abcdefgh'[m & 7] + ((m >> 3) + 1)) as Key);
 }

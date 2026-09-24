@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Шахи — шлях новачка</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790270219">
+  <style>
+    body { margin: 0; font-family: var(--lg-font); color: var(--lg-ink); background: var(--lg-bg); }
+    .cp { max-width: 640px; margin: 0 auto; padding: 6px 12px 28px; box-sizing: border-box; }
+    .cp-step { position: relative; display: grid; grid-template-columns: 46px 1fr; gap: 4px 10px; padding: 0 0 14px; }
+    /* лінія шляху між кружечками */
+    .cp-step::before { content: ''; position: absolute; left: 21px; top: 44px; bottom: 0; width: 4px; border-radius: 2px; background: var(--lg-line); }
+    .cp-step:last-child::before { display: none; }
+    .cp-num { grid-row: span 3; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: var(--lg-surface); border: 3px solid var(--lg-line); box-sizing: border-box; font: 900 18px var(--lg-font); position: relative; z-index: 1; }
+    .cp-num img { width: 34px; height: 34px; }
+    .cp-step.done .cp-num { border-color: #2ECC9A; background: #2ECC9A33; }
+    .cp-step.next .cp-num { border-color: var(--lg-primary); box-shadow: 0 0 0 4px #6C5CE755; }
+    .cp-step h2 { margin: 2px 0 0; font: 900 19px var(--lg-font); }
+    .cp-step p { margin: 0; font: 700 13px/1.3 var(--lg-font); color: var(--lg-muted); }
+    .cp-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .cp-links a { display: inline-flex; align-items: center; gap: 4px; padding: 7px 11px; border-radius: 12px; text-decoration: none;
+      background: var(--lg-surface); border: 2px solid var(--lg-line); color: var(--lg-ink); font: 800 14px var(--lg-font); box-shadow: 0 3px 0 var(--lg-line); }
+    .cp-links a:active { transform: translateY(2px); box-shadow: none; }
+    .cp-links a.seen { border-color: #2ECC9A; }
+    .cp-links a.seen::after { content: '✓'; color: #2ECC9A; font-weight: 900; }
+    .cp-links a.t-play { background: #2ECC9A22; }
+    .cp-links a.t-task { background: #FF9F1C22; }
+  </style>
+</head>
+<body>
+  <main class="cp" id="path"></main>
+  <script src="../shared/games.js?v=1790270219"></script>
+  <script src="../shared/kit.js?v=1790270219" data-game="path" data-night="on"></script>
+  <script>
+  (function () {
+    // Шлях новачка: кроки зі старих розділів сайту (уроки Lichess, власні міні-уроки, задачі, практика, гра з роботом)
+    const L = n => '../learn-chess/index.html#/' + n;          // етап уроків Lichess
+    const LS = k => 'lesson.html#' + k;                         // наш міні-урок
+    const P = k => '../chess-puzzles/index.html#' + k;          // розділ задач
+    const W = k => '../pieces-vs-pawns/index.html#' + k;        // фігури проти пішаків
+    const STEPS = [
+      ['P', 'Пішак', 'Ходить уперед, б’є навскоси. І одразу — перша перемога!', [['📖', 'Урок', L(6)], ['🎮', 'Пішакова битва', '../pawns/index.html', 'play']]],
+      ['R', 'Тура', 'Ходить прямо на скільки завгодно клітинок.', [['📖', 'Урок', L(1)], ['🎮', 'Тура проти 5 пішаків', W('r_p5'), 'play']]],
+      ['B', 'Слон', 'Ходить навскоси і не міняє колір клітинок.', [['📖', 'Урок', L(2)], ['🎮', 'Слон проти 3 пішаків', W('b_p3'), 'play']]],
+      ['Q', 'Ферзь', 'Тура + слон разом — найсильніша фігура.', [['📖', 'Урок', L(3)], ['🎮', 'Ферзь проти 8 пішаків', W('q_p8'), 'play']]],
+      ['N', 'Кінь', 'Стрибає літерою «Г»: два прямо, один убік.', [['📖', 'Урок', L(5)], ['🎮', 'Кінь проти 3 пішаків', W('n_p3'), 'play']]],
+      ['K', 'Король', 'Найважливіша фігура: ходить на одну клітинку.', [['📖', 'Урок', L(4)]]],
+      ['⚔️', 'Напад', 'Постав фігуру так, щоб наступним ходом побити.', [['📖', 'Урок', LS('attack')]]],
+      ['🍽️', 'Бий беззахисні', 'Забирай фігури, які ніхто не захищає.', [['📖', 'Урок', L(7)], ['🧩', 'Задачі', P('hanging'), 'task']]],
+      ['🛡️', 'Захист', 'Напали на твою фігуру? Захисти її!', [['📖', 'Урок', LS('protect')], ['📖', 'Захист', L(8)], ['🎮', 'Битва', L(9), 'play']]],
+      ['💰', 'Цінність фігур', 'Пішак 1, кінь і слон 3, тура 5, ферзь 9.', [['📖', 'Урок', '../learn-chess/value.html']]],
+      ['⚠️', 'Шах', 'Напад на короля і три способи врятуватися.', [['📖', 'Урок', '../learn-chess/check.html'], ['🧩', 'Постав шах', P('chk_rook'), 'task'], ['🧩', 'Урятуйся', P('esc_mixed'), 'task']]],
+      ['🏁', 'Мат', 'Шах, від якого нікуди подітися. Відомі мати.', [['📖', 'Урок', L(12)], ['📖', 'Відомі мати', LS('mates')], ['🧩', 'Мат в 1 хід', P('m1rook'), 'task'], ['🧩', 'Різні', P('m1mix'), 'task']]],
+      ['♜', 'Мат двома турами', 'Тури по черзі заганяють короля до краю — «драбинка».', [['📖', 'Урок', LS('rooks')]]],
+      ['♛', 'Мат ферзем', 'Ферзь заганяє, король допомагає.', [['📖', 'Урок', LS('queen')], ['🎮', 'Практика', P('kqk'), 'play']]],
+      ['🤝', 'Пат і нічия', 'Коли ніхто не виграв — і як не зробити пат.', [['📖', 'Урок', LS('draw')], ['📖', 'Пат', L(16)]]],
+      ['👑', 'Перетворення і взяття на проході', 'Пішак стає ферзем. І особливий хід пішака.', [['📖', 'Урок', LS('promo')], ['📖', 'На проході', L(15)], ['🎮', 'Король і пішак', P('kpk'), 'play']]],
+      ['🏰', 'Рокіровка', 'Сховай короля й виведи туру.', [['📖', 'Урок', L(14)]]],
+      ['🚀', 'Дебют', 'Як починати гру: центр, фігури, рокіровка.', [['📖', 'Розстановка', L(13)], ['📖', 'Правила дебюту', LS('opening')]]],
+      ['🍴', 'Тактика', 'Вилка, зв’язка, прострел та інші прийоми.', [['🧩', 'Вилка', P('fork'), 'task'], ['🧩', 'Зв’язка', P('pin'), 'task'], ['🧩', 'Прострел', P('skewer'), 'task'], ['🧩', 'Відкритий напад', P('discovered'), 'task']]],
+      ['🏆', 'Мат у 2 ходи', 'Хід, відповідь суперника — і мат.', [['🧩', 'Задачі', P('mate2'), 'task']]],
+      ['⭐', 'Бонус', 'Головоломки з фігурами.', [['🎮', 'Хід конем', '../knights-tour/index.html', 'play'], ['🎮', '8 ферзів', '../eight-queens/index.html', 'play']]],
+      ['K', 'Шахи з роботом', 'Справжня партія! Обери рівень і колір.', [['🎮', 'Грати', '../chess/index.html', 'play']]]
+    ];
+    try { sessionStorage.setItem('lg:back', location.href.split('#')[0]); } catch (e) { /* без сховища */ }
+    const seen = new Set(LG.store.get('path:seen', []));
+    const set = LG.pieceSet ? LG.pieceSet() : 'cburnett';
+    const icon = ic => /^[PRBQNK]$/.test(ic) ? `<img src="../shared/pieces/${set}/w${ic}.svg" alt="">` : ic;
+    let next = -1;
+    const html = STEPS.map(([ic, title, sub, links], i) => {
+      const done = links.every(l => seen.has(l[2]));
+      if (!done && next < 0) next = i;
+      return `<section class="cp-step${done ? ' done' : ''}${!done && next === i ? ' next' : ''}" id="s${i + 1}">
+        <div class="cp-num">${icon(ic)}</div><h2>${i + 1}. ${title}</h2><p>${sub}</p>
+        <div class="cp-links">${links.map(([e, t, href, kind]) => `<a class="t-${kind || 'learn'}${seen.has(href) ? ' seen' : ''}" href="${href}">${e} ${t}</a>`).join('')}</div>
+      </section>`;
+    }).join('');
+    document.getElementById('path').innerHTML = html;
+    document.getElementById('path').addEventListener('click', e => {
+      const a = e.target.closest('.cp-links a'); if (!a) return;
+      seen.add(a.getAttribute('href')); LG.store.set('path:seen', [...seen]);
+    });
+    // відкриваємо на наступному кроці
+    if (next > 1) document.getElementById('s' + next)?.scrollIntoView({ block: 'center' });
+  })();
+  </script>
+</body>
+</html>

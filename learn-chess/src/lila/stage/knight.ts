@@ -14,7 +14,7 @@ const stage: StageNoID = {
       fen: '8/8/8/8/4N3/8/8/8 w - -',
       apples: 'c5 d7',
       nbMoves: 2,
-      shapes: [arrow('e4c5'), arrow('c5d7')],
+      shapes: [arrow('e4c4'), arrow('c4c5'), arrow('c5c7'), arrow('c7d7')], // «Г»: два прямо, один убік
     },
     {
       goal: i18n.learn.grabAllTheStars,
@@ -46,7 +46,7 @@ const stage: StageNoID = {
       apples: 'b4 b5 c6 c8 d4 d5 e3 e7 f5',
       nbMoves: 9,
     },
-  ].map(toLevel),
+  ].map((l, i) => toLevel({ ...l, knightPath: i < 3 }, i)), // перші рівні: кінь ходить «Г» по клітинках
   complete: i18n.learn.knightComplete,
 };
 export default stage;

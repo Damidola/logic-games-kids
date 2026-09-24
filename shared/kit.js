@@ -388,10 +388,16 @@
     });
     document.addEventListener('lg:mute', paintSound);
     paintSound();
+    // 🏠 веде туди, звідки прийшли: зі «Шляху новачка» — назад на шлях, інакше — на головну
+    function homeHref() {
+      let back = null;
+      try { back = sessionStorage.getItem('lg:back'); } catch (e) { /* без сховища */ }
+      return back && location.href.split('#')[0] !== back ? back : root + 'index.html';
+    }
     // У всіх іграх однаково: 🏠 · назва · 🔊 ❓ ⚙️
     const bar = el('header', { class: 'lg-bar' }, [
       el('div', { class: 'lg-bar-actions' }, [
-        el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [el('span', { text: '🏠' })])
+        el('a', { class: 'lg-icon-btn lg-home', href: homeHref(), title: 'Назад', 'aria-label': 'Назад' }, [el('span', { text: '🏠' })])
       ]),
       el('div', { class: 'lg-bar-title' }, [el('span', { text: game.title })]),
       el('div', { class: 'lg-bar-actions lg-bar-right' }, [
