@@ -378,13 +378,24 @@
   // ---------- верхня панель ----------
   function buildBar() {
     const gearBtn = el('button', { class: 'lg-icon-btn lg-gear', type: 'button', title: 'Налаштування', 'aria-label': 'Налаштування', text: '⚙️', onclick: showSettings });
-    // У всіх іграх однаково: 🏠 · назва · ❓ ⚙️
+    // Звук: увімкнути / вимкнути одним натисканням
+    const soundBtn = el('button', { class: 'lg-icon-btn lg-sound', type: 'button' });
+    const paintSound = () => { soundBtn.textContent = LG.muted ? '🔇' : '🔊'; soundBtn.title = soundBtn.ariaLabel = LG.muted ? 'Увімкнути звук' : 'Вимкнути звук'; };
+    soundBtn.addEventListener('click', () => {
+      LG.muted = !LG.muted; store.set('muted', LG.muted);
+      document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted }));
+      if (!LG.muted) play('tap');
+    });
+    document.addEventListener('lg:mute', paintSound);
+    paintSound();
+    // У всіх іграх однаково: 🏠 · назва · 🔊 ❓ ⚙️
     const bar = el('header', { class: 'lg-bar' }, [
       el('div', { class: 'lg-bar-actions' }, [
         el('a', { class: 'lg-icon-btn lg-home', href: root + 'index.html', title: 'До всіх ігор', 'aria-label': 'До всіх ігор' }, [el('span', { text: '🏠' })])
       ]),
       el('div', { class: 'lg-bar-title' }, [el('span', { text: game.title })]),
       el('div', { class: 'lg-bar-actions lg-bar-right' }, [
+        soundBtn,
         el('button', { class: 'lg-icon-btn lg-help', type: 'button', title: 'Правила', 'aria-label': 'Правила', text: '❓', onclick: showRules }),
         gearBtn
       ])

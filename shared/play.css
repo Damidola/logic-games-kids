@@ -3,12 +3,12 @@
 @import url('vendor/lichess-board.css');
 
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
-html.lg { --lg-bar-h: 44px; }
+html.lg { --lg-bar-h: 38px; }
 html.lg body.lg-game {
   position: fixed; inset: 0; margin: 0; height: 100svh; min-height: 0;
   padding: calc(var(--lg-bar-h) + 6px) 0 10px; touch-action: manipulation;
 }
-html.lg .lg-bar .lg-icon-btn { width: 34px; height: 34px; font-size: 16px; border-radius: 11px; }
+html.lg .lg-bar .lg-icon-btn { width: 30px; height: 30px; font-size: 14px; border-radius: 10px; }
 html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 
 .lg-play {
@@ -56,8 +56,8 @@ html.lg .lg-bar .lg-bar-title { font-size: clamp(15px, 4.4vw, 20px); }
 .lg-material mpiece { display: block; width: 22px; height: 22px; background-size: cover; }
 .lg-material mpiece + mpiece { margin-left: -14px; } /* однакові фігури — стопкою, як на Lichess */
 .lg-material b { margin-left: 2px; }
-.lg-hero-slot + .lg-turn + .lg-material { position: relative; z-index: 2; margin-top: -16px; }
-.lg-hero-slot + .lg-turn + .lg-material b { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+/* рахунок збитих — окремим рядком під панеллю тваринки, нічого не перекриває */
+.lg-hero-slot + .lg-turn + .lg-material { margin-top: 0; }
 
 /* ---------- дошка Lichess ---------- */
 .lg-board-wrap {
