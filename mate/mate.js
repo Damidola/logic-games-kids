@@ -13,6 +13,17 @@ const main = document.querySelector('main.mt'), wrap = $('wrap');
 const DATA = await (await fetch(new URL('puzzles.json', import.meta.url))).json();
 
 const GROUPS = [
+  ['Постав шах', [
+    ['chk_rook', 'rook', 'Турою', 'Шах — це напад на короля'],
+    ['chk_bishop', 'bishop', 'Слоном', 'Слон шахує навскоси'],
+    ['chk_queen', 'queen', 'Ферзем', 'Ферзь шахує звідусіль'],
+    ['chk_knight', 'knight', 'Конем', 'Кінь шахує стрибком'],
+    ['chk_pawn', 'pawn', 'Пішаком', 'Пішак шахує навскоси вперед']]],
+  ['Урятуйся від шаху', [
+    ['esc_run', '🏃', 'Утечи королем', 'Відведи короля туди, де його не б’ють'],
+    ['esc_capture', '⚔️', 'Побий того, хто шахує', 'Часто найкращий спосіб!'],
+    ['esc_block', '🛡️', 'Закрийся', 'Постав фігуру між королем і нападником'],
+    ['esc_mixed', '🎲', 'Знайди єдиний порятунок', 'Урятуватися можна лише одним ходом']]],
   ['Мат в 1 хід', [
     ['m1rook', 'rook', 'Турою', 'Найпростіші — тура й король'],
     ['m1bishop', 'bishop', 'Слоном', 'Слон ходить навскоси'],
@@ -34,6 +45,10 @@ const GROUPS = [
 ];
 // Завдання під дошкою — щоб завжди було зрозуміло, що робити
 const TASK = {
+  chk_rook: 'Постав шах турою: напади на чорного короля.', chk_bishop: 'Постав шах слоном: напади на короля навскоси.',
+  chk_queen: 'Постав шах ферзем.', chk_knight: 'Постав шах конем — стрибком літерою «Г».', chk_pawn: 'Постав шах пішаком: пішак б’є навскоси вперед.',
+  esc_run: 'Твоєму королю шах! Відведи короля на клітинку, яку ніхто не б’є.', esc_capture: 'Твоєму королю шах! Побий фігуру, що шахує.',
+  esc_block: 'Твоєму королю шах! Закрийся: постав свою фігуру між королем і нападником.', esc_mixed: 'Твоєму королю шах! Знайди єдиний хід, що рятує.',
   m1rook: 'Постав мат турою одним ходом.', m1queen: 'Постав мат ферзем одним ходом.', m1bishop: 'Постав мат слоном одним ходом.',
   m1knight: 'Постав мат конем одним ходом.', m1pawn: 'Постав мат пішаком. Дійшов до кінця — обери, ким він стане!',
   m1mix: 'Постав мат одним ходом.', mate2: 'Постав мат за 2 ходи: твій хід, відповідь суперника — і мат.',
@@ -45,6 +60,26 @@ const TASK = {
   kbbk: 'Постав мат двома слонами: заганяй короля в кут.', kpk: 'Проведи пішака в ферзі — і постав мат.'
 };
 const MATE_SEC = k => k.startsWith('m1') || k === 'mate2';
+// Задачі на шах: правильний будь-який хід потрібного виду (не лише записаний)
+const CHK_ROLE = { chk_rook: 'rook', chk_bishop: 'bishop', chk_queen: 'queen', chk_knight: 'knight', chk_pawn: 'pawn' };
+const RU = { rook: 'турою', bishop: 'слоном', queen: 'ферзем', knight: 'конем', pawn: 'пішаком' };
+function ruleCheck(p, m, test) {
+  const role = p.board.get(m.from)?.role;
+  if (CHK_ROLE[sec]) {
+    if (!test.isCheck()) return [false, 'Це ще не шах: король не під ударом. Спробуй ще 🙂'];
+    if (role !== CHK_ROLE[sec]) return [false, `Шах є, але треба ${RU[CHK_ROLE[sec]]}!`];
+    return [true];
+  }
+  if (sec.startsWith('esc_') && sec !== 'esc_mixed') {
+    const checker = p.ctx().checkers, capture = checker.has(m.to), king = role === 'king';
+    const kindOf = king && !capture ? 'run' : capture ? 'capture' : 'block';
+    const want = sec.slice(4);
+    if (kindOf === want) return [true];
+    const said = { run: 'королем утекти', capture: 'побити фігуру, що шахує', block: 'закритися' };
+    return [false, `Так теж можна врятуватися, але тут треба ${said[want]} 🙂`];
+  }
+  return null;
+}
 // Практика закінчень відкривається з уроків («Як ходять фігури»), у меню задач її немає
 const PRACTICE_ITEMS = [
   ['kqk', 'queen', 'Ферзь і король проти короля', 'Постав мат — ходів скільки завгодно'],
@@ -185,7 +220,9 @@ async function puzzleMove(from, to) {
   }
   const test = pos.clone(); test.play(parseUci(from + to + promo));
   const want = pos.clone(); want.play(parseUci(exp));
-  if (!same(test, want) && !test.isCheckmate()) {
+  const rule = ruleCheck(pos, parseUci(from + to + promo), test);
+  if (rule ? !rule[0] : !same(test, want) && !test.isCheckmate()) {
+    if (rule) say(rule[1], 2200);
     mistakes++; LG.play('error'); paint();
     const t = token;
     const back = () => {
@@ -211,7 +248,7 @@ async function puzzleMove(from, to) {
       return;
     }
     shake();
-    say(MATE_SEC(sec) ? 'Це не мат — спробуй ще 🙂' : 'Не той хід — спробуй ще 🙂');
+    if (!rule) say(MATE_SEC(sec) ? 'Це не мат — спробуй ще 🙂' : 'Не той хід — спробуй ще 🙂');
     setTimeout(back, 450);
     return;
   }
