@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Фігури й пішаки</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790234203">
-  <link rel="stylesheet" href="../shared/play.css?v=1790234203">
-  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790234203">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790234762">
+  <link rel="stylesheet" href="../shared/play.css?v=1790234762">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790234762">
   <style>
     .lg-quick { flex-wrap: wrap; justify-content: center; max-width: min(100vw - 12px, 560px); box-sizing: border-box; }
     .lg-quick button { display: inline-flex; align-items: center; gap: 1px; min-width: 0; padding: 2px 5px; }
@@ -18,11 +18,11 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790234203"></script>
-  <script src="../shared/kit.js?v=1790234203" data-game="wolfs" data-night="on"></script>
+  <script src="../shared/games.js?v=1790234762"></script>
+  <script src="../shared/kit.js?v=1790234762" data-game="wolfs" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790234203';
-    import { createRules, MODES, modeButton, modeLabel } from './rules.js?v=1790234203';
+    import { startGame } from '../shared/game.js?v=1790234762';
+    import { createRules, MODES, modeButton, modeLabel } from './rules.js?v=1790234762';
     // Посилання з уроків: wolfs/#r_p5 — одразу потрібний режим
     const fromHash = location.hash.slice(1);
     if (MODES.some(m => m[0] === fromHash)) LG.store.set('wolfs:mode2', fromHash);
