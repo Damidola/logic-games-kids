@@ -52,3 +52,16 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
 
 /* Зірочки з'являються одразу (у Lichess поява 0,6 с ховається під вікном «Етап N», якого тут немає) */
 .learn__main .apple { animation: .15s ease-out 0s 1 forwards apple-appear, 1.7s ease-in-out .2s infinite none soft-grow, .7s ease-in-out .2s infinite none soft-hue; }
+
+/* Приклад на початку етапу (src/lila/demo.ts): підпис до кроку й кнопки «Ще раз» / «Почати» */
+.learn__table .lg-demo-say { min-height: 96px; font-size: 16px; font-weight: 700; line-height: 1.35; }
+.learn__table .lg-demo-say p { margin: 0 0 4px; }
+.learn__table .lg-demo-title { font-size: 13px; opacity: .7; }
+.learn__table .lg-demo-you { color: #2ECC9A; }
+.lg-demo-btns { display: flex; gap: 10px; padding: 10px; }
+.lg-demo-btns button, .lg-demo-open { flex: 1; padding: 10px 12px; border-radius: 12px; font: 800 16px var(--lg-font, sans-serif); text-align: center; cursor: pointer;
+  background: var(--c-bg-zebra, #333); color: var(--c-font, #fff); border: 2px solid rgba(128, 128, 128, .35); }
+.lg-demo-btns .lg-demo-go { background: #2ECC9A; color: #fff; border-color: #2ECC9A; }
+.lg-demo-btns .lg-demo-go.ready { animation: lgdemo 1s ease-in-out infinite alternate; }
+@keyframes lgdemo { to { box-shadow: 0 0 0 5px rgba(46, 204, 154, .4); } }
+.learn__table .lg-demo-open { display: block; flex: none; margin: 10px auto 0; padding: 6px 14px; font-size: 14px; }

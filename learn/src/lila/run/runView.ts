@@ -33,6 +33,20 @@ const renderCompleted = (level: LevelCtrl): VNode =>
     ],
   );
 
+// logic-games-kids: приклад на початку етапу — підпис до кроку й кнопки «Ще раз» / «Почати»
+const renderDemo = (ctrl: RunCtrl): VNode =>
+  div('.lg-demo', [
+    div('.goal.lg-demo-say', [
+      p('.lg-demo-title', '📖 Приклад · ' + ctrl.stage.title),
+      p(withLinebreaks(ctrl.demoText() || ctrl.stage.intro)),
+      ctrl.demoDone() ? p('.lg-demo-you', 'Тепер ти! Натисни «Почати» 👇') : null,
+    ]),
+    div('.lg-demo-btns', [
+      button('.lg-demo-again', { hook: bind('click', ctrl.replayDemo) }, '🔁 Ще раз'),
+      button('.lg-demo-go', { class: { ready: ctrl.demoDone() }, hook: bind('click', ctrl.endDemo) }, '▶️ Почати'),
+    ]),
+  ]);
+
 export const runView = (ctrl: LearnCtrl) => {
   const runCtrl = ctrl.runCtrl;
   const { stage, levelCtrl } = runCtrl;
@@ -58,12 +72,17 @@ export const runView = (ctrl: LearnCtrl) => {
           img(stage.image, '')(),
           div('.text', [h2(stage.title), p('.subtitle', stage.subtitle)]),
         ]),
-        levelCtrl.vm.failed
+        runCtrl.demo()
+          ? renderDemo(runCtrl)
+          : levelCtrl.vm.failed
           ? renderFailed(runCtrl)
           : levelCtrl.vm.completed
             ? renderCompleted(levelCtrl)
             : div('.goal', withLinebreaks(levelCtrl.blueprint.goal)),
         progressView(runCtrl),
+        !runCtrl.demo() && runCtrl.hasDemo()
+          ? button('.lg-demo-open', { hook: bind('click', runCtrl.replayDemo) }, '📖 Приклад')
+          : null,
       ]),
     ]),
   ]);

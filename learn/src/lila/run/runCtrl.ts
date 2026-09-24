@@ -8,6 +8,7 @@ import { LevelCtrl } from '../levelCtrl';
 import { stageStart, stageEnd } from '../sound';
 import { type Stage, type Level, byId as stageById } from '../stage/list';
 import { clearTimeouts } from '../timeouts';
+import { DEMOS, playDemo } from '../demo';
 
 export class RunCtrl {
   data: LearnProgress = this.opts.storage.data;
@@ -16,6 +17,11 @@ export class RunCtrl {
 
   stageStarting: Prop<boolean> = prop(false);
   stageCompleted: Prop<boolean> = prop(false);
+  // logic-games-kids: приклад на початку етапу (demo.ts)
+  demo: Prop<boolean> = prop(false);
+  demoText: Prop<string> = prop('');
+  demoDone: Prop<boolean> = prop(false);
+  demoToken = 0;
 
   get stage(): Stage {
     return stageById[this.opts.stageId ?? 1];
@@ -66,6 +72,9 @@ export class RunCtrl {
     this.stageCompleted(false);
 
     if (!this.opts.stageId) return;
+    this.demo(false);
+    this.demoToken++;
+    if (!restarting && this.levelCtrl.blueprint.id === 1 && this.hasDemo()) return this.startDemo();
     if (this.stageStarting()) stageStart();
     else this.levelCtrl.start();
   };
@@ -73,6 +82,48 @@ export class RunCtrl {
   setChessground = (chessground: CgApi) => {
     this.chessground = chessground;
     this.withGround(this.levelCtrl.initializeWithGround);
+    if (this.demo()) this.runDemo();
+  };
+
+  hasDemo = () => !!DEMOS[this.stage.key];
+
+  // Показати приклад (заново); дошка — лише для перегляду
+  startDemo = () => {
+    this.demo(true);
+    this.demoDone(false);
+    this.demoText('');
+    this.runDemo();
+  };
+
+  runDemo = () => {
+    const t = ++this.demoToken;
+    this.withGround(g =>
+      playDemo(
+        g,
+        DEMOS[this.stage.key],
+        text => {
+          this.demoText(text);
+          this.redraw();
+        },
+        () => t === this.demoToken && this.demo(),
+        () => {
+          this.demoDone(true);
+          this.redraw();
+        },
+      ),
+    );
+  };
+
+  replayDemo = () => {
+    clearTimeouts();
+    this.startDemo();
+    this.redraw();
+  };
+
+  // «Почати»: рівень з початку
+  endDemo = () => {
+    this.initializeLevel(true);
+    this.redraw();
   };
 
   pref = this.opts.pref;
