@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Шахи — шлях новачка</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790270219">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790271420">
   <style>
     body { margin: 0; font-family: var(--lg-font); color: var(--lg-ink); background: var(--lg-bg); }
     .cp { max-width: 640px; margin: 0 auto; padding: 6px 12px 28px; box-sizing: border-box; }
@@ -27,12 +27,25 @@
     .cp-links a.seen::after { content: '✓'; color: #2ECC9A; font-weight: 900; }
     .cp-links a.t-play { background: #2ECC9A22; }
     .cp-links a.t-task { background: #FF9F1C22; }
+    /* угорі: прогрес і «Продовжити» */
+    .cp-head { position: sticky; top: calc(var(--lg-bar-h, 38px) + 6px); z-index: 5; margin: 0 -4px 14px; padding: 10px 12px; border-radius: 18px;
+      background: var(--lg-surface); border: 2px solid var(--lg-line); box-shadow: 0 4px 0 var(--lg-line); }
+    .cp-bar { height: 12px; border-radius: 6px; background: var(--lg-line); overflow: hidden; }
+    .cp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #2ECC9A, #6C5CE7); border-radius: 6px; }
+    .cp-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font: 900 15px var(--lg-font); }
+    .cp-go { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding: 11px; border-radius: 14px; text-decoration: none;
+      background: var(--lg-primary); color: #fff; font: 900 17px var(--lg-font); box-shadow: 0 4px 0 #5646D6; }
+    .cp-go:active { transform: translateY(3px); box-shadow: none; }
+    /* розділи шляху */
+    .cp-sec { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px; font: 900 14px var(--lg-font); letter-spacing: 1px; text-transform: uppercase; color: var(--sec); }
+    .cp-sec::after { content: ''; flex: 1; height: 3px; border-radius: 2px; background: var(--sec); opacity: .35; }
+    .cp-step .cp-num { border-color: var(--sec); }
   </style>
 </head>
 <body>
   <main class="cp" id="path"></main>
-  <script src="../shared/games.js?v=1790270219"></script>
-  <script src="../shared/kit.js?v=1790270219" data-game="path" data-night="on"></script>
+  <script src="../shared/games.js?v=1790271420"></script>
+  <script src="../shared/kit.js?v=1790271420" data-game="path" data-night="on"></script>
   <script>
   (function () {
     // Шлях новачка: кроки зі старих розділів сайту (уроки Lichess, власні міні-уроки, задачі, практика, гра з роботом)
@@ -40,6 +53,8 @@
     const LS = k => 'lesson.html#' + k;                         // наш міні-урок
     const P = k => '../chess-puzzles/index.html#' + k;          // розділ задач
     const W = k => '../pieces-vs-pawns/index.html#' + k;        // фігури проти пішаків
+    // Розділи шляху: [з якого кроку, назва, колір]
+    const SECTIONS = [[0, '♟️ Фігури', '#6C5CE7'], [6, '⚔️ Напад і захист', '#FF9F1C'], [10, '👑 Шах і мат', '#E74C3C'], [15, '✨ Особливі ходи й дебют', '#2ECC9A'], [18, '🏆 Майстер', '#3498DB']];
     const STEPS = [
       ['P', 'Пішак', 'Ходить уперед, б’є навскоси. І одразу — перша перемога!', [['📖', 'Урок', L(6)], ['🎮', 'Пішакова битва', '../pawns/index.html', 'play']]],
       ['R', 'Тура', 'Ходить прямо на скільки завгодно клітинок.', [['📖', 'Урок', L(1)], ['🎮', 'Тура проти 5 пішаків', W('r_p5'), 'play']]],
@@ -68,22 +83,31 @@
     const seen = new Set(LG.store.get('path:seen', []));
     const set = LG.pieceSet ? LG.pieceSet() : 'cburnett';
     const icon = ic => /^[PRBQNK]$/.test(ic) ? `<img src="../shared/pieces/${set}/w${ic}.svg" alt="">` : ic;
-    let next = -1;
+    let next = -1, doneN = 0;
+    const secOf = i => SECTIONS.filter(x => x[0] <= i).pop();
     const html = STEPS.map(([ic, title, sub, links], i) => {
       const done = links.every(l => seen.has(l[2]));
+      if (done) doneN++;
       if (!done && next < 0) next = i;
-      return `<section class="cp-step${done ? ' done' : ''}${!done && next === i ? ' next' : ''}" id="s${i + 1}">
+      const sec = secOf(i), head = sec[0] === i ? `<div class="cp-sec" style="--sec:${sec[2]}">${sec[1]}</div>` : '';
+      return head + `<section class="cp-step${done ? ' done' : ''}${!done && next === i ? ' next' : ''}" id="s${i + 1}" style="--sec:${sec[2]}">
         <div class="cp-num">${icon(ic)}</div><h2>${i + 1}. ${title}</h2><p>${sub}</p>
         <div class="cp-links">${links.map(([e, t, href, kind]) => `<a class="t-${kind || 'learn'}${seen.has(href) ? ' seen' : ''}" href="${href}">${e} ${t}</a>`).join('')}</div>
       </section>`;
     }).join('');
-    document.getElementById('path').innerHTML = html;
+    const n = next < 0 ? STEPS.length - 1 : next, nextLink = STEPS[n][3].find(l => !seen.has(l[2])) || STEPS[n][3][0];
+    const head = `<div class="cp-head">
+      <div class="cp-head-row"><span>${doneN ? 'Пройдено кроків' : 'Почнімо!'}</span><span>${doneN} / ${STEPS.length}</span></div>
+      <div class="cp-bar"><i style="width:${Math.round(100 * doneN / STEPS.length)}%"></i></div>
+      <a class="cp-go" href="${nextLink[2]}">${doneN ? 'Продовжити' : 'Почати'}: ${n + 1}. ${STEPS[n][1]} · ${nextLink[1]} ▶</a>
+    </div>`;
+    document.getElementById('path').innerHTML = head + html;
     document.getElementById('path').addEventListener('click', e => {
-      const a = e.target.closest('.cp-links a'); if (!a) return;
+      const a = e.target.closest('.cp-links a, .cp-go'); if (!a) return;
       seen.add(a.getAttribute('href')); LG.store.set('path:seen', [...seen]);
     });
     // відкриваємо на наступному кроці
-    if (next > 1) document.getElementById('s' + next)?.scrollIntoView({ block: 'center' });
+    if (next > 1) document.getElementById('s' + (next + 1))?.scrollIntoView({ block: 'center' });
   })();
   </script>
 </body>

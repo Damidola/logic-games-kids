@@ -21,8 +21,19 @@ const shape = s => { const [u, brush = 'green'] = s.split(':'); return u.length 
 function toMove(p, from, to) {
   const m = { from: parseSquare(from), to: parseSquare(to) }, pc = p.board.get(m.from);
   if (pc.role === 'king' && Math.abs((m.from & 7) - (m.to & 7)) === 2) m.to = (m.to & 7) > (m.from & 7) ? (m.from | 7) : (m.from & ~7);
-  if (pc.role === 'pawn' && (m.to >> 3 === 7 || m.to >> 3 === 0)) m.promotion = 'queen';
   return m;
+}
+const isPromo = (p, m) => p.board.get(m.from)?.role === 'pawn' && (m.to >> 3 === 7 || m.to >> 3 === 0);
+// Вибір фігури при перетворенні пішака, як на Lichess
+function askPromotion(to) {
+  return new Promise(done => {
+    const f = 'abcdefgh'.indexOf(to[0]), el = document.createElement('div');
+    el.className = 'cl-promo';
+    el.innerHTML = ['queen', 'knight', 'rook', 'bishop'].map((r, i) =>
+      `<button type="button" data-r="${r}" style="left:${f * 12.5}%;top:${i * 12.5}%"><mpiece class="${r} white"></mpiece></button>`).join('');
+    el.addEventListener('click', e => { const b = e.target.closest('button'); el.remove(); done(b ? b.dataset.r : null); });
+    $('wrap').appendChild(el);
+  });
 }
 // Хід зі звуком; кінь — буквою «Г»: спершу дві клітинки прямо, потім одна вбік
 async function play(p, m, t) {
@@ -77,6 +88,15 @@ function judge(p, m, it) {
     for (const sq of q.board[q.turn]) { const v = q.board.get(sq); if (v.role !== 'king' && q.kingAttackers(sq, pc.color, q.board.occupied).has(m.to)) return [true]; }
     return [false, 'Звідси фігура ні на кого не нападає'];
   }
+  if (ok === 'safe-attack') {
+    const [a] = judge(p, m, { ok: 'attack' });
+    if (!a) return [false, 'Звідси фігура ні на кого не нападає'];
+    return [q.kingAttackers(m.to, q.turn, q.board.occupied).isEmpty(), 'Напад є, але твою фігуру тут поб’ють!'];
+  }
+  if (ok.startsWith('escape:')) {
+    const sq = parseSquare(ok.slice(7));
+    return [m.from === sq && q.kingAttackers(m.to, q.turn, q.board.occupied).isEmpty(), m.from !== sq ? 'Треба рятувати ферзя' : 'Тут ферзя теж поб’ють!'];
+  }
   if (ok.startsWith('defend:')) {
     const sq = parseSquare(ok.slice(7));
     return [!!q.board.get(sq) && !q.kingAttackers(sq, p.turn, q.board.occupied).isEmpty(), 'Фігура досі без захисту'];
@@ -85,8 +105,13 @@ function judge(p, m, it) {
 }
 async function onMove(from, to) {
   const it = items[idx]; if (!it.task || done || lock) return;
-  const m = toMove(pos, from, to), [ok, why] = judge(pos, m, it);
-  const t = token;
+  const m = toMove(pos, from, to), t = token;
+  if (isPromo(pos, m)) {
+    lock = true; m.promotion = await askPromotion(to); lock = false;
+    if (t !== token) return;
+    if (!m.promotion) { show(pos); return board.setMovable('white', compat.chessgroundDests(pos)); }
+  }
+  const [ok, why] = judge(pos, m, it);
   if (ok) {
     done = true; board.setMovable(null);
     pos = await play(pos, m).catch(() => pos);

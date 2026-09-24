@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Урок</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790270219">
-  <link rel="stylesheet" href="../shared/play.css?v=1790270219">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790271420">
+  <link rel="stylesheet" href="../shared/play.css?v=1790271420">
   <style>
     .cl { justify-content: center; gap: 8px; }
     .cl-intro { flex: 1 1 auto; min-height: 0; overflow-y: auto; width: 100%; max-width: 620px; padding: 6px 16px; box-sizing: border-box; color: var(--lg-ink); text-align: center; }
@@ -18,6 +18,9 @@
     .cl .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 30px - 46px - 60px - 30px)); }
     .cl .lg-board-wrap.solved cg-board { box-shadow: 0 0 0 5px #2ECC9A; }
     .cl .lg-controls { grid-template-columns: repeat(3, 1fr); width: min(100%, 420px); }
+    .cl-promo { position: absolute; inset: 0; z-index: 50; background: rgba(0, 0, 0, .45); }
+    .cl-promo button { position: absolute; width: 12.5%; height: 12.5%; padding: 0; border: 0; border-radius: 50%; background: #b0b0b0; cursor: pointer; }
+    .cl-promo mpiece { display: block; width: 100%; height: 100%; background-size: cover; }
     .cl #next.ready { box-shadow: 0 0 0 3px #2ECC9A; }
     .cl[data-step="intro"] > :not(.cl-intro) { display: none !important; }
     .cl:not([data-step="intro"]) > .cl-intro { display: none; }
@@ -40,8 +43,8 @@
       <button type="button" id="next"><span class="ico">▶️</span><span class="lbl">Далі</span></button>
     </div>
   </main>
-  <script src="../shared/games.js?v=1790270219"></script>
-  <script src="../shared/kit.js?v=1790270219" data-game="path" data-night="on"></script>
-  <script type="module" src="lesson.js?v=1790270219"></script>
+  <script src="../shared/games.js?v=1790271420"></script>
+  <script src="../shared/kit.js?v=1790271420" data-game="path" data-night="on"></script>
+  <script type="module" src="lesson.js?v=1790271420"></script>
 </body>
 </html>
