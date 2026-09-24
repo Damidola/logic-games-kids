@@ -89,3 +89,11 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
 .lg-demo-btns .lg-demo-go.ready { animation: lgdemo 1s ease-in-out infinite alternate; }
 @keyframes lgdemo { to { box-shadow: 0 0 0 5px rgba(46, 204, 154, .4); } }
 .learn__table .lg-demo-open { display: block; flex: none; margin: 10px auto 0; padding: 6px 14px; font-size: 14px; }
+
+/* Вікно «Етап завершено»: у межах екрана, кнопки не вилазять */
+.learn__screen { box-sizing: border-box; width: min(340px, calc(100vw - 32px)); padding: 20px 14px 14px; border-radius: 16px; }
+.learn__screen h1 { font-size: 22px; margin: 6px 0; }
+.learn__screen .stars { margin-bottom: 8px; }
+.learn__screen p { margin: 6px 0; font-size: 14px; }
+.learn__screen .buttons { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 10px; }
+.learn__screen .buttons .button { box-sizing: border-box; width: 100%; max-width: 100%; margin: 0; padding: 12px 10px; font-size: 15px; white-space: normal; }
