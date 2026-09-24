@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Пішаки</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790271420">
-  <link rel="stylesheet" href="../shared/play.css?v=1790271420">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790272165">
+  <link rel="stylesheet" href="../shared/play.css?v=1790272165">
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790271420"></script>
-  <script src="../shared/kit.js?v=1790271420" data-game="pawns" data-night="on"></script>
+  <script src="../shared/games.js?v=1790272165"></script>
+  <script src="../shared/kit.js?v=1790272165" data-game="pawns" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790271420';
-    import { createRules } from './rules.js?v=1790271420';
+    import { startGame } from '../shared/game.js?v=1790272165';
+    import { createRules } from './rules.js?v=1790272165';
 
     // Взяття на проході — за бажанням, у налаштуваннях
     const rules = createRules({ enPassant: () => LG.store.get('pawns:ep', false) });

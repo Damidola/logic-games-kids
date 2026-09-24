@@ -56,8 +56,7 @@ const stage: StageNoID = {
       fen: '8/8/8/8/8/8/4P3/8 w - -',
       apples: 'd6',
       nbMoves: 3,
-      shapes: [arrow('e2e4')],
-      failure: whitePawnOnAnyOf('e3'),
+      shapes: [arrow('e2e4')], // logic-games-kids: без «помилки» за хід на e3 — просто менше зірочок
       cssClass: 'highlight-2nd-rank',
     },
     {

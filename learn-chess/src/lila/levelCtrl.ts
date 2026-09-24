@@ -148,9 +148,10 @@ export class LevelCtrl {
       vm.nbMoves++;
       const enemyRoleCaptured = enemyRoleToBeCaptured(orig, dest);
       const move = chess.move(orig, dest, prom);
-      if (move) this.setFen(chess.fen(), blueprint.color, new Map(), [orig, dest]);
-      if (move && blueprint.knightPath && chess.get(dest)?.role === 'knight') this.knightPath(ground, orig, dest);
-      else {
+      if (move) {
+        this.setFen(chess.fen(), blueprint.color, new Map(), [orig, dest]);
+        if (blueprint.knightPath && chess.get(dest)?.role === 'knight') this.knightPath(ground, orig, dest);
+      } else {
         // moving into check
         vm.failed = true;
         this.showKingAttackers();

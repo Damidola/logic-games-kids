@@ -21,57 +21,7 @@ export interface Demo {
   steps: DemoStep[];
 }
 
-const star = 'Збираємо зірки 👇';
 export const DEMOS: Record<string, Demo> = {
-  rook: {
-    fen: '8/8/8/8/3R4/8/8/8', apples: 'd7 g7',
-    steps: [
-      { say: 'Тура ходить по прямих: уперед, назад, уліво, управо — на скільки завгодно клітинок.', arrows: 'd4d8 d4d1 d4a4 d4h4', wait: 3400 },
-      { say: star, arrows: 'd4d7', wait: 1500 }, { move: 'd4d7' },
-      { say: 'Тепер — убік!', arrows: 'd7g7', wait: 1500 }, { move: 'd7g7' },
-    ],
-  },
-  bishop: {
-    fen: '8/8/8/8/3B4/8/8/8', apples: 'f6 d8',
-    steps: [
-      { say: 'Слон ходить навскоси — по діагоналях, на скільки завгодно клітинок.', arrows: 'd4h8 d4a7 d4a1 d4g1', wait: 3400 },
-      { say: star, arrows: 'd4f6', wait: 1500 }, { move: 'd4f6' },
-      { say: 'І ще раз навскоси! Колір клітинок слон ніколи не змінює.', arrows: 'f6d8', wait: 2200 }, { move: 'f6d8' },
-    ],
-  },
-  queen: {
-    fen: '8/8/8/8/3Q4/8/8/8', apples: 'd8 h4',
-    steps: [
-      { say: 'Ферзь — найсильніша фігура: ходить і як тура, і як слон — прямо й навскоси.', arrows: 'd4d8 d4d1 d4a4 d4h4 d4h8 d4a7 d4a1 d4g1', wait: 3400 },
-      { say: 'Прямо вгору…', arrows: 'd4d8', wait: 1400 }, { move: 'd4d8' },
-      { say: '…і навскоси вниз!', arrows: 'd8h4', wait: 1400 }, { move: 'd8h4' },
-    ],
-  },
-  king: {
-    fen: '8/8/8/8/3K4/8/8/8', apples: 'd5 e6',
-    steps: [
-      { say: 'Король ходить лише на одну клітинку — у будь-який бік.', arrows: 'd4d5 d4e5 d4e4 d4e3 d4d3 d4c3 d4c4 d4c5', wait: 3200 },
-      { say: 'Крок уперед…', arrows: 'd4d5', wait: 1300 }, { move: 'd4d5' },
-      { say: '…і крок навскоси.', arrows: 'd5e6', wait: 1300 }, { move: 'd5e6' },
-    ],
-  },
-  knight: {
-    fen: '8/8/8/3P4/2PNP3/3P4/8/8', apples: 'e6 f4',
-    steps: [
-      { say: 'Кінь стрибає літерою «Г»: дві клітинки прямо й одна вбік.', arrows: 'd4e6 d4f5 d4f3 d4e2 d4c2 d4b3 d4b5 d4c6', wait: 3400 },
-      { say: 'Кінь перестрибує через фігури!', arrows: 'd4e6', wait: 1800 }, { move: 'd4e6' },
-      { say: 'Ще один стрибок «Г».', arrows: 'e6f4', wait: 1500 }, { move: 'e6f4' },
-    ],
-  },
-  pawn: {
-    fen: '8/6P1/8/3p4/8/8/4P3/8',
-    steps: [
-      { say: 'Пішак ходить лише вперед на одну клітинку. З початкового місця — можна на дві!', arrows: 'e2e3 e2e4', wait: 3200 },
-      { move: 'e2e4' },
-      { say: 'А б’є пішак навскоси вперед!', arrows: 'e4d5:red', wait: 2000 }, { move: 'e4d5' },
-      { say: 'Дійшов до останнього ряду — стає ферзем!', arrows: 'g7g8', wait: 2200 }, { move: 'g7g8', promo: 'queen' },
-    ],
-  },
   capture: {
     fen: '8/8/8/3n3b/8/8/8/3R4',
     steps: [
