@@ -26,29 +26,53 @@ const empty = () => { const s = Chess.default().toSetup(); s.board = s.board.clo
 const seen = new Set();
 const shape = p => makeBoardFen(p.board);
 const count = p => p.board.occupied.size();
+// Без фігури на клітинці sq (позиція має лишитися можливою)
+function without(p, sq) {
+  const s = p.toSetup(); s.board = s.board.clone(); s.board.take(sq); s.epSquare = undefined;
+  const r = Chess.fromSetup(s); return r.isOk ? r.unwrap() : null;
+}
+// Прибираємо зайві фігури: кожна фігура, що лишилась, щось робить (без неї задача вже інша)
+function minimal(p, valid) {
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const sq of [...p.board.occupied]) {
+      if (p.board.get(sq).role === 'king') continue;
+      const q = without(p, sq);
+      if (q && valid(q)) { p = q; changed = true; break; }
+    }
+  }
+  return p;
+}
 const noBadPawns = s => ![...s.board.occupied].some(sq => s.board.get(sq).role === 'pawn' && (sq >> 3 === 0 || sq >> 3 === 7));
 
 // ---------- «Постав шах» ----------
-function giveCheck(role, n, want) {
-  const res = [];
-  for (let t = 0; t < 2e6 && res.length < want; t++) {
+// Шах цією фігурою є (1–3 способи), мату немає; зайві фігури прибрано — лишаються лише ті,
+// що закривають лінії чи клітинки (без них шахи були б інші)
+function giveCheck(role, plan) {
+  const res = [], want = Object.values(plan).reduce((a, b) => a + b, 0), got = {};
+  const goods = p => legal(p).filter(m => p.board.get(m.from).role === role && !m.promotion && after(p, m).isCheck());
+  const okPos = p => !p.isCheck() && !p.isCheckmate() && !p.isStalemate();
+  for (let t = 0; t < 3e6 && res.length < want; t++) {
     const s = empty(), put = (sq, pc) => (s.board.get(sq) ? false : (s.board.set(sq, pc), true));
     put(rnd(64), { role: 'king', color: 'black' }); put(rnd(64), { role: 'king', color: 'white' });
     if (!put(role === 'pawn' ? 8 + rnd(40) : rnd(64), { role, color: 'white' })) continue;
-    let ok = true;
-    for (let k = 3; k < n && ok; k++) ok = put(8 + rnd(48), { role: ['pawn', 'pawn', 'knight', 'bishop', 'rook'][rnd(5)], color: Math.random() < 0.6 ? 'black' : 'white' });
-    if (!ok || !noBadPawns(s)) continue;
+    const extra = rnd(4);
+    for (let k = 0; k < extra; k++) put(8 + rnd(48), { role: ['pawn', 'pawn', 'knight', 'bishop', 'rook'][rnd(5)], color: Math.random() < 0.6 ? 'black' : 'white' });
+    if (!noBadPawns(s)) continue;
     s.turn = 'white';
     const r = Chess.fromSetup(s); if (!r.isOk) continue;
-    const p = r.unwrap(); if (p.isCheck() || p.isCheckmate() || p.isStalemate() || count(p) !== n) continue;
-    const moves = legal(p), checks = moves.filter(m => after(p, m).isCheck());
-    const good = checks.filter(m => p.board.get(m.from).role === role && !m.promotion);
-    // шах цією фігурою є, але не забагато (щоб було що шукати); мату немає — це задача саме на шах
-    if (!good.length || good.length > 3 || checks.some(m => after(p, m).isCheckmate())) continue;
-    if (shape(p) && seen.has(shape(p))) continue; seen.add(shape(p));
-    res.push([`ch-${role}-${n}-${res.length}`, makeFen(p.toSetup()), makeUci(good[0]), 400 + 60 * n, n]);
+    let p = r.unwrap(); if (!okPos(p)) continue;
+    const g = goods(p);
+    if (!g.length || g.length > 3 || legal(p).some(m => after(p, m).isCheckmate())) continue;
+    const sig = g.map(makeUci).sort().join();
+    p = minimal(p, q => okPos(q) && goods(q).map(makeUci).sort().join() === sig && !legal(q).some(m => after(q, m).isCheckmate()));
+    const n = count(p);
+    if ((got[n] || 0) >= (plan[n] || 0)) continue;
+    if (seen.has(shape(p))) continue; seen.add(shape(p));
+    got[n] = (got[n] || 0) + 1;
+    res.push([`ch-${role}-${n}-${res.length}`, makeFen(p.toSetup()), makeUci(goods(p)[0]), 400 + 60 * n, n]);
   }
-  return res;
+  return res.sort((x, y) => x[4] - y[4]);
 }
 
 // ---------- «Урятуйся від шаху» (ходять білі, білому королю шах) ----------
@@ -64,8 +88,7 @@ const SHIELDS = [[13, 14, 15], [13, 22, 15], [13, 14, 23], [14, 15], [13, 14], [
 function escapeUnique(type, want, nMin = 3, nMax = 9) {
   const res = [], perN = {};
   for (let t = 0; t < 4e7 && res.length < want; t++) {
-    const n = nMin + rnd(nMax - nMin + 1);
-    if ((perN[n] || 0) >= Math.ceil(want / (nMax - nMin + 1)) + 4) continue;
+    const n = nMin + rnd(nMax - nMin + 3); // ставимо трохи більше — зайве прибереться
     const s = empty(), put = (sq, pc) => (s.board.get(sq) ? false : (s.board.set(sq, pc), true));
     let placed = 2;
     if (Math.random() < 0.5) { // рокіровка: король g1 (або c1/b1) за пішаками
@@ -73,26 +96,32 @@ function escapeUnique(type, want, nMin = 3, nMax = 9) {
       put(king, { role: 'king', color: 'white' });
       for (const sq of sh) if (put(sq, { role: 'pawn', color: 'white' })) placed++;
       if (Math.random() < 0.4 && put(king < 4 ? 3 : 5, { role: 'rook', color: 'white' })) placed++;
-    } else put(rnd(64), { role: 'king', color: 'white' });
+    } else { // інакше король здебільшого теж біля краю дошки
+      const f = rnd(8), rr = rnd(8), edge = Math.random() < 0.6;
+      put(edge ? (Math.random() < 0.5 ? f : [0, 7][rnd(2)] + 8 * rr) : rnd(64), { role: 'king', color: 'white' });
+    }
     put(rnd(64), { role: 'king', color: 'black' });
     if (!put(rnd(64), { role: ROLES[rnd(4)], color: 'black' })) continue; // той, хто шахує
     placed++;
-    let ok = placed <= n;
+    let ok = true;
     while (ok && placed < n) {
       const white = type === 'run' ? Math.random() < 0.35 : Math.random() < 0.6;
       const role = white ? ['rook', 'bishop', 'knight', 'queen', 'pawn', 'pawn'][rnd(6)] : ['pawn', 'knight', 'bishop', 'rook', 'queen'][rnd(5)];
       ok = put(8 + rnd(48), { role, color: white ? 'white' : 'black' }); placed++;
     }
-    if (!ok || !noBadPawns(s)) continue;
+    if (!noBadPawns(s)) continue;
     s.turn = 'white';
     const r = Chess.fromSetup(s); if (!r.isOk) continue;
-    const p = r.unwrap(); if (!p.isCheck() || count(p) !== n) continue;
-    const checkers = p.ctx().checkers; if (checkers.size() !== 1) continue;
-    const moves = legal(p);
-    if (moves.length !== 1 || kind(p, moves[0], checkers) !== type) continue;
+    let p = r.unwrap(); if (!p.isCheck()) continue;
+    const valid = q => { if (!q.isCheck() || q.ctx().checkers.size() !== 1) return false; const ms = legal(q); return ms.length === 1 && kind(q, ms[0], q.ctx().checkers) === type; };
+    if (!valid(p)) continue;
+    const sol = makeUci(legal(p)[0]);
+    p = minimal(p, q => valid(q) && makeUci(legal(q)[0]) === sol); // лише фігури, що щось закривають або б'ють
+    const m = count(p);
+    if (m < nMin || (perN[m] || 0) >= Math.ceil(want / (nMax - nMin + 1)) + 3) continue;
     if (seen.has(shape(p))) continue; seen.add(shape(p));
-    perN[n] = (perN[n] || 0) + 1;
-    res.push([`es-${type}-${n}-${res.length}`, makeFen(p.toSetup()), makeUci(moves[0]), 450 + 60 * n, n]);
+    perN[m] = (perN[m] || 0) + 1;
+    res.push([`es-${type}-${m}-${res.length}`, makeFen(p.toSetup()), sol, 450 + 60 * m, m]);
   }
   // спершу найпростіші: менше фігур
   return res.sort((x, y) => x[4] - y[4]);
@@ -101,14 +130,8 @@ function escapeUnique(type, want, nMin = 3, nMax = 9) {
 // node tools/build-checks.mjs <puzzles.json> [chk | esc-run | esc-capture | esc-block | mix]
 const mode = process.argv[3] || 'all';
 const data = JSON.parse(fs.readFileSync(out, 'utf8'));
-const easyFirst = (f, key) => [...f(key, 3, 6), ...f(key, 4, 4), ...f(key, 5, 2)];
-if (mode === 'all' || mode === 'chk') {
-  data.chk_rook = easyFirst(giveCheck, 'rook');
-  data.chk_bishop = easyFirst(giveCheck, 'bishop');
-  data.chk_queen = easyFirst(giveCheck, 'queen');
-  data.chk_knight = easyFirst(giveCheck, 'knight');
-  data.chk_pawn = [...giveCheck('pawn', 3, 4), ...giveCheck('pawn', 4, 4), ...giveCheck('pawn', 5, 4)];
-}
+if (mode === 'all' || mode === 'chk') for (const role of ['rook', 'bishop', 'queen', 'knight', 'pawn'])
+  data['chk_' + role] = giveCheck(role, { 3: 6, 4: 4, 5: 2 });
 for (const type of ['run', 'capture', 'block']) if (mode === 'all' || mode === 'esc-' + type) data['esc_' + type] = escapeUnique(type, 50, type === 'run' ? 3 : 4, 9);
 if (mode === 'all' || mode === 'mix') { // «різні» — ті самі задачі з трьох розділів, перемішані
   const all = [...data.esc_run, ...data.esc_capture, ...data.esc_block].map(z => [z[0].replace('es-', 'mx-'), ...z.slice(1)]);
