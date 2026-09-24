@@ -83,47 +83,64 @@ const kind = (p, m, checkers) => {
   return 'block';
 };
 // Урятуйся від шаху: рятує рівно ОДИН хід, і він потрібного виду (утекти / побити / закритися).
-// Половина позицій — «як у партії»: король після рокіровки в кутку за пішаками, шах від тури, ферзя, слона чи коня.
-const SHIELDS = [[13, 14, 15], [13, 22, 15], [13, 14, 23], [14, 15], [13, 14], [13, 22, 23], [8, 9, 10], [9, 10]];
+// Здебільшого — як у партії: король після рокіровки (b1 за пішаками a2 b2 c2 або g1/h1 за f2 g2 h2).
+// Шахує найчастіше тура й слон, рідше кінь, ферзь і пішак. Після порятунку в чорних немає мату одним ходом,
+// а фігура, що закрилася, захищена (королем чи іншою фігурою) — тобто це справжній гарний хід.
+const Q_SIDE = [[8, 9, 10], [16, 9, 10], [8, 9, 18], [8, 17, 10], [9, 10], [8, 9]];  // a2 b2 c2 та варіанти
+const K_SIDE = [[13, 14, 15], [13, 22, 15], [13, 14, 23], [14, 15], [13, 14], [13, 22, 23]]; // f2 g2 h2 та варіанти
+const QUOTA = { rook: 18, bishop: 14, knight: 7, queen: 6, pawn: 5 };
+const pickRole = () => { const r = Math.random() * 50; return r < 18 ? 'rook' : r < 32 ? 'bishop' : r < 39 ? 'knight' : r < 45 ? 'queen' : 'pawn'; };
+const blackMatesNext = q => legal(q).some(m => after(q, m).isCheckmate());
 function escapeUnique(type, want, nMin = 3, nMax = 9) {
-  const res = [], perN = {};
-  for (let t = 0; t < 4e7 && res.length < want; t++) {
+  const res = [], perN = {}, perRole = {};
+  for (let t = 0; t < 6e7 && res.length < want; t++) {
     const n = nMin + rnd(nMax - nMin + 3); // ставимо трохи більше — зайве прибереться
     const s = empty(), put = (sq, pc) => (s.board.get(sq) ? false : (s.board.set(sq, pc), true));
-    let placed = 2;
-    if (Math.random() < 0.5) { // рокіровка: король g1 (або c1/b1) за пішаками
-      const sh = SHIELDS[rnd(SHIELDS.length)], king = sh[0] <= 10 ? [1, 2][rnd(2)] : [6, 7][rnd(2)];
-      put(king, { role: 'king', color: 'white' });
-      for (const sq of sh) if (put(sq, { role: 'pawn', color: 'white' })) placed++;
-      if (Math.random() < 0.4 && put(king < 4 ? 3 : 5, { role: 'rook', color: 'white' })) placed++;
-    } else { // інакше король здебільшого теж біля краю дошки
-      const f = rnd(8), rr = rnd(8), edge = Math.random() < 0.6;
-      put(edge ? (Math.random() < 0.5 ? f : [0, 7][rnd(2)] + 8 * rr) : rnd(64), { role: 'king', color: 'white' });
-    }
+    let placed = 2, wk;
+    const tpl = Math.random();
+    if (tpl < 0.45) { wk = [1, 1, 1, 0, 2][rnd(5)]; for (const sq of Q_SIDE[rnd(Q_SIDE.length)]) if (put(sq, { role: 'pawn', color: 'white' })) placed++; }
+    else if (tpl < 0.8) { wk = [6, 6, 7][rnd(3)]; for (const sq of K_SIDE[rnd(K_SIDE.length)]) if (put(sq, { role: 'pawn', color: 'white' })) placed++; }
+    else wk = Math.random() < 0.5 ? rnd(8) : [0, 7][rnd(2)] + 8 * rnd(8);
+    if (!put(wk, { role: 'king', color: 'white' })) continue;
+    if (tpl < 0.8 && Math.random() < 0.35 && put(wk < 4 ? 3 : 5, { role: 'rook', color: 'white' })) placed++;
     put(rnd(64), { role: 'king', color: 'black' });
-    if (!put(rnd(64), { role: ROLES[rnd(4)], color: 'black' })) continue; // той, хто шахує
+    // той, хто шахує; пішак — одразу навскоси перед королем
+    // від коня й пішака закритися не можна — для «закрийся» шахують тура, слон і ферзь
+    const quota = type === 'block' ? { rook: 22, bishop: 18, queen: 10 } : QUOTA;
+    const role = type === 'block' ? ['rook', 'rook', 'bishop', 'bishop', 'queen'][rnd(5)] : pickRole();
+    if ((perRole[role] || 0) >= (quota[role] || 0)) continue;
+    const csq = role === 'pawn' ? wk + 8 + [-1, 1][rnd(2)] : rnd(64);
+    if (role === 'pawn' && (csq < 8 || csq > 55 || Math.abs((csq & 7) - (wk & 7)) !== 1)) continue;
+    if (!put(csq, { role, color: 'black' })) continue;
     placed++;
-    let ok = true;
-    while (ok && placed < n) {
+    while (placed < n) {
       const white = type === 'run' ? Math.random() < 0.35 : Math.random() < 0.6;
-      const role = white ? ['rook', 'bishop', 'knight', 'queen', 'pawn', 'pawn'][rnd(6)] : ['pawn', 'knight', 'bishop', 'rook', 'queen'][rnd(5)];
-      ok = put(8 + rnd(48), { role, color: white ? 'white' : 'black' }); placed++;
+      const r2 = white ? ['rook', 'bishop', 'knight', 'queen', 'pawn', 'pawn'][rnd(6)] : ['pawn', 'knight', 'bishop', 'rook', 'queen'][rnd(5)];
+      put(8 + rnd(48), { role: r2, color: white ? 'white' : 'black' }); placed++;
     }
     if (!noBadPawns(s)) continue;
     s.turn = 'white';
     const r = Chess.fromSetup(s); if (!r.isOk) continue;
     let p = r.unwrap(); if (!p.isCheck()) continue;
-    const valid = q => { if (!q.isCheck() || q.ctx().checkers.size() !== 1) return false; const ms = legal(q); return ms.length === 1 && kind(q, ms[0], q.ctx().checkers) === type; };
+    const valid = q => {
+      if (!q.isCheck() || q.ctx().checkers.size() !== 1) return false;
+      const c = [...q.ctx().checkers][0]; if (q.board.get(c).role !== role) return false;
+      const ms = legal(q); if (ms.length !== 1 || kind(q, ms[0], q.ctx().checkers) !== type) return false;
+      const a = after(q, ms[0]);
+      if (blackMatesNext(a)) return false; // урятувався — і одразу мат? так не годиться
+      if (type === 'block' && a.kingAttackers(ms[0].to, 'white', a.board.occupied).isEmpty()) return false; // фігура, що закрила, захищена
+      return true;
+    };
     if (!valid(p)) continue;
     const sol = makeUci(legal(p)[0]);
     p = minimal(p, q => valid(q) && makeUci(legal(q)[0]) === sol); // лише фігури, що щось закривають або б'ють
     const m = count(p);
     if (m < nMin || (perN[m] || 0) >= Math.ceil(want / (nMax - nMin + 1)) + 3) continue;
     if (seen.has(shape(p))) continue; seen.add(shape(p));
-    perN[m] = (perN[m] || 0) + 1;
+    perN[m] = (perN[m] || 0) + 1; perRole[role] = (perRole[role] || 0) + 1;
     res.push([`es-${type}-${m}-${res.length}`, makeFen(p.toSetup()), sol, 450 + 60 * m, m]);
   }
-  // спершу найпростіші: менше фігур
+  console.error(type, 'хто шахує:', JSON.stringify(perRole));
   return res.sort((x, y) => x[4] - y[4]);
 }
 
@@ -131,7 +148,7 @@ function escapeUnique(type, want, nMin = 3, nMax = 9) {
 const mode = process.argv[3] || 'all';
 const data = JSON.parse(fs.readFileSync(out, 'utf8'));
 if (mode === 'all' || mode === 'chk') for (const role of ['rook', 'bishop', 'queen', 'knight', 'pawn'])
-  data['chk_' + role] = giveCheck(role, { 3: 6, 4: 4, 5: 2 });
+  data['chk_' + role] = giveCheck(role, { 3: 16, 4: 9, 5: 5 });
 for (const type of ['run', 'capture', 'block']) if (mode === 'all' || mode === 'esc-' + type) data['esc_' + type] = escapeUnique(type, 50, type === 'run' ? 3 : 4, 9);
 if (mode === 'all' || mode === 'mix') { // «різні» — ті самі задачі з трьох розділів, перемішані
   const all = [...data.esc_run, ...data.esc_capture, ...data.esc_block].map(z => [z[0].replace('es-', 'mx-'), ...z.slice(1)]);

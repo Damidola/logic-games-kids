@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Точки й квадратики</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790232892">
-  <link rel="stylesheet" href="../shared/play.css?v=1790232892">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790234203">
+  <link rel="stylesheet" href="../shared/play.css?v=1790234203">
   <style>
     .lg-custom-view .lg-board-wrap { width: min(96vw, 500px, calc(100svh - var(--lg-bar-h) - 16px - 150px - 60px)); }
     .db-board { aspect-ratio: 1; background: #FFF9EE; border-radius: 22px; box-shadow: inset 0 0 0 3px #F0E2C8; }
@@ -37,12 +37,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790232892"></script>
-  <script src="../shared/kit.js?v=1790232892" data-game="dots" data-night="on"></script>
+  <script src="../shared/games.js?v=1790234203"></script>
+  <script src="../shared/kit.js?v=1790234203" data-game="dots" data-night="on"></script>
   <script type="module">
-    import { startGame, choice } from '../shared/game.js?v=1790232892';
-    import { createRules } from './rules.js?v=1790232892';
-    import { dotsView } from './view.js?v=1790232892';
+    import { startGame, choice } from '../shared/game.js?v=1790234203';
+    import { createRules } from './rules.js?v=1790234203';
+    import { dotsView } from './view.js?v=1790234203';
     let game;
     game = startGame({
       rules: createRules({ size: () => LG.store.get('dots:size', '4') }),
