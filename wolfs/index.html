@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Фігури й пішаки</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790255219">
-  <link rel="stylesheet" href="../shared/play.css?v=1790255219">
-  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790255219">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790255323">
+  <link rel="stylesheet" href="../shared/play.css?v=1790255323">
+  <link rel="stylesheet" href="../shared/pieces/extra.css?v=1790255323">
   <style>
     /* 7 режимів — компактно у 2 ряди; дошка менша на висоту цих рядів, щоб кнопки внизу не вилазили за екран */
     .lg-board-wrap { width: min(100vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 44px - 120px - 50px - 24px - 36px)); }
@@ -22,11 +22,11 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790255219"></script>
-  <script src="../shared/kit.js?v=1790255219" data-game="wolfs" data-night="on"></script>
+  <script src="../shared/games.js?v=1790255323"></script>
+  <script src="../shared/kit.js?v=1790255323" data-game="wolfs" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790255219';
-    import { createRules, MODES, modeButton, modeLabel } from './rules.js?v=1790255219';
+    import { startGame } from '../shared/game.js?v=1790255323';
+    import { createRules, MODES, modeButton, modeLabel } from './rules.js?v=1790255323';
     // Посилання з уроків: wolfs/#r_p5 — одразу потрібний режим
     const fromHash = location.hash.slice(1);
     if (MODES.some(m => m[0] === fromHash)) LG.store.set('wolfs:mode2', fromHash);

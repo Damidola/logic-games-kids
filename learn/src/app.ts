@@ -29,7 +29,12 @@ document.body.classList.add('is2d'); // як у Lichess: 2D-дошка
 applyBoardLook();
 LG.addSettings(() => LG.pieceSetPicker(() => location.reload()));
 
+// Урок відкривається з дошкою вгорі — навіть якщо мапу уроків перед тим прокрутили вниз
+const toTop = () => { document.getElementById('main-wrap')!.scrollTop = 0; };
+window.addEventListener('hashchange', toTop);
+
 initModule({ pref: { coords: Coords.Inside, destination: true, is3d: false } });
+toTop();
 
 // Помилка: після показу, що сталося, рівень починається заново сам (кнопка Lichess «Ще раз» теж працює)
 let retryTimer = 0;

@@ -35,7 +35,13 @@ body.lg-game-learn { ---block-gap: 10px; ---box-padding: clamp(10px, calc(10px +
 .learn__main #promotion-choice .explanation p { margin: 4px 0; font-size: 13px; line-height: 1.3; }
 
 /* Урок: лише дошка, завдання й номери рівнів — без великого заголовка й списку всіх уроків */
-.learn--run .learn__main.main-board { margin-top: 22px; }
+.learn--run .learn__main.main-board { margin-top: 8px; }
+/* телефон: дошка й завдання під нею — на одному екрані, без прокрутки */
+@media (max-width: 799px) {
+  .learn--run .learn__main.main-board { width: min(100%, calc(100svh - var(--lg-bar-h, 38px) - 20px - 230px)); margin-left: auto; margin-right: auto; }
+  .learn--run .learn__table .lg-demo-say { min-height: 80px; }
+  .learn--run .lg-demo-btns { padding: 6px 10px; }
+}
 .learn--run .learn__table .title { display: none; }
 .learn--run .learn__side .stages > .categ { display: none; }
 @media (max-width: 799px) {
