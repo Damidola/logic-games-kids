@@ -228,6 +228,7 @@ const easyFirst = (role, list) => {
 const res = {
   m1rook: easyFirst('rook', progress(byRole('rook'), [[4, 12, 15]])),
   m1bishop: easyFirst('bishop', progress(byRole('bishop'), [[5, 12, 15]])),
+  // m1pawn далі замінює tools/build-pawnmates.mjs (король і пішаки разом, вибір перетворення)
   m1pawn: easyFirst('pawn', [...progress(under, [[3, 9, 8]]), ...progress(pawnPush, [[4, 9, 8]]), ...progress(pawnQueen, [[4, 9, 4]])].sort(easy)),
   m1queen: easyFirst('queen', progress(byRole('queen'), [[4, 12, 15]])),
   m1knight: easyFirst('knight', progress(byRole('knight'), [[5, 12, 15]])),
