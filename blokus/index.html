@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Блокус</title>
-  <link rel="stylesheet" href="../shared/kit.css?v=1790427876">
-  <link rel="stylesheet" href="../shared/play.css?v=1790427876">
+  <link rel="stylesheet" href="../shared/kit.css?v=1790430643">
+  <link rel="stylesheet" href="../shared/play.css?v=1790430643">
   <style>
     .lg-custom-view .lg-board-wrap { aspect-ratio: auto; width: min(96vw, 520px, calc((100svh - var(--lg-bar-h) - 290px) / 1.2)); }
     .bk-root { --w: #8E5CF7; --b: #FF8A1C; display: flex; flex-direction: column; gap: 4px; height: auto; touch-action: manipulation; }
@@ -43,12 +43,12 @@
 </head>
 <body>
   <main></main>
-  <script src="../shared/games.js?v=1790427876"></script>
-  <script src="../shared/kit.js?v=1790427876" data-game="blokus" data-night="on"></script>
+  <script src="../shared/games.js?v=1790430643"></script>
+  <script src="../shared/kit.js?v=1790430643" data-game="blokus" data-night="on"></script>
   <script type="module">
-    import { startGame } from '../shared/game.js?v=1790427876';
-    import { createRules } from './rules.js?v=1790427876';
-    import { blokusView } from './view.js?v=1790427876';
+    import { startGame } from '../shared/game.js?v=1790430643';
+    import { createRules } from './rules.js?v=1790430643';
+    import { blokusView } from './view.js?v=1790430643';
     startGame({ rules: createRules(), view: blokusView, sideNames: { w: '🟣 Фіолетові', b: '🟠 Помаранчеві' } });
   </script>
 </body>

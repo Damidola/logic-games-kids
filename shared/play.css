@@ -176,3 +176,9 @@ cg-board square.mark-red { background: rgba(255, 107, 107, .32); }
 @keyframes lgBubbleIn { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes lgBubbleOut { to { transform: scale(.7); opacity: 0; } }
 @media (min-width: 900px) and (min-aspect-ratio: 1/1) { .lg-bubble { max-width: 72%; font-size: 14px; } }
+
+/* Telegram на весь екран: під чорну смугу зверху й системну смугу знизу */
+html.lg.lg-tg body.lg-game {
+  padding-top: calc(var(--lg-bar-h) + 6px + var(--lg-tg-top, 0px));
+  padding-bottom: calc(10px + var(--lg-tg-bottom, 0px));
+}

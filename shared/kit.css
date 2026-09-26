@@ -304,5 +304,17 @@ html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
   html.lg .lg-controls .ico { font-size: 22px; }
 }
 
-/* Telegram у повноекранному режимі: не залазити під годинник і кнопки Telegram */
-html.lg-tg body { padding-top: var(--lg-tg-top, 0px); padding-bottom: var(--lg-tg-bottom, 0px); box-sizing: border-box; }
+/* Telegram на весь екран: чорна смуга під камеру й кнопки Telegram, гра — нижче неї.
+   Змінні --tg-*-inset-* ставить сам Telegram; поза повноекранним режимом вони 0 */
+html.lg-tg {
+  --lg-tg-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px));
+  --lg-tg-bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px));
+}
+html.lg-tg::before {
+  content: ""; position: fixed; left: 0; right: 0; top: 0; height: var(--lg-tg-top);
+  background: #000; z-index: 1500; pointer-events: none;
+}
+html.lg-tg body { padding-top: var(--lg-tg-top); padding-bottom: var(--lg-tg-bottom); box-sizing: border-box; }
+html.lg-tg body.lg-game { padding-top: calc(var(--lg-bar-h) + 16px + var(--lg-tg-top)); }
+html.lg-tg .lg-bar { top: var(--lg-tg-top); }
+html.lg-tg .lg-toasts { top: calc(var(--lg-tg-top) + var(--lg-bar-h) + 10px); }
