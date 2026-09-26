@@ -484,8 +484,8 @@
         new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         // Системна кнопка «Назад» Telegram — туди ж, куди й 🏠
         if (game) {
-          const home = document.querySelector('.lg-home');
-          tg.BackButton.onClick(() => { location.href = home ? home.href : root + 'index.html'; });
+          // адресу беремо в момент натискання: 🏠 міг з'явитися пізніше за скрипт Telegram
+          tg.BackButton.onClick(() => { const home = document.querySelector('.lg-home'); location.href = home ? home.href : root + 'index.html'; });
           tg.BackButton.show();
         } else tg.BackButton.hide();
       }
