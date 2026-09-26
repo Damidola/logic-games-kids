@@ -303,3 +303,6 @@ html.lg .lg-modal .lg-modal-settings .lg-modal-x:hover {
   html.lg .lg-controls button { height: 58px; font-size: 14px; gap: 3px; border-radius: 16px; }
   html.lg .lg-controls .ico { font-size: 22px; }
 }
+
+/* Telegram у повноекранному режимі: не залазити під годинник і кнопки Telegram */
+html.lg-tg body { padding-top: var(--lg-tg-top, 0px); padding-bottom: var(--lg-tg-bottom, 0px); box-sizing: border-box; }

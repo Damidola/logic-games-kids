@@ -471,6 +471,18 @@
       if (!tg) return;
       tg.ready();
       tg.expand();
+      // Повноекранний режим ховає годинник телефона й ставить «Close» поверх гри
+      const insets = () => {
+        const a = tg.safeAreaInset || {}, b = tg.contentSafeAreaInset || {};
+        const st = document.documentElement.style;
+        st.setProperty('--lg-tg-top', tg.isFullscreen ? ((a.top || 0) + (b.top || 0)) + 'px' : '0px');
+        st.setProperty('--lg-tg-bottom', tg.isFullscreen ? ((a.bottom || 0) + (b.bottom || 0)) + 'px' : '0px');
+      };
+      if (tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) {
+        if (tg.isFullscreen) tg.exitFullscreen();
+        ['fullscreenChanged', 'safeAreaChanged', 'contentSafeAreaChanged'].forEach(ev => tg.onEvent(ev, insets));
+        insets();
+      }
       // Інакше свайп пальцем по дошці вниз закриває застосунок
       if (tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes();
       if (tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')) {
@@ -483,7 +495,9 @@
         else paint();
         new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         // Системна кнопка «Назад» Telegram — туди ж, куди й 🏠
-        if (game) {
+        const home = new URL(root + 'index.html', location.href).pathname;
+        const here = location.pathname.replace(/\/$/, '/index.html');
+        if (here !== home) {
           // адресу беремо в момент натискання: 🏠 міг з'явитися пізніше за скрипт Telegram
           tg.BackButton.onClick(() => { const home = document.querySelector('.lg-home'); location.href = home ? home.href : root + 'index.html'; });
           tg.BackButton.show();
