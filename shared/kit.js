@@ -455,6 +455,44 @@
     draw: (msg, opts) => result('draw', msg, opts)
   };
 
+  // ---------- Telegram Mini App ----------
+  // Telegram передає tgWebAppData у # лише на першій сторінці — далі пам'ятаємо в sessionStorage
+  let inTg = /tgWebApp/.test(location.hash);
+  try {
+    inTg = inTg || !!sessionStorage.getItem('lg:tg') || !!sessionStorage.getItem('__telegram__initParams');
+    if (inTg) sessionStorage.setItem('lg:tg', '1');
+  } catch (e) { /* без сховища */ }
+  if (inTg) {
+    document.documentElement.classList.add('lg-tg');
+    const s = document.createElement('script');
+    s.src = 'https://telegram.org/js/telegram-web-app.js';
+    s.onload = () => {
+      const tg = window.Telegram && window.Telegram.WebApp;
+      if (!tg) return;
+      tg.ready();
+      tg.expand();
+      // Інакше свайп пальцем по дошці вниз закриває застосунок
+      if (tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes();
+      if (tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')) {
+        // Шапка й фон Telegram — кольору фону сторінки (враховує нічну тему)
+        const paint = () => {
+          const bg = getComputedStyle(document.documentElement).getPropertyValue('--lg-bg').trim();
+          if (/^#[0-9a-f]{6}$/i.test(bg)) { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); }
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(paint));
+        else paint();
+        new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        // Системна кнопка «Назад» Telegram — туди ж, куди й 🏠
+        if (game) {
+          const home = document.querySelector('.lg-home');
+          tg.BackButton.onClick(() => { location.href = home ? home.href : root + 'index.html'; });
+          tg.BackButton.show();
+        } else tg.BackButton.hide();
+      }
+    };
+    document.head.appendChild(s);
+  }
+
   if (!game) return; // головна сторінка використовує лише API
 
   // Дитячі ігри не повинні показувати системні alert-вікна

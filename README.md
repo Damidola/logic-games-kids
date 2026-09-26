@@ -85,6 +85,8 @@ python3 -m http.server 8000
 
 Сайт публікується на GitHub Pages автоматично при пуші в `main` (`.github/workflows/pages.yml`).
 
+Як відкрити ігри як Telegram Mini App (бот із кнопкою «Грати») — [TELEGRAM.md](TELEGRAM.md).
+
 ## Ідеї на майбутнє
 
 Турецькі шашки, доміно, рендзю, «Мисливці й вовк», дорога, Ханойські башти, нім.
