@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Блокус</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790274569">
+  <link rel="stylesheet" href="../shared/play.css?v=1790274569">
+  <style>
+    .lg-custom-view .lg-board-wrap { aspect-ratio: auto; width: min(96vw, 520px, calc((100svh - var(--lg-bar-h) - 290px) / 1.2)); }
+    .bk-root { --w: #8E5CF7; --b: #FF8A1C; display: flex; flex-direction: column; gap: 4px; height: auto; touch-action: manipulation; }
+    .bk-grid { display: grid; grid-template-columns: repeat(14, 1fr); gap: 1px; padding: 1px; aspect-ratio: 1; background: #B9B3D6; border-radius: 10px; overflow: hidden; cursor: pointer; }
+    .bk-cell { background: #F4F1FF; position: relative; }
+    .bk-cell.start::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; border: 2px solid #9a93c4; }
+    .bk-cell.w { background: var(--w); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22), inset 0 2px 0 rgba(255, 255, 255, .3); }
+    .bk-cell.b { background: var(--b); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22), inset 0 2px 0 rgba(255, 255, 255, .3); }
+    .bk-cell.last { outline: 2px solid #FFC928; outline-offset: -2px; z-index: 1; }
+    .bk-cell.anchor::after { content: ''; position: absolute; inset: 32%; border-radius: 50%; background: var(--w); opacity: .6; border: 0; }
+    .bk-cell.anchor.ab::after { background: var(--b); }
+    .bk-cell.ghost.ok { background: #2ECC71; opacity: .85; animation: bkpulse .8s ease-in-out infinite alternate; }
+    .bk-cell.ghost.bad { background: #E74C3C; opacity: .75; }
+    .bk-cell.ghost.hinted { background: #FF9F1C; }
+    .bk-cell.ghost::after { display: none; }
+    @keyframes bkpulse { to { opacity: .5; } }
+    .bk-tools { display: flex; align-items: center; gap: 8px; height: 40px; }
+    .bk-tools button { width: 44px; height: 38px; border-radius: 12px; border: 2px solid var(--lg-line); background: var(--lg-surface); color: var(--lg-ink); font: 900 22px/1 var(--lg-font); cursor: pointer; box-shadow: var(--lg-btn-shadow); }
+    .bk-tools.empty button { opacity: .35; }
+    .bk-msg { flex: 1; text-align: right; font: 800 15px var(--lg-font); color: var(--lg-ink); }
+    .bk-cur { width: 38px; height: 38px; display: grid; grid-template: repeat(5, 1fr) / repeat(5, 1fr); gap: 1px; }
+    .bk-tray { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; }
+    .bk-piece, .bk-cur { --c: var(--w); }
+    [data-side="b"] .bk-piece, [data-side="b"] .bk-cur { --c: var(--b); }
+    .bk-piece { aspect-ratio: 1; padding: 3px; display: grid; grid-template: repeat(5, 1fr) / repeat(5, 1fr); gap: 1px; background: var(--lg-surface); border: 2px solid transparent; border-radius: 8px; cursor: pointer; }
+    .bk-piece[hidden] { visibility: hidden; display: grid; }
+    .bk-piece.on { border-color: var(--lg-sun); background: var(--lg-surface-2); }
+    .bk-piece.stuck { opacity: .35; }
+    .bk-piece i, .bk-cur i { background: var(--c); border-radius: 2px; }
+    .lg-material .bk-sc { display: flex; align-items: center; gap: 6px; font-size: 17px; }
+    .lg-material .bk-sc i { width: 18px; height: 18px; border-radius: 4px; background: #8E5CF7; }
+    .lg-material .bk-sc.b i { background: #FF8A1C; }
+    @media (min-width: 900px) and (min-aspect-ratio: 1/1) { html.lg .lg-play > .lg-board-wrap { width: min(calc((var(--lg-bh) - 50px) / 1.2), var(--lg-bw)); } }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790274569"></script>
+  <script src="../shared/kit.js?v=1790274569" data-game="blokus" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790274569';
+    import { createRules } from './rules.js?v=1790274569';
+    import { blokusView } from './view.js?v=1790274569';
+    startGame({ rules: createRules(), view: blokusView, sideNames: { w: '🟣 Фіолетові', b: '🟠 Помаранчеві' } });
+  </script>
+</body>
+</html>

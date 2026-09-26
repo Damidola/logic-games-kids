@@ -153,7 +153,7 @@
     // Шахи — окремою великою карткою (усе шахове зібрано у «Шляху новачка»); тут — інші логічні ігри
     try { sessionStorage.removeItem('lg:back'); } catch (e) { /* без сховища */ }
     const IN_PATH = ['path', 'chess', 'mate', 'learn', 'pawns', 'wolfs', 'knight', 'queens'];
-    const ORDER = ['footprints', 'chushki', 'checkers', 'turkish', 'towers', 'corners', 'reversi', 'quoridor', 'dots', 'connect4', 'salamandra', 'nim', 'hanoi', 'sudoku', 'ttt', 'rider'];
+    const ORDER = ['footprints', 'chushki', 'checkers', 'turkish', 'towers', 'corners', 'reversi', 'quoridor', 'blokus', 'dots', 'connect4', 'salamandra', 'nim', 'hanoi', 'sudoku', 'ttt', 'rider'];
     const list = ORDER.map(id => games.find(g => g.id === id)).filter(Boolean)
       .concat(games.filter(g => !ORDER.includes(g.id) && !IN_PATH.includes(g.id)));
 
