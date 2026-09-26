@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Уно</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790427876">
+  <link rel="stylesheet" href="../shared/play.css?v=1790427876">
+  <style>
+    .lg-custom-view .lg-board-wrap { width: min(96vw, 560px); aspect-ratio: auto; height: calc(100svh - var(--lg-bar-h) - 16px - 44px - 90px - 70px); max-height: 640px; }
+    .un-root { --cw: min(13vw, 64px); position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; touch-action: manipulation; }
+    .un-opp { display: flex; justify-content: center; flex-wrap: wrap; row-gap: 4px; padding-left: 14px; min-height: 40px; }
+    .un-opp .un-card { --cw: min(8vw, 34px); margin-left: -14px; }
+    .un-table { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 18px; border-radius: 22px; background: radial-gradient(circle, #2FA36B, #1D7A4E); box-shadow: inset 0 0 0 4px rgba(0, 0, 0, .15); }
+    .un-card { --c: #333; position: relative; flex: none; width: var(--cw); aspect-ratio: 2 / 3; border-radius: calc(var(--cw) * .14); background: var(--c); border: calc(var(--cw) * .06) solid #fff; box-sizing: border-box; box-shadow: 0 3px 6px rgba(0, 0, 0, .35); color: #fff; font-family: var(--lg-font); overflow: hidden; }
+    .un-card.r { --c: #E53935; } .un-card.g { --c: #2EAD5B; } .un-card.b { --c: #1E88E5; } .un-card.y { --c: #F9B800; } .un-card.k { --c: #1d1b30; }
+    .un-oval { position: absolute; inset: 14% 8%; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--c); transform: rotate(-24deg); font: 900 calc(var(--cw) * .42)/1 var(--lg-font); }
+    .un-card.k .un-oval { background: conic-gradient(#E53935 0 25%, #1E88E5 0 50%, #F9B800 0 75%, #2EAD5B 0); color: #fff; text-shadow: 0 1px 3px #000; font-size: calc(var(--cw) * .36); }
+    .un-corner { position: absolute; top: 3%; left: 8%; font: 900 calc(var(--cw) * .2)/1 var(--lg-font); }
+    .un-card.back { background: #1d1b30; }
+    .un-card.back::after { content: 'UNO'; position: absolute; inset: 20% 6%; display: grid; place-items: center; border-radius: 50%; background: #E53935; color: #F9B800; font: 900 calc(var(--cw) * .26)/1 var(--lg-font); transform: rotate(-24deg); }
+    .un-table .un-card { --cw: min(20vw, 96px); }
+    .un-top { animation: unin .25s ease-out; }
+    @keyframes unin { from { transform: scale(.6) rotate(-12deg); } }
+    .un-deck { position: relative; width: min(20vw, 96px); aspect-ratio: 2 / 3; border-radius: 12px; border: 5px solid #fff; background: #1d1b30; box-shadow: 4px 4px 0 #0e0d18, 8px 8px 0 rgba(0, 0, 0, .25); cursor: pointer; padding: 0; }
+    .un-deck span { color: #fff; font: 900 15px var(--lg-font); opacity: .4; }
+    .un-deck.go { animation: unpulse .8s ease-in-out infinite alternate; }
+    .un-deck.go span { opacity: 1; }
+    @keyframes unpulse { to { transform: scale(1.07); box-shadow: 0 0 0 4px #FFC928, 8px 8px 0 rgba(0, 0, 0, .25); } }
+    .un-color { width: 34px; height: 34px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); }
+    .un-color.r { background: #E53935; } .un-color.g { background: #2EAD5B; } .un-color.b { background: #1E88E5; } .un-color.y { background: #F9B800; }
+    .un-msg { min-height: 22px; font: 800 15px var(--lg-font); color: var(--lg-ink); text-align: center; }
+    .un-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-width: 100%; }
+    .un-hand .un-card { cursor: pointer; transition: transform .12s; }
+    .un-hand .un-card.ok { transform: translateY(-6px); box-shadow: 0 0 0 3px #FFC928, 0 6px 10px rgba(0, 0, 0, .35); }
+    .un-hand .un-card.no { filter: brightness(.6) saturate(.6); }
+    .un-hand .un-card.hinted, .un-deck.hinted { animation: unglow 1s ease-in-out 3; }
+    @keyframes unglow { 50% { box-shadow: 0 0 0 6px #FF9F1C, 0 0 18px 6px #FF9F1C; } }
+    .un-pickcolor { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 20; padding: 12px 16px; border-radius: 20px; background: var(--lg-surface); border: 3px solid var(--lg-line); box-shadow: 0 10px 30px rgba(0, 0, 0, .4); text-align: center; }
+    .un-pickcolor[hidden] { display: none; }
+    .un-pickcolor p { margin: 0 0 8px; font: 900 18px var(--lg-font); color: var(--lg-ink); }
+    .un-pickcolor div { display: grid; grid-template-columns: repeat(4, 56px); gap: 8px; }
+    .un-col { width: 56px; height: 56px; border-radius: 50%; border: 4px solid #fff; cursor: pointer; box-shadow: 0 3px 6px rgba(0, 0, 0, .3); }
+    .un-col.r { background: #E53935; } .un-col.g { background: #2EAD5B; } .un-col.b { background: #1E88E5; } .un-col.y { background: #F9B800; }
+    .lg-material .un-sc { font-size: 17px; } .lg-material .un-sc b { color: #E53935; margin-left: 6px; }
+    @media (min-width: 900px) and (min-aspect-ratio: 1/1) { html.lg .lg-play > .lg-board-wrap { width: min(var(--lg-bh), var(--lg-bw)); height: var(--lg-bh); max-height: none; } .un-root { --cw: 70px; } }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790427876"></script>
+  <script src="../shared/kit.js?v=1790427876" data-game="uno" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790427876';
+    import { createRules } from './rules.js?v=1790427876';
+    import { unoView } from './view.js?v=1790427876';
+    startGame({ rules: createRules(), view: unoView, sideNames: { w: '1️⃣ Перший', b: '2️⃣ Другий' } });
+  </script>
+</body>
+</html>

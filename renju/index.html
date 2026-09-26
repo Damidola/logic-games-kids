@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рендзю</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790427876">
+  <link rel="stylesheet" href="../shared/play.css?v=1790427876">
+  <style>
+    .lg-custom-view .lg-board-wrap { width: min(96vw, 560px, calc(100svh - var(--lg-bar-h) - 16px - 150px - 100px)); }
+    .rj-board { --n: 15; position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr);
+      aspect-ratio: 1; border-radius: 12px; background: linear-gradient(135deg, #E9C27D, #D9A95B); box-shadow: inset 0 0 0 3px rgba(120, 72, 20, .35); touch-action: manipulation; }
+    .rj-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .rj-lines line { stroke: #6B4520; stroke-width: 0.04; }
+    .rj-lines circle { fill: #6B4520; }
+    .rj-pt { position: relative; z-index: 1; border: 0; padding: 0; margin: 0; min-width: 0; min-height: 0; background: none; border-radius: 50%; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .rj-board.mine .rj-pt:not(.w):not(.b):active { background: rgba(0, 0, 0, .18); }
+    .rj-pt.w, .rj-pt.b { margin: 6%; box-shadow: 0 2px 3px rgba(0, 0, 0, .45); animation: rjput .18s ease-out; }
+    .rj-pt.w { background: radial-gradient(circle at 35% 30%, #6b6b6b, #111 60%); }
+    .rj-pt.b { background: radial-gradient(circle at 35% 30%, #fff, #d9d9d9 70%); }
+    .rj-pt.last::after { content: ''; position: absolute; inset: 36%; border-radius: 50%; background: #E53935; }
+    .rj-pt.win { box-shadow: 0 0 0 3px #FFC928, 0 0 12px 3px rgba(255, 201, 40, .9); }
+    .rj-pt.hinted { background: rgba(255, 159, 28, .75); animation: rjglow 1s ease-in-out 3; }
+    @keyframes rjglow { 50% { background: rgba(255, 159, 28, .2); } }
+    @keyframes rjput { from { transform: scale(.4); } }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790427876"></script>
+  <script src="../shared/kit.js?v=1790427876" data-game="renju" data-night="on"></script>
+  <script type="module">
+    import { startGame, choice } from '../shared/game.js?v=1790427876';
+    import { createRules } from './rules.js?v=1790427876';
+    import { renjuView } from './view.js?v=1790427876';
+    const size = () => LG.store.get('renju:size', '10');
+    let game;
+    game = startGame({
+      rules: createRules({ size }), view: renjuView,
+      sideNames: { w: '⚫ Чорні', b: '⚪ Білі' },
+      quick: { key: 'renju:size', def: '10', options: [['8', '8×8'], ['10', '10×10'], ['15', '15×15']] },
+      extraSettings: choice('Поле', 'renju:size', '10', [['8', '8×8'], ['10', '10×10'], ['15', '15×15 · справжнє рендзю']], () => game.newGame())
+    });
+  </script>
+</body>
+</html>

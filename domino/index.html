@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Доміно</title>
+  <link rel="stylesheet" href="../shared/kit.css?v=1790427876">
+  <link rel="stylesheet" href="../shared/play.css?v=1790427876">
+  <style>
+    .lg-custom-view .lg-board-wrap { width: min(96vw, 560px); aspect-ratio: auto; height: calc(100svh - var(--lg-bar-h) - 16px - 44px - 90px - 70px); max-height: 640px; }
+    .dm-root { --t: min(6.6vw, 34px); height: 100%; display: flex; flex-direction: column; gap: 6px; touch-action: manipulation; }
+    .dm-opp { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; min-height: calc(var(--t) * .9); }
+    .dm-opp .dm-tile { --t: min(4vw, 20px); }
+    .dm-table { flex: 1; min-height: 0; overflow: auto; display: flex; border-radius: 18px; background: #2E8B57; box-shadow: inset 0 0 0 4px rgba(0, 0, 0, .15); }
+    .dm-chain { margin: auto; padding: 10px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 3px; }
+    .dm-empty { color: #fff; font: 800 17px var(--lg-font); }
+    .dm-tile { --u: var(--t); display: grid; flex: none; background: #FFFDF6; border-radius: calc(var(--u) * .16); box-shadow: 0 2px 0 #bcb29a, 0 3px 5px rgba(0, 0, 0, .3); overflow: hidden; }
+    .dm-tile.v { width: var(--u); height: calc(var(--u) * 2); grid-template-rows: 1fr 1fr; }
+    .dm-tile.h { width: calc(var(--u) * 2); height: var(--u); grid-template-columns: 1fr 1fr; }
+    .dm-chain .dm-tile { --u: min(5.2vw, 28px); }
+    .dm-half { display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 14%; gap: 6%; }
+    .dm-tile.v .dm-half + .dm-half { border-top: 1.5px solid #c9bfa6; }
+    .dm-tile.h .dm-half + .dm-half { border-left: 1.5px solid #c9bfa6; }
+    .dm-half i { border-radius: 50%; background: #1d1b30; }
+    .dm-tile.back { background: linear-gradient(135deg, #6C5CE7, #4B3FC0); box-shadow: 0 2px 0 #3a2f99; }
+    .dm-tile.new { box-shadow: 0 0 0 3px #FFC928, 0 3px 5px rgba(0, 0, 0, .3); }
+    .dm-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; min-height: calc(var(--t) * 2); }
+    .dm-hand .dm-tile { cursor: pointer; transition: transform .12s; }
+    .dm-hand .dm-tile.ok { box-shadow: 0 0 0 3px #2ECC71, 0 3px 5px rgba(0, 0, 0, .3); }
+    .dm-hand .dm-tile.no { opacity: .55; }
+    .dm-hand .dm-tile.on { transform: translateY(-10px); }
+    .dm-hand .dm-tile.hinted, .dm-draw.hinted { animation: dmglow 1s ease-in-out 3; }
+    @keyframes dmglow { 50% { box-shadow: 0 0 0 5px #FF9F1C, 0 0 16px 4px #FF9F1C; } }
+    .dm-slot { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #fff; background: #FF9F1C; color: #fff; font: 900 18px/1 var(--lg-font); cursor: pointer; animation: dmpulse .7s ease-in-out infinite alternate; }
+    @keyframes dmpulse { to { transform: scale(1.15); } }
+    .dm-bar { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 40px; }
+    .dm-draw { padding: 8px 16px; border-radius: 14px; border: 2px solid #22A77C; background: var(--lg-mint); color: #fff; font: 900 16px var(--lg-font); cursor: pointer; box-shadow: var(--lg-btn-shadow); }
+    .dm-draw[hidden] { display: none; }
+    .dm-yard { font: 800 14px var(--lg-font); color: var(--lg-muted); }
+    .lg-material .dm-sc { font-size: 17px; }
+    @media (min-width: 900px) and (min-aspect-ratio: 1/1) { html.lg .lg-play > .lg-board-wrap { width: min(var(--lg-bh), var(--lg-bw)); height: var(--lg-bh); max-height: none; } .dm-root { --t: 40px; } .dm-chain .dm-tile { --u: 32px; } }
+  </style>
+</head>
+<body>
+  <main></main>
+  <script src="../shared/games.js?v=1790427876"></script>
+  <script src="../shared/kit.js?v=1790427876" data-game="domino" data-night="on"></script>
+  <script type="module">
+    import { startGame } from '../shared/game.js?v=1790427876';
+    import { createRules } from './rules.js?v=1790427876';
+    import { dominoView } from './view.js?v=1790427876';
+    startGame({ rules: createRules(), view: dominoView, sideNames: { w: '1️⃣ Перший', b: '2️⃣ Другий' } });
+  </script>
+</body>
+</html>
