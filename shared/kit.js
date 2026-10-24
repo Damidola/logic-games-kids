@@ -68,6 +68,8 @@
   let silentDone = false;
   const SILENT = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
   const unlock = () => {
+    musicUnlocked = true;
+    syncMusic();
     if (!silentDone) { silentDone = true; try { const a = new Audio(SILENT); a.play().catch(() => {}); } catch (e) { /* немає */ } }
     if (audioCtx && audioCtx.state === 'running') return;
     try { const c = ctx(), b = c.createBufferSource(); b.buffer = c.createBuffer(1, 1, 22050); b.connect(c.destination); b.start(0); } catch (e) { /* без звуку */ }
@@ -111,6 +113,51 @@
       SOUNDS[name]();
     } catch (e) { /* без звуку */ }
   }
+
+  // ---------- тиха фонова музика, спільна для всіх ігор ----------
+  // Той самий розблокований Web Audio, що й ефекти: працює після першого
+  // дотику на iPhone. Один зациклений буфер, без таймерів і накладання треків.
+  let musicUnlocked = false, musicSource = null, musicGain = null, musicLoading = false;
+  let musicOffset = 0, musicStartedAt = 0;
+  const wantsMusic = () => game && musicUnlocked && LG.music && !LG.muted && LG.volume > 0 && !document.hidden;
+  function stopMusic() {
+    if (!musicSource) return;
+    musicOffset = (musicOffset + audioCtx.currentTime - musicStartedAt) % musicSource.buffer.duration;
+    musicSource.stop();
+    musicSource.disconnect();
+    musicGain.disconnect();
+    musicSource = musicGain = null;
+  }
+  function syncMusic() {
+    if (!wantsMusic()) { stopMusic(); return; }
+    if (musicSource) {
+      const now = audioCtx.currentTime, value = musicGain.gain.value;
+      musicGain.gain.cancelScheduledValues(now);
+      musicGain.gain.setValueAtTime(value, now);
+      musicGain.gain.setTargetAtTime(LG.volume * 0.22, now, 0.05);
+      return;
+    }
+    if (musicLoading) return;
+    musicLoading = true;
+    load(root + 'shared/sounds/background.mp3').then(track => {
+      musicLoading = false;
+      // Налаштування або видимість могли змінитися за час завантаження.
+      if (!track || !wantsMusic()) return;
+      const c = ctx();
+      musicSource = c.createBufferSource();
+      musicGain = c.createGain();
+      musicSource.buffer = track.buf;
+      musicSource.loop = true;
+      musicGain.gain.setValueAtTime(0, c.currentTime);
+      musicGain.gain.linearRampToValueAtTime(LG.volume * 0.22, c.currentTime + 0.4);
+      musicSource.connect(musicGain).connect(c.destination);
+      musicStartedAt = c.currentTime;
+      musicSource.start(0, musicOffset % track.buf.duration);
+    }).catch(() => { musicLoading = false; stopMusic(); });
+  }
+  ['lg:music', 'lg:mute', 'lg:volume', 'visibilitychange'].forEach(t => document.addEventListener(t, syncMusic));
+  window.addEventListener('pagehide', stopMusic);
+  window.addEventListener('pageshow', syncMusic);
 
   // ---------- статистика ----------
   function stats() { return store.get('stats', {}); }
@@ -369,6 +416,7 @@
     }
     body.appendChild(el('div', { class: 'lg-set-group' }, [
       switchRow('🔊 Звук', !LG.muted, on => { LG.muted = !on; store.set('muted', LG.muted); document.dispatchEvent(new CustomEvent('lg:mute', { detail: LG.muted })); if (on) play('tap'); }),
+      switchRow('🎵 Фонова музика', LG.music, on => { LG.music = on; store.set('music', on); document.dispatchEvent(new CustomEvent('lg:music', { detail: on })); }),
       el('div', { class: 'lg-set-row' }, [el('span', { text: 'Гучність' }), vol])
     ]));
     body.appendChild(el('button', { class: 'lg-btn lg-btn-primary lg-btn-wide', text: 'Готово', onclick: closeModal }));
@@ -438,6 +486,7 @@
     pieceSetPicker,
     game,
     muted: store.get('muted', false),
+    music: store.get('music', true),
     volume: store.get('volume', 0.8),
     playFile,
     showSettings,
